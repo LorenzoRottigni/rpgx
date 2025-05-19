@@ -70,4 +70,8 @@ const pawn = new wasm.Pawn(
 
 const engine = new wasm.WasmEngine(map, pawn)
 
+console.log(engine.pawn_position)
 console.dir(engine)
+engine.move_to(3,3)
+console.log(engine.pawn_position)
+console.dir(Object.keys(engine))
