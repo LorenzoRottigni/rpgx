@@ -5,12 +5,13 @@ pub mod selector;
 pub mod tile;
 
 use crate::{
-    common::{coordinates::Coordinates, shape::Shape},
-    prelude::{Effect, Tile},
+    common::{coordinates::Coordinates},
+    prelude::{Tile},
 };
 
 use indexmap::IndexMap;
 use layer::{Layer, LayerType};
+
 
 #[derive(Clone)]
 pub struct Map {

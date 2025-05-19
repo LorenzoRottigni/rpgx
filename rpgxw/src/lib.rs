@@ -381,4 +381,19 @@ impl Map {
     }
 }
 
+/*
 
+#[wasm_bindgen]
+pub struct WasmEngine {
+    inner: rpgx::engine::Engine,
+}
+
+#[wasm_bindgen]
+impl WasmEngine {
+    #[wasm_bindgen(constructor)]
+    pub fn new(map: Map, pawn: Pawn) -> WasmEngine {
+        let engine = rpgx::engine::Engine::new(map, pawn);
+        WasmEngine { inner: engine }
+    }
+}
+    */

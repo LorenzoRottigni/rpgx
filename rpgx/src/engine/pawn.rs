@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use dioxus::prelude::*;
 
 /// A [`Pawn`] represents an entity or character on the map, positioned on a specific [`Tile`].
 ///
@@ -8,5 +7,5 @@ use dioxus::prelude::*;
 #[derive(Clone)]
 pub struct Pawn {
     pub tile: Tile,
-    pub texture: Asset,
+    pub texture: &'static str,
 }

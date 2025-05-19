@@ -3,7 +3,6 @@ use rpgx::{
     common::{coordinates::Coordinates, shape::Shape},
     prelude::{Effect, Engine, Layer, LayerType, Map, Mask, Pawn, Selector},
 };
-use web_sys::console;
 
 use crate::components::Engine;
 
@@ -19,6 +18,7 @@ pub fn Home() -> Element {
         let center_y = GRID_SIZE / 2;
         (x == center_x || x == center_x - 1) || (y == center_y || y == center_y - 1)
     }
+
 
     let default_layer = Layer::new(
         "base",
@@ -41,7 +41,7 @@ pub fn Home() -> Element {
             Mask {
                 name: "default_floor",
                 effect: Effect {
-                    texture: Some(asset!("/assets/rpg/spaceship_floor_1.webp")),
+                    texture: Some("https://s3.rottigni.tech/rpgx/spaceship_floor_1.webp"),
                     action: None,
                     block: false,
                     group: false,
@@ -58,7 +58,7 @@ pub fn Home() -> Element {
             Mask {
                 name: "floor_alt",
                 effect: Effect {
-                    texture: Some(asset!("/assets/rpg/spaceship_floor_2.webp")),
+                    texture: Some("https://s3.rottigni.tech/rpgx/spaceship_floor_2.webp"),
                     action: None,
                     block: false,
                     group: false,
@@ -79,7 +79,7 @@ pub fn Home() -> Element {
         vec![Mask {
             name: "logo",
             effect: Effect {
-                texture: Some(asset!("/assets/rpg/k8sville_1.webp")),
+                texture: Some("https://s3.rottigni.tech/rpgx/k8sville_1.webp"),
                 action: None,
                 block: true,
                 group: true,
@@ -99,7 +99,7 @@ pub fn Home() -> Element {
         vec![Mask {
             name: "action_test",
             effect: Effect {
-                texture: Some(asset!("/assets/rpg/portal_1.webp")),
+                texture: Some("https://s3.rottigni.tech/rpgx/portal_1.webp"),
                 action: Some(|| {
                     let nav = use_navigator();
                     nav.push("/room/3");
@@ -211,7 +211,7 @@ pub fn Home() -> Element {
             if let Some(tile) = layer.get_tile(Coordinates { x: 0, y: 0 }) {
                 let pawn = Pawn {
                     tile,
-                    texture: asset!("/assets/rpg/character_1.webp"),
+                    texture: "https://s3.rottigni.tech/rpgx/character_1.webp",
                 };
                 let engine = use_signal(|| Engine::new(map, pawn));
                 rsx! {

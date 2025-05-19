@@ -1,4 +1,3 @@
-use dioxus::prelude::*;
 
 use super::layer::BlockSelector;
 
@@ -8,7 +7,7 @@ pub struct Effect {
     /// attach an action to a [`super::tile::Tile`]
     pub action: Option<fn()>,
     /// attach a texture to a [`super::tile::Tile`]
-    pub texture: Option<Asset>,
+    pub texture: Option<&'static str>,
     /// make a [`super::tile::Tile`] entity blocking
     pub block: bool,
     /// determine if [`super::tile::Tile`] belongs to a group spanning several contingent [`super::tile::Tile`]s
