@@ -7,5 +7,5 @@ use crate::prelude::*;
 #[derive(Clone)]
 pub struct Pawn {
     pub tile: Tile,
-    pub texture: &'static str,
+    pub texture: String,
 }

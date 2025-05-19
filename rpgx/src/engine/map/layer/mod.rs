@@ -20,14 +20,14 @@ pub enum LayerType {
 /// conditional [`Tile`] modifications without altering the original [`Grid`].
 #[derive(Clone)]
 pub struct Layer {
-    pub name: &'static str,
+    pub name: String,
     pub kind: LayerType,
     pub tiles: Vec<Tile>,
     pub shape: Shape,
 }
 
 impl Layer {
-    pub fn new(name: &'static str, kind: LayerType, shape: Shape, masks: Vec<Mask>) -> Self {
+    pub fn new(name: String, kind: LayerType, shape: Shape, masks: Vec<Mask>) -> Self {
         let tiles = if kind == LayerType::Default {
             Tile::generate_default_grid(shape, Effect::default())
         } else {
@@ -46,7 +46,7 @@ impl Layer {
         self.tiles
             .iter()
             .find(|tile| tile.pointer == pointer)
-            .copied()
+            .cloned()
     }
 
     /// Retrieve a block of [`Tile`]s from within the [`Grid`]
@@ -54,7 +54,7 @@ impl Layer {
         self.shape
             .coordinates_in_range(pointer.0, pointer.1)
             .into_iter()
-            .filter_map(|coord| self.tiles.iter().find(|t| t.pointer == coord).copied())
+            .filter_map(|coord| self.tiles.iter().find(|t| t.pointer == coord).cloned())
             .collect()
     }
 

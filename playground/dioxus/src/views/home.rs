@@ -21,7 +21,7 @@ pub fn Home() -> Element {
 
 
     let default_layer = Layer::new(
-        "base",
+        "base".to_string(),
         LayerType::Default,
         Shape {
             height: GRID_SIZE,
@@ -31,7 +31,7 @@ pub fn Home() -> Element {
     );
 
     let ground_layer = Layer::new(
-        "ground",
+        "ground".to_string(),
         LayerType::Texture,
         Shape {
             width: GRID_SIZE,
@@ -39,9 +39,9 @@ pub fn Home() -> Element {
         },
         vec![
             Mask {
-                name: "default_floor",
+                name: "default_floor".to_string(),
                 effect: Effect {
-                    texture: Some("https://s3.rottigni.tech/rpgx/spaceship_floor_1.webp"),
+                    texture: Some("https://s3.rottigni.tech/rpgx/spaceship_floor_1.webp".to_string()),
                     action: None,
                     block: false,
                     group: false,
@@ -56,9 +56,9 @@ pub fn Home() -> Element {
                 )),
             },
             Mask {
-                name: "floor_alt",
+                name: "floor_alt".to_string(),
                 effect: Effect {
-                    texture: Some("https://s3.rottigni.tech/rpgx/spaceship_floor_2.webp"),
+                    texture: Some("https://s3.rottigni.tech/rpgx/spaceship_floor_2.webp".to_string()),
                     action: None,
                     block: false,
                     group: false,
@@ -70,16 +70,16 @@ pub fn Home() -> Element {
     );
 
     let building_layer = Layer::new(
-        "buildings",
+        "buildings".to_string(),
         LayerType::Block,
         Shape {
             width: GRID_SIZE,
             height: GRID_SIZE,
         },
         vec![Mask {
-            name: "logo",
+            name: "logo".to_string(),
             effect: Effect {
-                texture: Some("https://s3.rottigni.tech/rpgx/k8sville_1.webp"),
+                texture: Some("https://s3.rottigni.tech/rpgx/k8sville_1.webp".to_string()),
                 action: None,
                 block: true,
                 group: true,
@@ -90,16 +90,16 @@ pub fn Home() -> Element {
     );
 
     let action_layer = Layer::new(
-        "actions",
+        "actions".to_string(),
         LayerType::Action,
         Shape {
             width: GRID_SIZE,
             height: GRID_SIZE,
         },
         vec![Mask {
-            name: "action_test",
+            name: "action_test".to_string(),
             effect: Effect {
-                texture: Some("https://s3.rottigni.tech/rpgx/portal_1.webp"),
+                texture: Some("https://s3.rottigni.tech/rpgx/portal_1.webp".to_string()),
                 action: Some(|| {
                     let nav = use_navigator();
                     nav.push("/room/3");
@@ -139,7 +139,7 @@ pub fn Home() -> Element {
     // };
 
     let mut map = Map::new(
-        "default",
+        "default".to_string(),
         vec![
             default_layer.clone(),
             ground_layer.clone(),
@@ -150,7 +150,7 @@ pub fn Home() -> Element {
 
     map.expand_at(
         &Map::new(
-            "default",
+            "default".to_string(),
             vec![
                 default_layer.clone(),
                 ground_layer.clone(),
@@ -163,7 +163,7 @@ pub fn Home() -> Element {
 
     map.expand_at(
         &Map::new(
-            "default",
+            "default".to_string(),
             vec![
                 default_layer.clone(),
                 ground_layer.clone(),
@@ -176,7 +176,7 @@ pub fn Home() -> Element {
 
     map.expand_at(
         &Map::new(
-            "default",
+            "default".to_string(),
             vec![
                 default_layer.clone(),
                 ground_layer.clone(),
@@ -192,7 +192,7 @@ pub fn Home() -> Element {
 
     map.expand_at(
         &Map::new(
-            "default",
+            "default".to_string(),
             vec![
                 default_layer.clone(),
                 ground_layer.clone(),
@@ -211,7 +211,7 @@ pub fn Home() -> Element {
             if let Some(tile) = layer.get_tile(Coordinates { x: 0, y: 0 }) {
                 let pawn = Pawn {
                     tile,
-                    texture: "https://s3.rottigni.tech/rpgx/character_1.webp",
+                    texture: "https://s3.rottigni.tech/rpgx/character_1.webp".to_string(),
                 };
                 let engine = use_signal(|| Engine::new(map, pawn));
                 rsx! {

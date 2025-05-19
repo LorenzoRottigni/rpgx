@@ -1,9 +1,13 @@
+use std::cell::RefCell;
+
+use rpgx::common::direction::Direction;
 use wasm_bindgen::prelude::*;
-use js_sys::{Array, Reflect};
+use js_sys::{Array, Object, Promise, Reflect};
+use wasm_bindgen_futures::future_to_promise;
 
 // Coordinates
 #[wasm_bindgen]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Coordinates {
     x: i32,
     y: i32,
@@ -49,6 +53,13 @@ impl Coordinates {
     }
 }
 
+impl Coordinates {
+    fn to_native(&self) -> rpgx::common::coordinates::Coordinates {
+        rpgx::common::coordinates::Coordinates { x: self.x, y: self.y }
+    }
+}
+
+
 // Shape
 #[wasm_bindgen]
 #[derive(Clone, Debug)]
@@ -85,6 +96,13 @@ impl Shape {
     }
 }
 
+impl Shape {
+    fn to_native(&self) -> rpgx::common::shape::Shape {
+        rpgx::common::shape::Shape { width: self.width, height: self.height }
+    }
+}
+
+
 // Effect
 #[wasm_bindgen]
 #[derive(Clone, Debug)]
@@ -93,6 +111,18 @@ pub struct Effect {
     block: bool,
     group: bool,
 }
+
+impl Effect {
+    fn to_native(&self) -> rpgx::prelude::Effect {
+        rpgx::prelude::Effect {
+            texture: self.texture.clone(),
+            block: self.block,
+            group: self.group,
+            ..Default::default()
+        }
+    }
+}
+
 
 #[wasm_bindgen]
 impl Effect {
@@ -158,6 +188,11 @@ pub struct Selector {
 #[wasm_bindgen]
 impl Selector {
     #[wasm_bindgen(constructor)]
+    pub fn new_single(coord: Coordinates) -> Selector {
+        Selector { start: coord, end: coord }
+    }
+
+    #[wasm_bindgen]
     pub fn new_block(start: Coordinates, end: Coordinates) -> Selector {
         Selector { start, end }
     }
@@ -190,6 +225,17 @@ impl Selector {
         let end_js = Reflect::get(value, &JsValue::from_str("end"))?;
         let end = Coordinates::from_js_value(&end_js)?;
         Ok(Selector { start, end })
+    }
+}
+
+impl Selector {
+    fn to_native(&self) -> rpgx::engine::map::selector::Selector {
+        if self.start == self.end {
+            rpgx::engine::map::selector::Selector::Single(self.start.to_native())
+        } else {
+            rpgx::engine::map::selector::Selector::Block((self.start.to_native(), self.end.to_native()))
+        }
+        // Filter variant can't be constructed from JS currently
     }
 }
 
@@ -254,6 +300,17 @@ impl Mask {
     }
 }
 
+impl Mask {
+    fn to_native(&self) -> rpgx::prelude::Mask {
+        rpgx::prelude::Mask {
+            name: self.name.clone(),
+            effect: self.effect.to_native(),
+            selector: self.selector.to_native(),
+        }
+    }
+}
+
+
 // LayerType enum
 #[wasm_bindgen]
 #[derive(Clone, Copy, Debug)]
@@ -262,6 +319,17 @@ pub enum LayerType {
     Texture,
     Block,
     Action,
+}
+
+impl LayerType {
+    fn to_native(&self) -> rpgx::prelude::LayerType {
+        match self {
+            LayerType::Default => rpgx::prelude::LayerType::Default,
+            LayerType::Action => rpgx::prelude::LayerType::Action,
+            LayerType::Texture => rpgx::prelude::LayerType::Texture,
+            LayerType::Block => rpgx::prelude::LayerType::Block,
+        }
+    }
 }
 
 // Layer
@@ -348,6 +416,13 @@ impl Layer {
     }
 }
 
+impl Layer {
+    fn to_native(&self) -> rpgx::prelude::Layer {
+        rpgx::prelude::Layer::new(self.name.clone(), self.kind.to_native(), self.shape.to_native(), self.masks.iter().map(|m| m.to_native()).collect())
+    }
+}
+
+
 // Map
 #[wasm_bindgen]
 #[derive(Clone, Debug)]
@@ -381,19 +456,229 @@ impl Map {
     }
 }
 
-/*
+impl Map {
+    fn to_native(&self) -> rpgx::prelude::Map {
+        rpgx::prelude::Map {
+            name: self.name.clone(),
+            layers: self.layers.iter().map(|l| l.to_native()).collect(),
+        }
+    }
+}
+
+#[wasm_bindgen]
+#[derive(Clone, Debug)]
+pub struct Tile {
+    id: i32,
+    effect: Effect,
+    pointer: Coordinates,  // assuming SingleSelector is just Coordinates here; adjust if not
+    shape: Shape,
+}
+
+#[wasm_bindgen]
+impl Tile {
+    #[wasm_bindgen(constructor)]
+    pub fn new(id: i32, effect: Effect, pointer: Coordinates, shape: Shape) -> Tile {
+        Tile { id, effect, pointer, shape }
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn id(&self) -> i32 {
+        self.id
+    }
+
+    #[wasm_bindgen(setter)]
+    pub fn set_id(&mut self, id: i32) {
+        self.id = id;
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn effect(&self) -> Effect {
+        self.effect.clone()
+    }
+
+    #[wasm_bindgen(setter)]
+    pub fn set_effect(&mut self, effect: Effect) {
+        self.effect = effect;
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn pointer(&self) -> Coordinates {
+        self.pointer.clone()
+    }
+
+    #[wasm_bindgen(setter)]
+    pub fn set_pointer(&mut self, pointer: Coordinates) {
+        self.pointer = pointer;
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn shape(&self) -> Shape {
+        self.shape.clone()
+    }
+
+    #[wasm_bindgen(setter)]
+    pub fn set_shape(&mut self, shape: Shape) {
+        self.shape = shape;
+    }
+}
+
+impl Tile {
+    pub fn from_js_value(value: &JsValue) -> Result<Self, JsValue> {
+        let id = Reflect::get(value, &JsValue::from_str("id"))?
+            .as_f64()
+            .ok_or_else(|| JsValue::from_str("Tile.id must be a number"))? as i32;
+
+        let effect_js = Reflect::get(value, &JsValue::from_str("effect"))?;
+        let effect = Effect::from_js_value(&effect_js)?;
+
+        let pointer_js = Reflect::get(value, &JsValue::from_str("pointer"))?;
+        let pointer = Coordinates::from_js_value(&pointer_js)?;
+
+        let shape_js = Reflect::get(value, &JsValue::from_str("shape"))?;
+        let width = Reflect::get(&shape_js, &JsValue::from_str("width"))?
+            .as_f64()
+            .ok_or_else(|| JsValue::from_str("Shape.width must be a number"))? as i32;
+        let height = Reflect::get(&shape_js, &JsValue::from_str("height"))?
+            .as_f64()
+            .ok_or_else(|| JsValue::from_str("Shape.height must be a number"))? as i32;
+        let shape = Shape { width, height };
+
+        Ok(Tile { id, effect, pointer, shape })
+    }
+
+    pub fn to_native(&self) -> rpgx::engine::map::tile::Tile {
+        rpgx::engine::map::tile::Tile {
+            id: self.id,
+            effect: self.effect.to_native(),
+            pointer: rpgx::common::coordinates::Coordinates { x: self.pointer.x, y: self.pointer.y },  // adapt if SingleSelector is not Coordinates
+            shape: self.shape.to_native(),
+        }
+    }
+}
+
+
+// Pawn wrapper
+#[wasm_bindgen]
+#[derive(Clone, Debug)]
+pub struct Pawn {
+    tile: Tile,
+    texture: String,
+}
+
+#[wasm_bindgen]
+impl Pawn {
+    #[wasm_bindgen(constructor)]
+    pub fn new(tile: Tile, texture: String) -> Pawn {
+        Pawn { tile, texture }
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn tile(&self) -> Tile {
+        self.tile.clone()
+    }
+
+    #[wasm_bindgen(setter)]
+    pub fn set_tile(&mut self, tile: Tile) {
+        self.tile = tile;
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn texture(&self) -> String {
+        self.texture.clone()
+    }
+
+    #[wasm_bindgen(setter)]
+    pub fn set_texture(&mut self, texture: String) {
+        self.texture = texture;
+    }
+}
+
+impl Pawn {
+    fn from_js_value(value: &JsValue) -> Result<Self, JsValue> {
+        let tile_js = Reflect::get(value, &JsValue::from_str("tile"))?;
+        let tile = Tile::from_js_value(&tile_js)?;
+
+        let texture = Reflect::get(value, &JsValue::from_str("texture"))?
+            .as_string()
+            .ok_or_else(|| JsValue::from_str("Pawn.texture must be a string"))?;
+
+        Ok(Pawn { tile, texture })
+    }
+
+    fn to_native(&self) -> rpgx::prelude::Pawn {
+        rpgx::prelude::Pawn {
+            tile: self.tile.to_native(),
+            texture: self.texture.clone(),
+        }
+    }
+}
 
 #[wasm_bindgen]
 pub struct WasmEngine {
-    inner: rpgx::engine::Engine,
+    inner: RefCell<rpgx::engine::Engine>
 }
 
 #[wasm_bindgen]
 impl WasmEngine {
     #[wasm_bindgen(constructor)]
     pub fn new(map: Map, pawn: Pawn) -> WasmEngine {
-        let engine = rpgx::engine::Engine::new(map, pawn);
-        WasmEngine { inner: engine }
+        let engine = rpgx::engine::Engine::new(map.to_native(), pawn.to_native());
+        WasmEngine { inner: RefCell::new(engine) }
+    }
+
+    /// Asynchronously walk to a target position (x, y)
+   #[wasm_bindgen]
+    pub fn walk_to(&self, x: i32, y: i32) -> Promise {
+        let target = Coordinates { x, y };
+
+        let inner = self.inner.clone();  // clone RefCell (cheap, it's a pointer)
+        
+        let fut = async move {
+            // Borrow mutably inside the async block
+            let mut engine = inner.borrow_mut();
+
+            engine.walk_to(target.to_native()).await.map_err(|e| {
+                JsValue::from_str(&format!("walk_to failed: {:?}", e))
+            })?;
+
+            Ok(JsValue::undefined())
+        };
+
+        future_to_promise(fut)
+    }
+
+    /// Step in a direction (string): "Up", "Down", "Left", "Right"
+    #[wasm_bindgen]
+    pub fn step_to(&mut self, direction: String) -> Result<(), JsValue> {
+        
+        let dir = match direction.to_lowercase().as_str() {
+            "up" => Direction::Up,
+            "down" => Direction::Down,
+            "left" => Direction::Left,
+            "right" => Direction::Right,
+            _ => return Err(JsValue::from_str("Invalid direction")),
+        };
+        self.inner.borrow_mut().step_to(dir).map_err(|e| JsValue::from_str(&format!("step_to failed: {:?}", e)))
+    }
+
+    /// Move directly to coordinates (x, y)
+    #[wasm_bindgen]
+    pub fn move_to(&mut self, x: i32, y: i32) -> Result<(), JsValue> {
+        let target = Coordinates { x, y };
+        self.inner.borrow_mut().move_to(target.to_native()).map_err(|e| JsValue::from_str(&format!("move_to failed: {:?}", e)))
+    }
+
+    /// Get pawn's current position as an object { x: i32, y: i32 }
+    #[wasm_bindgen(getter)]
+    pub fn pawn_position(&self) -> JsValue {
+        let coords = &self.inner.borrow().pawn.tile.pointer;
+
+        let obj = Object::new();
+
+        // Assuming Coordinates has `x` and `y` fields (i32)
+        Reflect::set(&obj, &JsValue::from_str("x"), &JsValue::from(coords.x)).unwrap();
+        Reflect::set(&obj, &JsValue::from_str("y"), &JsValue::from(coords.y)).unwrap();
+
+        JsValue::from(obj)
     }
 }
-    */

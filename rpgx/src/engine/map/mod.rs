@@ -15,12 +15,12 @@ use layer::{Layer, LayerType};
 
 #[derive(Clone)]
 pub struct Map {
-    pub name: &'static str,
+    pub name: String,
     pub layers: Vec<Layer>
 }
 
 impl Map {
-    pub fn new(name: &'static str, layers: Vec<Layer>) -> Self {
+    pub fn new(name: String, layers: Vec<Layer>) -> Self {
         Self {
             name,
             layers
@@ -29,11 +29,11 @@ impl Map {
 
     /// Add another map's layers, offsetting them into this map's grid layout
     pub fn expand_at(&mut self, other: &Map, top_left: Coordinates) {
-        let mut layers_by_name: IndexMap<&'static str, Layer> = self
+        let mut layers_by_name: IndexMap<String, Layer> = self
             .layers
             .clone()
             .into_iter()
-            .map(|layer| (layer.name, layer))
+            .map(|layer| (layer.name.clone(), layer))
             .collect();
 
         for layer in &other.layers {
@@ -47,7 +47,7 @@ impl Map {
             }
 
             layers_by_name
-                .entry(layer.name)
+                .entry(layer.name.clone())
                 .and_modify(|existing| {
                     existing.tiles.extend(offset_layer.tiles.clone());
                     existing.shape.expand_to_include(top_left, layer.shape);

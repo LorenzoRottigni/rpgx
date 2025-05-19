@@ -14,7 +14,7 @@ use crate::{
 /// of interaction or decoration.
 #[derive(Clone)]
 pub struct Mask {
-    pub name: &'static str,
+    pub name: String,
     pub selector: Selector,
     pub effect: Effect,
 }
@@ -28,7 +28,7 @@ impl Mask {
                         id: 0,
                         pointer,
                         shape: Shape::from_square(1),
-                        effect: self.effect,
+                        effect: self.effect.clone(),
                     }]
                 } else {
                     vec![]
@@ -43,7 +43,7 @@ impl Mask {
                         id: 0,
                         pointer: coord,
                         shape: Shape::from_square(1),
-                        effect: self.effect,
+                        effect: self.effect.clone(),
                     })
                     .collect();
 
@@ -56,7 +56,7 @@ impl Mask {
                                 id: first_tile.id,
                                 pointer: top_left,
                                 shape: Shape::from_bounds(top_left, bottom_right),
-                                effect: self.effect,
+                                effect: self.effect.clone(),
                             }];
                         }
                     }
@@ -72,7 +72,7 @@ impl Mask {
                     id: 0,
                     pointer: coord,
                     shape: Shape::from_square(1),
-                    effect: self.effect,
+                    effect: self.effect.clone(),
                 })
                 .collect(),
         }

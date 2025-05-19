@@ -3553,6 +3553,7 @@ dependencies = [
  "js-sys",
  "rpgx",
  "wasm-bindgen",
+ "wasm-bindgen-futures",
 ]
 
 [[package]]

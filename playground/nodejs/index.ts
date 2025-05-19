@@ -17,7 +17,7 @@ const groundLayer = new wasm.Layer(
         new wasm.Mask(
             "default_floor",
             new wasm.Effect("texture.png", false, false),
-            new wasm.Selector(
+            wasm.Selector.new_block(
                 new wasm.Coordinates(0, 0),
                 new wasm.Coordinates(grid_size - 1, grid_size - 1),
             ),
@@ -25,7 +25,7 @@ const groundLayer = new wasm.Layer(
         new wasm.Mask(
             "floor_alt",
             new wasm.Effect("texture.png", false, false),
-            new wasm.Selector(
+            wasm.Selector.new_block(
                 new wasm.Coordinates(0, 0),
                 new wasm.Coordinates(0, grid_size - 1),
             ),
@@ -41,7 +41,7 @@ const buildingLayer = new wasm.Layer(
         new wasm.Mask(
             "default_building",
             new wasm.Effect("texture.png", true, true),
-            new wasm.Selector(
+            wasm.Selector.new_block(
                 new wasm.Coordinates(1, 6),
                 new wasm.Coordinates(4, 11),
             ),
@@ -58,4 +58,16 @@ const map = new wasm.Map(
     ]
 )
 
-console.dir(map)
+const pawn = new wasm.Pawn(
+    new wasm.Tile(
+        0,
+        new wasm.Effect(null, false, false),
+        new wasm.Coordinates(0, 0),
+        new wasm.Shape(1, 1),
+    ),
+    ""
+);
+
+const engine = new wasm.WasmEngine(map, pawn)
+
+console.dir(engine)
