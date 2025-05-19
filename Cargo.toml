@@ -1,0 +1,15 @@
+[workspace]
+resolver = "3"
+members = ["rpgx", "playground/dioxus"]
+
+[profile]
+
+[profile.wasm-dev]
+inherits = "dev"
+opt-level = 1
+
+[profile.server-dev]
+inherits = "dev"
+
+[profile.android-dev]
+inherits = "dev"

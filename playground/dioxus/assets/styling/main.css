@@ -1,0 +1,20 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100%;
+    width: 100%;
+    background-color: #424949;
+}
+
+.cluster {
+    height: 100%;
+    width: 100%;
+    padding: 100px;
+    background-color: #424949;
+}

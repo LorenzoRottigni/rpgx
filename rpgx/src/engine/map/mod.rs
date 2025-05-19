@@ -1,0 +1,101 @@
+pub mod effect;
+pub mod layer;
+pub mod routing;
+pub mod selector;
+pub mod tile;
+
+use crate::{
+    common::{coordinates::Coordinates, shape::Shape},
+    prelude::{Effect, Tile},
+};
+
+use indexmap::IndexMap;
+use layer::{Layer, LayerType};
+
+#[derive(Clone)]
+pub struct Map {
+    pub name: &'static str,
+    pub layers: Vec<Layer>,
+    pub region_count: usize,
+}
+
+impl Map {
+    pub fn new(name: &'static str, layers: Vec<Layer>) -> Self {
+        Self {
+            name,
+            layers,
+            region_count: 1,
+        }
+    }
+
+    /// Add another map's layers, offsetting them into this map's grid layout
+    pub fn expand_at(&mut self, other: &Map, top_left: Coordinates) {
+        let mut layers_by_name: IndexMap<&'static str, Layer> = self
+            .layers
+            .clone()
+            .into_iter()
+            .map(|layer| (layer.name, layer))
+            .collect();
+
+        for layer in &other.layers {
+            let mut offset_layer = layer.clone().offset_tiles(top_left);
+
+            // 🔁 Offset shrink values
+            for tile in &mut offset_layer.tiles {
+                if let Some((start, end)) = tile.effect.shrink {
+                    tile.effect.shrink = Some((start + top_left, end + top_left));
+                }
+            }
+
+            layers_by_name
+                .entry(layer.name)
+                .and_modify(|existing| {
+                    existing.tiles.extend(offset_layer.tiles.clone());
+                    existing.shape.expand_to_include(top_left, layer.shape);
+                })
+                .or_insert(offset_layer);
+        }
+
+        self.region_count += 1;
+        self.layers = layers_by_name.into_values().collect();
+    }
+
+    /// Determine if a [`Tile`] is blocked in any layer
+    pub fn is_tile_blocked(&self, target: Coordinates) -> bool {
+        self.layers
+            .iter()
+            .any(|layer| layer.is_tile_blocked(&target))
+    }
+
+    /// Get the first base layer (Default type)
+    pub fn get_base_layer(&self) -> Option<Layer> {
+        self.layers
+            .iter()
+            .find(|layer| layer.kind == LayerType::Default)
+            .cloned()
+    }
+
+    /// Get all base layers
+    pub fn get_base_layers(&self) -> Vec<Layer> {
+        self.layers
+            .iter()
+            .filter(|layer| layer.kind == LayerType::Default)
+            .cloned()
+            .collect()
+    }
+
+    /// Retrieve a [`Tile`] from the base layer using a coordinate
+    pub fn get_base_tile(&self, pointer: Coordinates) -> Option<Tile> {
+        self.get_base_layer()?.get_tile(pointer)
+    }
+
+    pub fn trigger_actions_at(&self, pointer: Coordinates) {
+        for layer in &self.layers {
+            if let Some(tile) = layer.get_tile(pointer) {
+                if let Some(action) = tile.effect.action {
+                    action();
+                }
+            }
+        }
+    }
+}
