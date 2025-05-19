@@ -16,16 +16,14 @@ use layer::{Layer, LayerType};
 #[derive(Clone)]
 pub struct Map {
     pub name: &'static str,
-    pub layers: Vec<Layer>,
-    pub region_count: usize,
+    pub layers: Vec<Layer>
 }
 
 impl Map {
     pub fn new(name: &'static str, layers: Vec<Layer>) -> Self {
         Self {
             name,
-            layers,
-            region_count: 1,
+            layers
         }
     }
 
@@ -57,7 +55,6 @@ impl Map {
                 .or_insert(offset_layer);
         }
 
-        self.region_count += 1;
         self.layers = layers_by_name.into_values().collect();
     }
 
