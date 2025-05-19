@@ -206,44 +206,6 @@ pub fn Home() -> Element {
         },
     );
 
-    // map.expand_at(
-    //     &Map::new(
-    //         "default",
-    //         vec![
-    //             default_layer.clone(),
-    //             ground_layer.clone(),
-    //             building_layer.clone(),
-    //             action_layer.clone(),
-    //         ],
-    //     ),
-    //     Direction::Down,
-    // );
-    //
-    // map.expand_at(
-    //     &Map::new(
-    //         "default",
-    //         vec![
-    //             default_layer.clone(),
-    //             ground_layer.clone(),
-    //             building_layer.clone(),
-    //             action_layer.clone(),
-    //         ],
-    //     ),
-    //     Direction::Right,
-    // );
-    // map.expand_at(
-    //     &Map::new(
-    //         "default",
-    //         vec![
-    //             default_layer.clone(),
-    //             ground_layer.clone(),
-    //             building_layer.clone(),
-    //             action_layer.clone(),
-    //         ],
-    //     ),
-    //     Direction::Down,
-    // );
-
     match map.get_base_layer() {
         Some(layer) => {
             if let Some(tile) = layer.get_tile(Coordinates { x: 0, y: 0 }) {

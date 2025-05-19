@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["rpgx", "playground/dioxus"]
+members = ["rpgx", "rpgxw", "playground/dioxus"]
 
 [profile]
 

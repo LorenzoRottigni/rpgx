@@ -3649,6 +3649,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "rpgxw"
+version = "0.1.0"
+dependencies = [
+ "js-sys",
+ "rpgx",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"

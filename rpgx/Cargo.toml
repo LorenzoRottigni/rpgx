@@ -6,6 +6,7 @@ edition = "2024"
 [lib]
 name = "rpgx"
 path = "src/lib.rs"
+crate-type = ["rlib"]
 
 [dependencies]
 anyhow = "1.0.98"
