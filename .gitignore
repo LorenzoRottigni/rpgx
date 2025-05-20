@@ -1,2 +1,6 @@
 /target
 /pkg
+/node_modules
+/wasm
+wasm
+node_modules
