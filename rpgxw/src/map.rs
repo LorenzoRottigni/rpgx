@@ -41,6 +41,15 @@ impl Map {
 }
 
 impl Map {
+    pub fn from_native(map: rpgx::prelude::Map) -> Self {
+        Map {
+            name: map.name,
+            layers: map.layers.into_iter().map(Layer::from_native).collect(),
+        }
+    }
+}
+
+impl Map {
     pub fn to_native(&self) -> rpgx::prelude::Map {
         rpgx::prelude::Map {
             name: self.name.clone(),

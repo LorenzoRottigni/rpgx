@@ -72,6 +72,14 @@ impl Mask {
 }
 
 impl Mask {
+    pub fn from_native(mask: rpgx::prelude::Mask) -> Self {
+        Mask {
+            name: mask.name,
+            effect: Effect::from_native(mask.effect),
+            selector: Selector::from_native(mask.selector),
+        }
+    }
+
     pub fn to_native(&self) -> rpgx::prelude::Mask {
         rpgx::prelude::Mask {
             name: self.name.clone(),

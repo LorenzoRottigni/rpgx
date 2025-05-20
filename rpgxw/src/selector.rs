@@ -57,6 +57,20 @@ impl Selector {
 }
 
 impl Selector {
+    pub fn from_native(selector: rpgx::engine::map::selector::Selector) -> Self {
+        match selector {
+            rpgx::engine::map::selector::Selector::Single(coord) => Selector {
+                start: Coordinates::from_native(coord),
+                end: Coordinates::from_native(coord),
+            },
+            rpgx::engine::map::selector::Selector::Block((start, end)) => Selector {
+                start: Coordinates::from_native(start),
+                end: Coordinates::from_native(end),
+            },
+            _ => panic!("Filter variant can't be constructed from JS currently"),
+        }
+    }
+
     pub fn to_native(&self) -> rpgx::engine::map::selector::Selector {
         if self.start == self.end {
             rpgx::engine::map::selector::Selector::Single(self.start.to_native())

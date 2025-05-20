@@ -51,6 +51,13 @@ impl Coordinates {
 }
 
 impl Coordinates {
+    pub fn from_native(coords: rpgx::common::coordinates::Coordinates) -> Self {
+        Coordinates {
+            x: coords.x,
+            y: coords.y,
+        }
+    }
+
     pub fn to_native(&self) -> rpgx::common::coordinates::Coordinates {
         rpgx::common::coordinates::Coordinates {
             x: self.x,

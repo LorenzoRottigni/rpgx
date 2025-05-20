@@ -96,6 +96,15 @@ impl Tile {
         })
     }
 
+    pub fn from_native(native_tile: rpgx::engine::map::tile::Tile) -> Self {
+        Tile {
+            id: native_tile.id,
+            effect: Effect::from_native(native_tile.effect),
+            pointer: Coordinates::new(native_tile.pointer.x, native_tile.pointer.y),
+            shape: Shape::new(native_tile.shape.width, native_tile.shape.height),
+        }
+    }
+
     pub fn to_native(&self) -> rpgx::engine::map::tile::Tile {
         rpgx::engine::map::tile::Tile {
             id: self.id,

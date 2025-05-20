@@ -10,6 +10,14 @@ pub struct Effect {
 }
 
 impl Effect {
+    pub fn from_native(effect: rpgx::prelude::Effect) -> Self {
+        Effect {
+            texture: effect.texture,
+            block: effect.block,
+            group: effect.group,
+        }
+    }
+
     pub fn to_native(&self) -> rpgx::prelude::Effect {
         rpgx::prelude::Effect {
             texture: self.texture.clone(),

@@ -24,6 +24,10 @@ impl WasmEngine {
         }
     }
 
+    pub fn get_map(&self) -> Map {
+        Map::from_native(self.inner.borrow().map.clone())
+    }
+
     /// Asynchronously walk to a target position (x, y)
     #[wasm_bindgen]
     pub fn walk_to(&self, x: i32, y: i32) -> Promise {
