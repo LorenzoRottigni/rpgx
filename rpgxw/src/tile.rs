@@ -116,4 +116,17 @@ impl Tile {
             shape: self.shape.to_native(),
         }
     }
+
+    pub fn to_js_value(&self) -> JsValue {
+        let obj = js_sys::Object::new();
+        // Set id
+        js_sys::Reflect::set(&obj, &JsValue::from_str("id"), &JsValue::from_f64(self.id as f64)).unwrap();
+        // Set effect
+        js_sys::Reflect::set(&obj, &JsValue::from_str("effect"), &self.effect.to_js_value()).unwrap();
+        // Set pointer
+        js_sys::Reflect::set(&obj, &JsValue::from_str("pointer"), &self.pointer.to_js_value()).unwrap();
+        // Set shape
+        js_sys::Reflect::set(&obj, &JsValue::from_str("shape"), &self.shape.to_js_value()).unwrap();
+        obj.into()
+    }
 }

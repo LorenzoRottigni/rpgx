@@ -1,3 +1,4 @@
+use js_sys::Reflect;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -41,5 +42,31 @@ impl Shape {
             width: self.width,
             height: self.height,
         }
+    }
+
+    pub fn from_native(shape: rpgx::common::shape::Shape) -> Self {
+        Shape {
+            width: shape.width,
+            height: shape.height,
+        }
+    }
+
+    pub fn from_js_value(value: &JsValue) -> Result<Self, JsValue> {
+        let width = Reflect::get(value, &JsValue::from_str("width"))?
+            .as_f64()
+            .ok_or_else(|| JsValue::from_str("Shape.width must be a number"))?
+            as i32;
+        let height = Reflect::get(value, &JsValue::from_str("height"))?
+            .as_f64()
+            .ok_or_else(|| JsValue::from_str("Shape.height must be a number"))?
+            as i32;
+        Ok(Shape { width, height })
+    }
+
+    pub fn to_js_value(&self) -> JsValue {
+        let obj = js_sys::Object::new();
+        Reflect::set(&obj, &JsValue::from_str("width"), &JsValue::from_f64(self.width as f64)).unwrap();
+        Reflect::set(&obj, &JsValue::from_str("height"), &JsValue::from_f64(self.height as f64)).unwrap();
+        obj.into()
     }
 }

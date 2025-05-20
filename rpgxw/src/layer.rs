@@ -122,19 +122,19 @@ impl Layer {
         let masks_array = masks_js
             .dyn_ref::<Array>()
             .ok_or_else(|| JsValue::from_str("Layer.masks must be an Array"))?;
-
-        let mut masks_vec = Vec::with_capacity(masks_array.length() as usize);
+        
+        let mut masks = Vec::with_capacity(masks_array.length() as usize);
         for i in 0..masks_array.length() {
             let mask_js = masks_array.get(i);
             let mask = Mask::from_js_value(&mask_js)?;
-            masks_vec.push(mask);
+            masks.push(mask);
         }
 
         let native_layer = rpgx::engine::map::layer::Layer::new(
             name.clone(),
             kind.to_native(),
             shape.to_native(),
-            masks_vec.iter().map(|m| m.to_native()).collect(),
+            masks.iter().map(|m| m.to_native()).collect(),
         );
 
         Ok(Layer::from_native(native_layer))
@@ -152,7 +152,7 @@ impl Layer {
                 rpgx::prelude::LayerType::Action => LayerType::Action,
             },
             shape: Shape::new(layer.shape.width, layer.shape.height),
-            masks: vec![], // optional: you can store the original masks here if needed
+            masks: layer.masks.into_iter().map(Mask::from_native).collect(),
             tiles: layer.tiles.into_iter().map(Tile::from_native).collect(),
         }
     }
@@ -163,6 +163,11 @@ impl Layer {
             kind: self.kind.to_native(),
             shape: self.shape.to_native(),
             tiles: self.tiles.iter().map(|t| t.to_native()).collect(),
+            masks: self
+                .masks
+                .iter()
+                .map(|m| m.to_native())
+                .collect(),
         }
     }
 }

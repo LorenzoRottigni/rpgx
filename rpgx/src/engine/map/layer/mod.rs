@@ -24,6 +24,7 @@ pub struct Layer {
     pub kind: LayerType,
     pub tiles: Vec<Tile>,
     pub shape: Shape,
+    pub masks: Vec<Mask>,
 }
 
 impl Layer {
@@ -38,6 +39,7 @@ impl Layer {
             kind,
             shape,
             tiles,
+            masks
         }
     }
 

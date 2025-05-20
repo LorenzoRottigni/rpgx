@@ -50,6 +50,20 @@ impl Pawn {
         Ok(Pawn { tile, texture })
     }
 
+    pub fn from_native(pawn: rpgx::prelude::Pawn) -> Self {
+        Pawn {
+            tile: Tile::from_native(pawn.tile),
+            texture: pawn.texture,
+        }
+    }
+
+    pub fn to_js_value(&self) -> JsValue {
+        let obj = js_sys::Object::new();
+        Reflect::set(&obj, &JsValue::from_str("tile"), &self.tile.to_js_value()).unwrap();
+        Reflect::set(&obj, &JsValue::from_str("texture"), &JsValue::from_str(&self.texture)).unwrap();
+        obj.into()
+    }
+
     pub fn to_native(&self) -> rpgx::prelude::Pawn {
         rpgx::prelude::Pawn {
             tile: self.tile.to_native(),

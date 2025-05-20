@@ -76,17 +76,37 @@ impl WasmEngine {
             .map_err(|e| JsValue::from_str(&format!("move_to failed: {:?}", e)))
     }
 
-    /// Get pawn's current position as an object { x: i32, y: i32 }
+    #[wasm_bindgen]
+    pub fn steps_to(
+        &self,
+        x: i32,
+        y: i32,
+    ) -> Result<JsValue, JsValue> {
+        let target = Coordinates::new(x, y);
+        let steps = self
+            .inner
+            .borrow()
+            .steps_to(target.to_native())
+            .map_err(|e| JsValue::from_str(&format!("steps_to failed: {:?}", e)))?;
+
+        // Convert Vec<Coordinates> to JsValue
+        let js_array = js_sys::Array::new();
+        for step in steps {
+            let obj = Object::new();
+            Reflect::set(&obj, &JsValue::from_str("x"), &JsValue::from(step.x)).unwrap();
+            Reflect::set(&obj, &JsValue::from_str("y"), &JsValue::from(step.y)).unwrap();
+            js_array.push(&obj);
+        }
+
+        Ok(js_array.into())
+    }
+
+    /// Get pawn
     #[wasm_bindgen(getter)]
-    pub fn pawn_position(&self) -> JsValue {
-        let coords = &self.inner.borrow().pawn.tile.pointer;
-
-        let obj = Object::new();
-
-        // Assuming Coordinates has `x` and `y` fields (i32)
-        Reflect::set(&obj, &JsValue::from_str("x"), &JsValue::from(coords.x)).unwrap();
-        Reflect::set(&obj, &JsValue::from_str("y"), &JsValue::from(coords.y)).unwrap();
-
-        JsValue::from(obj)
+    pub fn pawn(&self) -> Pawn {
+        let pawn = &self.inner.borrow().pawn;
+        /* Convert the native Pawn to a JsValue without using serde. tile has to respect the Tile struct and texture is a string*/
+        Pawn::from_native(pawn.clone())
+        
     }
 }

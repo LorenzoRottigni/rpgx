@@ -86,4 +86,23 @@ impl Effect {
             group,
         })
     }
+
+    pub fn to_js_value(&self) -> JsValue {
+        let obj = js_sys::Object::new();
+        let texture_jsvalue = match &self.texture {
+            Some(s) => JsValue::from_str(s),
+            None => JsValue::NULL,
+        };
+        Reflect::set(
+            &obj,
+            &JsValue::from_str("texture"),
+            &texture_jsvalue,
+        )
+        .unwrap();
+        Reflect::set(&obj, &JsValue::from_str("block"), &JsValue::from(self.block))
+            .unwrap();
+        Reflect::set(&obj, &JsValue::from_str("group"), &JsValue::from(self.group))
+            .unwrap();
+        obj.into()
+    }
 }

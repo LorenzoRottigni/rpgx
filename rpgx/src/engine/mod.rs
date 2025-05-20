@@ -58,4 +58,17 @@ impl Engine {
 
         Ok(())
     }
+
+    /// Get steps to reach the target [`Coordinates`] from the current position
+    pub fn steps_to(
+        &self,
+        target_position: Coordinates,
+    ) -> Result<Vec<Coordinates>, MoveError> {
+        let start = self.pawn.tile.pointer;
+        let path = self
+            .map
+            .find_path(&start, &target_position)
+            .ok_or(MoveError::PathNotFound)?;
+        Ok(path)
+    }
 }

@@ -82,4 +82,11 @@ impl Selector {
         }
         // Filter variant can't be constructed from JS currently
     }
+
+    pub fn to_js_value(&self) -> JsValue {
+        let obj = js_sys::Object::new();
+        Reflect::set(&obj, &JsValue::from_str("start"), &self.start.to_js_value()).unwrap();
+        Reflect::set(&obj, &JsValue::from_str("end"), &self.end.to_js_value()).unwrap();
+        obj.into()
+    }
 }
