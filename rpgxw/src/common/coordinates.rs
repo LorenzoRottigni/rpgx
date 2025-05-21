@@ -75,4 +75,31 @@ impl WasmCoordinates {
     pub fn set_y(&mut self, y: i32) {
         self.y = y;
     }
+
+    #[wasm_bindgen]
+    pub fn bounding_box(coords: &JsValue) -> Result<js_sys::Array, JsValue> {
+        let arr = js_sys::Array::from(coords);
+        let mut xs = Vec::new();
+        let mut ys = Vec::new();
+
+        for val in arr.iter() {
+            let coord = WasmCoordinates::from_js_value(&val)?;
+            xs.push(coord.x);
+            ys.push(coord.y);
+        }
+
+        let min_x = xs.iter().min().cloned().unwrap_or(0);
+        let min_y = ys.iter().min().cloned().unwrap_or(0);
+        let max_x = xs.iter().max().cloned().unwrap_or(0);
+        let max_y = ys.iter().max().cloned().unwrap_or(0);
+
+        let min_coord = WasmCoordinates::new(min_x, min_y).to_js_value();
+        let max_coord = WasmCoordinates::new(max_x, max_y).to_js_value();
+
+        let result = js_sys::Array::new();
+        result.push(&min_coord);
+        result.push(&max_coord);
+
+        Ok(result)
+    }
 }

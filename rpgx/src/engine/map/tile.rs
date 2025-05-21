@@ -1,5 +1,9 @@
 use crate::prelude::{Coordinates, Shape, Effect, SingleSelector};
 
+#[cfg(test)]
+mod tests;
+
+
 /// Represents a single tile on the grid with unique identifier, spatial information, and effects applied.
 #[derive(Clone, Copy, Debug)]
 pub struct Tile {

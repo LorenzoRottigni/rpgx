@@ -66,7 +66,7 @@ impl Layer {
         for tile in &mut self.tiles {
             tile.offset(delta);
         }
-        self.shape.width += delta.x; // optionally adjust shape here
+        self.shape.width += delta.x;
         self.shape.height += delta.y;
         self
     }

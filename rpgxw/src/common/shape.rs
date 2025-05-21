@@ -1,5 +1,8 @@
 use js_sys::Reflect;
+use rpgx::prelude::Coordinates;
 use wasm_bindgen::prelude::*;
+
+use crate::prelude::WasmCoordinates;
 
 #[wasm_bindgen]
 #[derive(Clone, Debug)]
@@ -73,6 +76,36 @@ impl WasmShape {
     #[wasm_bindgen(setter)]
     pub fn set_height(&mut self, height: i32) {
         self.height = height;
+    }
+
+    #[wasm_bindgen]
+    pub fn in_bounds(&self, coordinates: &WasmCoordinates) -> bool {
+        coordinates.x() >= 0 && coordinates.x() < self.width && coordinates.y() >= 0 && coordinates.y() < self.height
+    }
+
+    #[wasm_bindgen]
+    pub fn coordinates_in_range(&self, start: WasmCoordinates, end: WasmCoordinates) -> Vec<WasmCoordinates> {
+        let start_x = start.x().max(0);
+        let start_y = start.y().max(0);
+        let end_x = end.x().min(self.width - 1);
+        let end_y = end.y().min(self.height - 1);
+
+        let mut coords = Vec::new();
+        for y in start_y..=end_y {
+            for x in start_x..=end_x {
+                coords.push(WasmCoordinates::new(x, y));
+            }
+        }
+        coords
+    }
+
+    pub fn expand_to_include(&mut self, other: &Self) {
+        if other.width > self.width {
+            self.width = other.width;
+        }
+        if other.height > self.height {
+            self.height = other.height;
+        }
     }
 }
 

@@ -3,8 +3,8 @@ use std::cell::RefCell;
 pub mod map;
 pub mod pawn;
 
-use js_sys::{Object, Promise, Reflect};
-use rpgx::{common::direction::Direction, prelude::Coordinates};
+use js_sys::{Promise};
+use rpgx::{common::direction::Direction};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::future_to_promise;
 

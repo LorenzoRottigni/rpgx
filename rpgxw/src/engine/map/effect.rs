@@ -1,5 +1,8 @@
 use js_sys::Reflect;
+use rpgx::prelude::Selector;
 use wasm_bindgen::prelude::*;
+
+use crate::prelude::WasmSelector;
 
 /// Visual and interactive properties applied to a [`super::tile::Tile`] or an UI element
 #[wasm_bindgen]
@@ -9,6 +12,7 @@ pub struct WasmEffect {
     action_id: Option<i32>,
     block: bool,
     group: bool,
+    shrink: Option<WasmSelector>
 }
 
 impl WasmEffect {
@@ -19,6 +23,7 @@ impl WasmEffect {
             action_id: effect.action_id,
             block: effect.block,
             group: effect.group,
+            shrink: effect.shrink.map(|s| WasmSelector::from_native(Selector::Block(s))),
         }
     }
 
@@ -47,12 +52,19 @@ impl WasmEffect {
         let group = Reflect::get(value, &JsValue::from_str("group"))?
             .as_bool()
             .ok_or_else(|| JsValue::from_str("Effect.group must be a bool"))?;
+        let shrink_js = Reflect::get(value, &JsValue::from_str("shrink"))?;
+        let shrink = if shrink_js.is_null() {
+            None
+        } else {
+            Some(WasmSelector::from_js_value(&shrink_js)?)
+        };
 
         Ok(Self {
             texture_id,
             action_id,
             block,
             group,
+            shrink,
         })
     }
 
@@ -90,12 +102,13 @@ impl WasmEffect {
 #[wasm_bindgen]
 impl WasmEffect {
     #[wasm_bindgen(constructor)]
-    pub fn new(texture_id: Option<i32>, action_id: Option<i32>, block: bool, group: bool) -> Self {
+    pub fn new(texture_id: Option<i32>, action_id: Option<i32>, block: bool, group: bool, shrink: Option<WasmSelector> ) -> Self {
         Self {
             texture_id,
             action_id,
             block,
             group,
+            shrink
         }
     }
 
@@ -137,5 +150,15 @@ impl WasmEffect {
     #[wasm_bindgen(setter)]
     pub fn set_group(&mut self, group: bool) {
         self.group = group;
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn shrink(&self) -> Option<WasmSelector> {
+        self.shrink.clone()
+    }
+
+    #[wasm_bindgen(setter)]
+    pub fn set_shrink(&mut self, shrink: Option<WasmSelector>) {
+        self.shrink = shrink;
     }
 }

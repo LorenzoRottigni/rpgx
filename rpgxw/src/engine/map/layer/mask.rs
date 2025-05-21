@@ -1,7 +1,7 @@
 use js_sys::Reflect;
 use wasm_bindgen::prelude::*;
 
-use crate::prelude::{WasmEffect, WasmSelector};
+use crate::prelude::{WasmEffect, WasmSelector, WasmShape, WasmTile};
 
 /// Represents a mask that can be applied to a tile or an UI element.
 #[wasm_bindgen]
@@ -98,6 +98,15 @@ impl WasmMask {
     #[wasm_bindgen(setter)]
     pub fn set_selector(&mut self, selector: WasmSelector) {
         self.selector = selector;
+    }
+
+    #[wasm_bindgen]
+    pub fn apply(&self, shape: WasmShape) -> Vec<WasmTile> {
+        self.to_native()
+            .apply(shape.to_native())
+            .into_iter()
+            .map(|tile| WasmTile::from_native(tile))
+            .collect()
     }
 }
 

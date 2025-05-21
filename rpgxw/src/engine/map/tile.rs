@@ -131,5 +131,43 @@ impl WasmTile {
     pub fn set_shape(&mut self, shape: WasmShape) {
         self.shape = shape;
     }
+
+    #[wasm_bindgen]
+    pub fn is_blocking_at(&self, target: WasmCoordinates) -> bool {
+        if !self.effect.block() {
+            return false;
+        }
+
+        if let Some(s) = self.effect().shrink() {
+            // Shrink is interpreted as absolute bounds
+            target.x() >= s.start().x() && target.x() <= s.end().x() && target.y() >= s.start().y() && target.y() <= s.end().y()
+        } else {
+            self.contains(target)
+        }
+    }
+
+    #[wasm_bindgen]
+    pub fn generate_default_grid(shape: WasmShape, effect: WasmEffect) -> Vec<WasmTile> {
+        let mut tiles = Vec::new();
+        for y in 0..shape.height() {
+            for x in 0..shape.width() {
+                tiles.push(WasmTile {
+                    id: x,
+                    pointer: WasmCoordinates::new(x, y),
+                    shape: WasmShape::new(1, 1),
+                    effect: effect.clone(),
+                });
+            }
+        }
+        tiles
+    }
+
+    #[wasm_bindgen]
+    pub fn contains(&self, point: WasmCoordinates) -> bool {
+        let start = self.pointer;
+        let end = WasmCoordinates::new(start.x() + self.shape.width() - 1, start.y() + self.shape.height() - 1);
+
+        point.x() >= start.x() && point.x() <= end.x() && point.y() >= start.y() && point.y() <= end.y()
+    }
 }
 

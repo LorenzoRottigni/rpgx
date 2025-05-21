@@ -97,14 +97,4 @@ impl Map {
 
         actions
     }
-
-    // pub fn trigger_actions_at(&self, pointer: Coordinates) {
-    //     for layer in &self.layers {
-    //         if let Some(tile) = layer.get_tile(pointer) {
-    //             if let Some(action) = tile.effect.action {
-    //                 action();
-    //             }
-    //         }
-    //     }
-    // }
 }

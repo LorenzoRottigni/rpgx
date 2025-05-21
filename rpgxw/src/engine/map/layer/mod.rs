@@ -198,5 +198,19 @@ impl WasmLayer {
             .find(|tile| tile.pointer() == pointer)
             .cloned()
     }
+
+    #[wasm_bindgen]
+    pub fn get_block(&self, start: WasmCoordinates, end: WasmCoordinates) -> Vec<WasmTile> {
+        self.shape
+            .coordinates_in_range(start, end)
+            .into_iter()
+            .filter_map(|coord| self.tiles.iter().find(|t| t.pointer() == coord).cloned())
+            .collect()
+    }
+
+    #[wasm_bindgen]
+    pub fn is_tile_blocked(&self, target: WasmCoordinates) -> bool {
+        self.tiles.iter().any(|tile| tile.is_blocking_at(target))
+    }
 }
 

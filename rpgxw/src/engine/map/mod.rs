@@ -1,4 +1,5 @@
 use js_sys::Array;
+use tile::WasmTile;
 use wasm_bindgen::prelude::*;
 
 pub mod selector;
@@ -92,6 +93,31 @@ impl WasmMap {
     #[wasm_bindgen(getter)]
     pub fn layers(&self) -> Vec<WasmLayer> {
         self.layers.clone()
+    }
+
+    #[wasm_bindgen]
+    pub fn expand_at(&mut self, other: &WasmMap, top_left: WasmCoordinates) {
+        let other_map = other.to_native();
+        let top_left_coords = top_left.to_native();
+        self.to_native().expand_at(&other_map, top_left_coords);
+    }
+
+    pub fn is_tile_blocked(&self, target: WasmCoordinates) -> bool {
+        let target_coords = target.to_native();
+        self.to_native().is_tile_blocked(target_coords)
+    }
+
+    pub fn get_base_layer(&self) -> Option<WasmLayer> {
+        self.to_native()
+            .get_base_layer()
+            .map(WasmLayer::from_native)
+    }
+
+    pub fn get_base_tile(&self, pointer: WasmCoordinates) -> Option<WasmTile> {
+        self.to_native()
+            .get_base_layer()
+            .and_then(|layer| layer.get_tile(pointer.to_native()))
+            .map(WasmTile::from_native)
     }
 
     /// Gets the actions at a specific pointer in the map.
