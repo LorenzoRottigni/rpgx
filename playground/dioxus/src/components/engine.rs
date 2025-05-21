@@ -3,7 +3,7 @@ use futures_util::stream::StreamExt;
 use rpgx::common::coordinates::Coordinates;
 use rpgx::common::direction::Direction;
 use rpgx::common::errors::MapError;
-use rpgx::engine::library::{self, ResourceLibrary};
+use rpgx::library::{ResourceLibrary};
 use rpgx::prelude::{Engine, LayerType, Tile};
 use web_sys::console;
 

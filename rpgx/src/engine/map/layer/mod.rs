@@ -1,8 +1,6 @@
 use mask::Mask;
 
-use crate::common::{coordinates::Coordinates, shape::Shape};
-
-pub use crate::prelude::{BlockSelector, Effect, SingleSelector, Tile};
+pub use crate::prelude::{BlockSelector, Effect, SingleSelector, Tile, Coordinates, Shape};
 
 pub mod mask;
 

@@ -1,6 +1,4 @@
-use crate::common::{coordinates::Coordinates, shape::Shape};
-
-use super::{effect::Effect, selector::SingleSelector};
+use crate::prelude::{Coordinates, Shape, Effect, SingleSelector};
 
 /// Represents a single tile on the grid with unique identifier, spatial information, and effects applied.
 #[derive(Clone, Copy, Debug)]

@@ -1,9 +1,7 @@
 pub mod map;
 pub mod pawn;
-pub mod library;
 
-use super::common::{coordinates::Coordinates, direction::Direction};
-use crate::common::errors::MoveError;
+use crate::prelude::{Coordinates, Direction, MoveError};
 use map::{tile::Tile, Map};
 use pawn::Pawn;
 

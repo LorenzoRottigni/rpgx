@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::prelude::Tile;
 
 /// A [`Pawn`] represents an entity or character on the map, positioned on a specific [`Tile`].
 ///

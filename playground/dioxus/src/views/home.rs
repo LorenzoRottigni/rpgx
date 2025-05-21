@@ -1,7 +1,7 @@
-use dioxus::{html::li, prelude::*};
+use dioxus::{prelude::*};
 use rpgx::{
     common::{coordinates::Coordinates, shape::Shape},
-    engine::library::ResourceLibrary,
+    library::ResourceLibrary,
     prelude::{Effect, Engine, Layer, LayerType, Map, Mask, Pawn, Selector},
 };
 use web_sys::console;

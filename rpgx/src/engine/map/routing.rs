@@ -1,8 +1,6 @@
 use std::collections::{BinaryHeap, HashMap};
 
-use crate::common::coordinates::Coordinates;
-
-use super::Map;
+use crate::prelude::{Coordinates,Map};
 
 #[derive(Eq, PartialEq)]
 struct Node {

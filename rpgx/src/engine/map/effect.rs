@@ -1,5 +1,5 @@
 
-use super::layer::BlockSelector;
+use crate::prelude::BlockSelector;
 
 /// Visual and interactive properties applied to a [`super::tile::Tile`] or an UI element
 #[derive(Clone, Copy, Debug, Default)]

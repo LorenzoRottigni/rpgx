@@ -19,12 +19,12 @@ pub struct ResourceLibrary {
 #[wasm_bindgen]
 impl ResourceLibrary {
     #[wasm_bindgen(constructor)]
-    pub fn new() -> ResourceLibrary {
-        ResourceLibrary {
+    pub fn new() -> Self {
+        Self {
             data: HashMap::new(),
             key_ids: HashMap::new(),
             id_keys: HashMap::new(),
-            next_id: 1, // start from 1
+            next_id: 1,
         }
     }
 
@@ -42,7 +42,7 @@ impl ResourceLibrary {
 
     pub fn insert_texture(&mut self, key: String, texture: String) {
         self.data.insert(key.clone(), Resource::Texture(texture));
-        self.get_key_id(key); // ensure ID is assigned
+        self.get_key_id(key);
     }
 
     pub fn insert_action(&mut self, key: String, action: &Function) {
@@ -52,7 +52,7 @@ impl ResourceLibrary {
         }) as Box<dyn Fn()>);
 
         self.data.insert(key.clone(), Resource::Action(closure));
-        self.get_key_id(key); // ensure ID is assigned
+        self.get_key_id(key);
     }
 
     pub fn get_texture(&self, key: String) -> Option<String> {
@@ -94,7 +94,6 @@ impl ResourceLibrary {
         }
     }
 
-    // Optional: get the key string from ID (e.g. for debugging)
     pub fn get_key_by_id(&self, id: i32) -> Option<String> {
         self.id_keys.get(&id).cloned()
     }

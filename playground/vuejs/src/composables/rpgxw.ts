@@ -34,70 +34,70 @@ export function useLibrary(): wasm.ResourceLibrary {
 export function useEngine(library: wasm.ResourceLibrary): wasm.WasmEngine {
     const grid_size = 25;
 
-    const defaultLayer = new wasm.Layer(
+    const defaultLayer = new wasm.WasmLayer(
         "base",
-        wasm.LayerType.Default,
-        new wasm.Shape(grid_size, grid_size),
+        wasm.WasmLayerType.Default,
+        new wasm.WasmShape(grid_size, grid_size),
         []
     )
 
-    const groundLayer = new wasm.Layer(
+    const groundLayer = new wasm.WasmLayer(
         "ground",
-        wasm.LayerType.Texture,
-        new wasm.Shape(grid_size, grid_size),
+        wasm.WasmLayerType.Texture,
+        new wasm.WasmShape(grid_size, grid_size),
         [
-            new wasm.Mask(
+            new wasm.WasmMask(
                 "default_floor",
-                new wasm.Effect(library.get_key_id("floor_1"), undefined, false, false),
-                wasm.Selector.new_block(
-                    new wasm.Coordinates(0, 0),
-                    new wasm.Coordinates(grid_size - 1, grid_size - 1),
+                new wasm.WasmEffect(library.get_key_id("floor_1"), undefined, false, false),
+                wasm.WasmSelector.new_block(
+                    new wasm.WasmCoordinates(0, 0),
+                    new wasm.WasmCoordinates(grid_size - 1, grid_size - 1),
                 ),
             ),
-            new wasm.Mask(
+            new wasm.WasmMask(
                 "floor_alt",
-                new wasm.Effect(library.get_key_id("floor_2"), undefined, false, false),
-                wasm.Selector.new_block(
-                    new wasm.Coordinates(0, 0),
-                    new wasm.Coordinates(0, grid_size - 1),
+                new wasm.WasmEffect(library.get_key_id("floor_2"), undefined, false, false),
+                wasm.WasmSelector.new_block(
+                    new wasm.WasmCoordinates(0, 0),
+                    new wasm.WasmCoordinates(0, grid_size - 1),
                 ),
             )
         ]
     )
 
-    const buildingLayer = new wasm.Layer(
+    const buildingLayer = new wasm.WasmLayer(
         "building",
-        wasm.LayerType.Block,
-        new wasm.Shape(grid_size, grid_size),
+        wasm.WasmLayerType.Block,
+        new wasm.WasmShape(grid_size, grid_size),
         [
-            new wasm.Mask(
+            new wasm.WasmMask(
                 "default_building",
-                new wasm.Effect(library.get_key_id("building_1"), undefined, true, true),
-                wasm.Selector.new_block(
-                    new wasm.Coordinates(1, 6),
-                    new wasm.Coordinates(4, 11),
+                new wasm.WasmEffect(library.get_key_id("building_1"), undefined, true, true),
+                wasm.WasmSelector.new_block(
+                    new wasm.WasmCoordinates(1, 6),
+                    new wasm.WasmCoordinates(4, 11),
                 ),
             ),
         ]
     )
 
-    const actionLayer = new wasm.Layer(
+    const actionLayer = new wasm.WasmLayer(
         "action",
-        wasm.LayerType.Action,
-        new wasm.Shape(grid_size, grid_size),
+        wasm.WasmLayerType.Action,
+        new wasm.WasmShape(grid_size, grid_size),
         [
-            new wasm.Mask(
+            new wasm.WasmMask(
                 "logit",
-                new wasm.Effect(library.get_key_id("floor_2"), library.get_key_id("logit"), false, false),
-                wasm.Selector.new_block(
-                    new wasm.Coordinates(10, 0),
-                    new wasm.Coordinates(11, 0),
+                new wasm.WasmEffect(library.get_key_id("floor_2"), library.get_key_id("logit"), false, false),
+                wasm.WasmSelector.new_block(
+                    new wasm.WasmCoordinates(10, 0),
+                    new wasm.WasmCoordinates(11, 0),
                 ),
             )
         ]
     )
 
-    const map = new wasm.Map(
+    const map = new wasm.WasmMap(
         "test_map",
         [
             defaultLayer,
@@ -107,12 +107,12 @@ export function useEngine(library: wasm.ResourceLibrary): wasm.WasmEngine {
         ]
     )
 
-    const pawn = new wasm.Pawn(
-        new wasm.Tile(
+    const pawn = new wasm.WasmPawn(
+        new wasm.WasmTile(
             0,
-            new wasm.Effect(undefined, undefined, false, false),
-            new wasm.Coordinates(0, 0),
-            new wasm.Shape(1, 1),
+            new wasm.WasmEffect(undefined, undefined, false, false),
+            new wasm.WasmCoordinates(0, 0),
+            new wasm.WasmShape(1, 1),
         ),
         library.get_key_id("character_1"),
     );

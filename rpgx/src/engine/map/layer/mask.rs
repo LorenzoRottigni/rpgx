@@ -1,9 +1,4 @@
-use crate::{
-        common::coordinates::Coordinates,
-        common::shape::Shape,
-        engine::map::selector::Selector,
-        prelude::{Effect, Tile},
-};
+use crate::prelude::{Coordinates, Shape, Selector, Effect, Tile};
 
 /// A [`Mask`] defines a logical area on a [`super::grid::Grid`] or [`super::layer::Layer`] where specific [`Effect`]s are applied
 /// based on a [`Selector`] pattern.

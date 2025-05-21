@@ -1,4 +1,4 @@
-use super::coordinates::Coordinates;
+use crate::prelude::Coordinates;
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub struct Shape {

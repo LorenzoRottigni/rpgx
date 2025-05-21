@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useEngine, useLibrary } from './composables/rpgxw'
-import { Layer, LayerType, Tile } from './wasm/rpgxw';
+import { WasmLayer as Layer, WasmLayerType as LayerType, WasmTile as Tile } from './wasm/rpgxw';
 
 const library = useLibrary()
 const engine = ref(useEngine(library))
 
 const updateFlag = ref(0)
 
-const map = engine.value.get_map()
+const map = engine.value.map()
 const layers = map.layers
 const squareSize = 15;
 
@@ -78,11 +78,11 @@ function onClick(tile: Tile) {
   console.log('onclick')
   updateFlag.value++
   // engine.value.move_to(tile.pointer.x, tile.pointer.y);
-  const steps = engine.value.steps_to(tile.pointer.x, tile.pointer.y);
+  const steps = engine.value.steps_to(tile.pointer);
   for (let i = 0; i < steps.length; i++) {
     const step = steps[i];
     setTimeout(() => {
-      const tile = engine.value.move_to(step.x, step.y);
+      const tile = engine.value.move_to(step);
       manageActions(tile)
       updateFlag.value++;
     }, i * 100);

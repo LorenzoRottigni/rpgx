@@ -1,4 +1,4 @@
-use crate::common::coordinates::Coordinates;
+use crate::prelude::Coordinates;
 
 /// A [`SingleSelector`] targets a single tile using its [`Coordinates`] on the grid.
 pub type SingleSelector = Coordinates;

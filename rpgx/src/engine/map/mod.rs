@@ -4,10 +4,7 @@ pub mod routing;
 pub mod selector;
 pub mod tile;
 
-use crate::{
-    common::{coordinates::Coordinates},
-    prelude::{Tile},
-};
+use crate::prelude::{Coordinates,Tile};
 
 use indexmap::IndexMap;
 use layer::{Layer, LayerType};
