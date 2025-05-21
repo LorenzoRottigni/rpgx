@@ -4,10 +4,12 @@ pub mod routing;
 pub mod selector;
 pub mod tile;
 
-use crate::prelude::{Coordinates,Tile};
+use crate::prelude::{Coordinates,Tile,Layer,LayerType};
 
 use indexmap::IndexMap;
-use layer::{Layer, LayerType};
+
+#[cfg(test)]
+mod tests;
 
 
 #[derive(Clone)]

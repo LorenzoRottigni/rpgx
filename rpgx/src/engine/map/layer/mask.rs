@@ -1,5 +1,8 @@
 use crate::prelude::{Coordinates, Shape, Selector, Effect, Tile};
 
+#[cfg(test)]
+mod tests;
+
 /// A [`Mask`] defines a logical area on a [`super::grid::Grid`] or [`super::layer::Layer`] where specific [`Effect`]s are applied
 /// based on a [`Selector`] pattern.
 ///

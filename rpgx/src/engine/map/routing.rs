@@ -2,6 +2,9 @@ use std::collections::{BinaryHeap, HashMap};
 
 use crate::prelude::{Coordinates,Map};
 
+#[cfg(test)]
+mod tests;
+
 #[derive(Eq, PartialEq)]
 struct Node {
     position: Coordinates,

@@ -1,0 +1,3 @@
+
+#[test]
+pub fn x() {}

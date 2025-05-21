@@ -4,6 +4,9 @@ pub use crate::prelude::{BlockSelector, Effect, SingleSelector, Tile, Coordinate
 
 pub mod mask;
 
+#[cfg(test)]
+mod tests;
+
 #[derive(Clone, Copy, PartialEq)]
 pub enum LayerType {
     Default,

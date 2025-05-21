@@ -1,5 +1,8 @@
 use crate::prelude::Coordinates;
 
+#[cfg(test)]
+mod tests;
+
 /// A [`SingleSelector`] targets a single tile using its [`Coordinates`] on the grid.
 pub type SingleSelector = Coordinates;
 

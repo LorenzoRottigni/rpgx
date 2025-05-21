@@ -1,8 +1,10 @@
-
 use crate::prelude::BlockSelector;
 
+#[cfg(test)]
+mod tests;
+
 /// Visual and interactive properties applied to a [`super::tile::Tile`] or an UI element
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct Effect {
     /// attach an action to a [`super::tile::Tile`]
     pub action_id: Option<i32>,

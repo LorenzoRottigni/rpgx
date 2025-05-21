@@ -129,7 +129,7 @@ pub fn Engine(props: GridProps) -> Element {
                             .tiles
                             .iter()
                             .enumerate()
-                            .map(move |(i, tile)| {
+                            .map(move |(_i, tile)| {
                                 let background = if let Some(texture_id) = tile.effect.texture_id {
                                     if let Some(asset) = props.library.read().get_texture_by_id(texture_id) {
                                         format!("background-image: url({}); background-size: cover;", asset)

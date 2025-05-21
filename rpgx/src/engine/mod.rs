@@ -1,9 +1,10 @@
 pub mod map;
 pub mod pawn;
 
-use crate::prelude::{Coordinates, Direction, MoveError};
-use map::{tile::Tile, Map};
-use pawn::Pawn;
+use crate::prelude::{Coordinates, Direction, MoveError, Tile, Map, Pawn};
+
+#[cfg(test)]
+mod tests;
 
 /// RPG engine providing [`Pawn`] movement computation across the [`Map`].
 #[derive(Clone)]
