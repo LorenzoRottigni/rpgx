@@ -4,7 +4,15 @@ use rpgx::{
     library::ResourceLibrary,
     prelude::{Effect, Engine, Layer, LayerType, Map, Mask, Pawn, Selector},
 };
-use web_sys::console;
+
+// Platform-agnostic logger
+fn log_message(message: &str) {
+    #[cfg(target_arch = "wasm32")]
+    web_sys::console::log_1(&message.into());
+
+    #[cfg(not(target_arch = "wasm32"))]
+    println!("{message}");
+}
 
 use crate::components::Engine;
 
@@ -46,8 +54,10 @@ pub fn Home() -> Element {
             "character_1",
             "https://s3.rottigni.tech/rpgx/character_1.webp".to_string(),
         );
+
+        // Platform-agnostic action
         w_library.insert_action("consolelog", || {
-            console::log_1(&"Hello from Rust!".into());
+            log_message("Hello from Rust!");
         });
     }
 
@@ -135,7 +145,7 @@ pub fn Home() -> Element {
                 texture_id: Some(w_library.get_key_id("portal_1")),
                 action_id: Some(w_library.get_key_id("consolelog")),
                 block: false,
-                group: true,
+                group: false,
                 shrink: None,
             },
             selector: Selector::Block((Coordinates { x: 2, y: 11 }, Coordinates { x: 3, y: 11 })),

@@ -3542,7 +3542,9 @@ dependencies = [
  "dioxus-logger",
  "futures-util",
  "gloo-timers",
+ "log",
  "rpgx",
+ "tokio",
  "web-sys",
 ]
 

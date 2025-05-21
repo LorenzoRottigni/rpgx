@@ -3,9 +3,10 @@ use futures_util::stream::StreamExt;
 use rpgx::common::coordinates::Coordinates;
 use rpgx::common::direction::Direction;
 use rpgx::common::errors::MapError;
-use rpgx::library::{ResourceLibrary};
+use rpgx::library::ResourceLibrary;
 use rpgx::prelude::{Engine, LayerType, Tile};
-use web_sys::console;
+
+use log::error;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct GridProps {
@@ -17,6 +18,19 @@ pub struct GridProps {
 #[derive(Clone)]
 enum Command {
     WalkTo(Coordinates),
+}
+
+// Cross-platform sleep function
+async fn sleep_ms(ms: u64) {
+    #[cfg(target_arch = "wasm32")]
+    {
+        gloo_timers::future::TimeoutFuture::new(ms as u32).await;
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
+    }
 }
 
 pub fn Engine(props: GridProps) -> Element {
@@ -35,14 +49,12 @@ pub fn Engine(props: GridProps) -> Element {
                                 .find_path(&engine.read().pawn.tile.pointer, &target);
                             match steps {
                                 None => {
-                                    console::error_1(&"Path not found".into());
-                                    return Err(Box::<dyn std::error::Error>::from(
-                                        "Path not found",
-                                    ));
+                                    error!("Path not found");
+                                    return Err("Path not found".into());
                                 }
                                 Some(steps) => {
                                     for step in steps {
-                                        gloo_timers::future::TimeoutFuture::new(100).await;
+                                        sleep_ms(100).await;
                                         engine.write().move_to(step).map_err(|e| {
                                             Box::<dyn std::error::Error>::from(format!("{:?}", e))
                                         })?;
@@ -56,7 +68,7 @@ pub fn Engine(props: GridProps) -> Element {
                 .await;
 
                 if let Err(e) = result {
-                    console::error_1(&format!("Movement error: {:?}", e).into());
+                    error!("Movement error: {:?}", e);
                 }
             }
         }
@@ -120,16 +132,14 @@ pub fn Engine(props: GridProps) -> Element {
                             .map(move |(i, tile)| {
                                 let background = if let Some(texture_id) = tile.effect.texture_id {
                                     if let Some(asset) = props.library.read().get_texture_by_id(texture_id) {
-                                        format!(
-                                            "background-image: url({}); background-size: cover;",
-                                            asset,
-                                        )
+                                        format!("background-image: url({}); background-size: cover;", asset)
                                     } else {
                                         "background-size: cover;".to_string()
                                     }
                                 } else {
                                     "background-size: cover;".to_string()
                                 };
+
                                 let x = tile.pointer.x;
                                 let y = tile.pointer.y;
                                 let base_style = format!(
@@ -146,21 +156,12 @@ pub fn Engine(props: GridProps) -> Element {
                                         cursor: pointer;",
                                     x * props.square_size,
                                     y * props.square_size,
-                                    if tile.effect.group { tile.shape.width } else { 1 }
-                                        * props.square_size,
-                                    if tile.effect.group { tile.shape.height } else { 1 }
-                                        * props.square_size,
-                                    if layer.kind == LayerType::Default {
-                                        999
-                                    } else {
-                                        5 + layer_index
-                                    },
-                                    if layer.kind == LayerType::Default {
-                                        "auto"
-                                    } else {
-                                        "none"
-                                    },
+                                    if tile.effect.group { tile.shape.width } else { 1 } * props.square_size,
+                                    if tile.effect.group { tile.shape.height } else { 1 } * props.square_size,
+                                    if layer.kind == LayerType::Default { 999 } else { 5 + layer_index },
+                                    if layer.kind == LayerType::Default { "auto" } else { "none" },
                                 );
+
                                 let onclick_handler = if layer.kind == LayerType::Default {
                                     let _tile = tile.clone();
                                     rsx! {
@@ -171,7 +172,6 @@ pub fn Engine(props: GridProps) -> Element {
                                             onclick: move |_| {
                                                 let _ = onclick(_tile);
                                             },
-                                        // "{tile.pointer.x};{tile.pointer.y};{layer_index}"
                                         }
                                     }
                                 } else {
@@ -183,6 +183,7 @@ pub fn Engine(props: GridProps) -> Element {
                                         }
                                     }
                                 };
+
                                 onclick_handler
                             })
                     })
