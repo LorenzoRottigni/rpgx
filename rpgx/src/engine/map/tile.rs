@@ -3,7 +3,7 @@ use crate::common::{coordinates::Coordinates, shape::Shape};
 use super::{effect::Effect, selector::SingleSelector};
 
 /// Represents a single tile on the grid with unique identifier, spatial information, and effects applied.
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct Tile {
     pub id: i32,
     pub effect: Effect,
@@ -43,7 +43,7 @@ impl Tile {
                     id: x,
                     pointer: Coordinates { x, y },
                     shape: Shape::from_square(1),
-                    effect: effect.clone(),
+                    effect,
                 });
             }
         }

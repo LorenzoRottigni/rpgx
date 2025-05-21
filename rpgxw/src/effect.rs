@@ -45,7 +45,7 @@ impl Effect {
 
     #[wasm_bindgen(getter)]
     pub fn texture_id(&self) -> Option<i32> {
-        self.texture_id.clone()
+        self.texture_id
     }
 
     #[wasm_bindgen(setter)]
@@ -55,7 +55,7 @@ impl Effect {
 
     #[wasm_bindgen(getter)]
     pub fn action_id(&self) -> Option<i32> {
-        self.action_id.clone()
+        self.action_id
     }
 
     #[wasm_bindgen(setter)]

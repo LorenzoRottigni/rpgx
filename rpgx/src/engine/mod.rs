@@ -57,7 +57,7 @@ impl Engine {
             .get_tile(target_position)
             .ok_or(MoveError::TileNotFound)?;
 
-        self.pawn.tile = tile.clone();
+        self.pawn.tile = tile;
 
         // Trigger actions on all layers for the tile pointer
         // self.map.trigger_actions_at(tile.pointer);

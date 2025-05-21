@@ -28,7 +28,7 @@ impl Mask {
                         id: 0,
                         pointer,
                         shape: Shape::from_square(1),
-                        effect: self.effect.clone(),
+                        effect: self.effect,
                     }]
                 } else {
                     vec![]
@@ -43,7 +43,7 @@ impl Mask {
                         id: 0,
                         pointer: coord,
                         shape: Shape::from_square(1),
-                        effect: self.effect.clone(),
+                        effect: self.effect,
                     })
                     .collect();
 
@@ -56,7 +56,7 @@ impl Mask {
                                 id: first_tile.id,
                                 pointer: top_left,
                                 shape: Shape::from_bounds(top_left, bottom_right),
-                                effect: self.effect.clone(),
+                                effect: self.effect,
                             }];
                         }
                     }
@@ -72,7 +72,7 @@ impl Mask {
                     id: 0,
                     pointer: coord,
                     shape: Shape::from_square(1),
-                    effect: self.effect.clone(),
+                    effect: self.effect,
                 })
                 .collect(),
         }

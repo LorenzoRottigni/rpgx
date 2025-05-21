@@ -2,7 +2,7 @@
 use super::layer::BlockSelector;
 
 /// Visual and interactive properties applied to a [`super::tile::Tile`] or an UI element
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default)]
 pub struct Effect {
     /// attach an action to a [`super::tile::Tile`]
     pub action_id: Option<i32>,

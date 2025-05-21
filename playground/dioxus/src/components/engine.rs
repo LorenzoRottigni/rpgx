@@ -169,7 +169,7 @@ pub fn Engine(props: GridProps) -> Element {
                                             key: {format!("layer-{}-{}", layer_index, i)},
                                             style: "{base_style}",
                                             onclick: move |_| {
-                                                let _ = onclick(_tile.clone());
+                                                let _ = onclick(_tile);
                                             },
                                         // "{tile.pointer.x};{tile.pointer.y};{layer_index}"
                                         }
