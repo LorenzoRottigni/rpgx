@@ -1,5 +1,4 @@
 use js_sys::Reflect;
-use rpgx::prelude::Coordinates;
 use wasm_bindgen::prelude::*;
 
 use crate::prelude::WasmCoordinates;
