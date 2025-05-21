@@ -87,13 +87,27 @@ impl Map {
         self.get_base_layer()?.get_tile(pointer)
     }
 
-    pub fn trigger_actions_at(&self, pointer: Coordinates) {
+    pub fn get_actions_at(&self, pointer: Coordinates) -> Vec<i32> {
+        let mut actions = vec![];
+
         for layer in &self.layers {
             if let Some(tile) = layer.get_tile(pointer) {
-                if let Some(action) = tile.effect.action {
-                    action();
+                if let Some(action) = tile.effect.action_id {
+                    actions.push(action);
                 }
             }
         }
+
+        actions
     }
+
+    // pub fn trigger_actions_at(&self, pointer: Coordinates) {
+    //     for layer in &self.layers {
+    //         if let Some(tile) = layer.get_tile(pointer) {
+    //             if let Some(action) = tile.effect.action {
+    //                 action();
+    //             }
+    //         }
+    //     }
+    // }
 }

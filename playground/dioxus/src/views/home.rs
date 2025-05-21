@@ -1,8 +1,10 @@
-use dioxus::prelude::*;
+use dioxus::{html::li, prelude::*};
 use rpgx::{
     common::{coordinates::Coordinates, shape::Shape},
+    engine::library::ResourceLibrary,
     prelude::{Effect, Engine, Layer, LayerType, Map, Mask, Pawn, Selector},
 };
+use web_sys::console;
 
 use crate::components::Engine;
 
@@ -19,6 +21,37 @@ pub fn Home() -> Element {
         (x == center_x || x == center_x - 1) || (y == center_y || y == center_y - 1)
     }
 
+    let mut library = use_signal(|| ResourceLibrary::new());
+
+    {
+        let mut w_library = library.write();
+
+        w_library.insert_texture(
+            "floor_1",
+            "https://s3.rottigni.tech/rpgx/spaceship_floor_1.webp".to_string(),
+        );
+        w_library.insert_texture(
+            "floor_2",
+            "https://s3.rottigni.tech/rpgx/spaceship_floor_2.webp".to_string(),
+        );
+        w_library.insert_texture(
+            "building_1",
+            "https://s3.rottigni.tech/rpgx/processor_8.webp".to_string(),
+        );
+        w_library.insert_texture(
+            "portal_1",
+            "https://s3.rottigni.tech/rpgx/portal_1.webp".to_string(),
+        );
+        w_library.insert_texture(
+            "character_1",
+            "https://s3.rottigni.tech/rpgx/character_1.webp".to_string(),
+        );
+        w_library.insert_action("consolelog", || {
+            console::log_1(&"Hello from Rust!".into());
+        });
+    }
+
+    let w_library = library.read();
 
     let default_layer = Layer::new(
         "base".to_string(),
@@ -41,8 +74,8 @@ pub fn Home() -> Element {
             Mask {
                 name: "default_floor".to_string(),
                 effect: Effect {
-                    texture: Some("https://s3.rottigni.tech/rpgx/spaceship_floor_1.webp".to_string()),
-                    action: None,
+                    texture_id: Some(w_library.get_key_id("floor_1")),
+                    action_id: None,
                     block: false,
                     group: false,
                     shrink: None,
@@ -58,8 +91,8 @@ pub fn Home() -> Element {
             Mask {
                 name: "floor_alt".to_string(),
                 effect: Effect {
-                    texture: Some("https://s3.rottigni.tech/rpgx/spaceship_floor_2.webp".to_string()),
-                    action: None,
+                    texture_id: Some(w_library.get_key_id("floor_2")),
+                    action_id: None,
                     block: false,
                     group: false,
                     shrink: None,
@@ -79,8 +112,8 @@ pub fn Home() -> Element {
         vec![Mask {
             name: "logo".to_string(),
             effect: Effect {
-                texture: Some("https://s3.rottigni.tech/rpgx/k8sville_1.webp".to_string()),
-                action: None,
+                texture_id: Some(w_library.get_key_id("building_1")),
+                action_id: None,
                 block: true,
                 group: true,
                 shrink: Some((Coordinates { x: 2, y: 7 }, Coordinates { x: 3, y: 10 })),
@@ -99,12 +132,8 @@ pub fn Home() -> Element {
         vec![Mask {
             name: "action_test".to_string(),
             effect: Effect {
-                texture: Some("https://s3.rottigni.tech/rpgx/portal_1.webp".to_string()),
-                action: Some(|| {
-                    let nav = use_navigator();
-                    nav.push("/room/3");
-                    // console::log_1(&"action".into());
-                }),
+                texture_id: Some(w_library.get_key_id("portal_1")),
+                action_id: Some(w_library.get_key_id("consolelog")),
                 block: false,
                 group: true,
                 shrink: None,
@@ -112,31 +141,6 @@ pub fn Home() -> Element {
             selector: Selector::Block((Coordinates { x: 2, y: 11 }, Coordinates { x: 3, y: 11 })),
         }],
     );
-
-    // let action_masks = Layer {
-    //     name: "actions".to_string(),
-    //     masks: [
-    //         Mask {
-    //             effect: engine::map::Effect {
-    //                 texture: Some(asset!("/assets/rpg/portal_1.webp")),
-    //                 block: false,
-    //                 group: false,
-    //                 action: Some(|| {
-    //                     let nav = use_navigator();
-    //                     nav.push("/room/3");
-    //                 }),
-    //             },
-    //             shrink: None,
-    //             selector: engine::map::Selector::Block((
-    //                 Coordinates {
-    //                     x: 11.0,
-    //                     y: 14.0,
-    //                 },
-    //                 Coordinates { x: 12.0, y: 14.0 }
-    //             ))
-    //         }
-    //     ].to_vec()
-    // };
 
     let mut map = Map::new(
         "default".to_string(),
@@ -211,12 +215,12 @@ pub fn Home() -> Element {
             if let Some(tile) = layer.get_tile(Coordinates { x: 0, y: 0 }) {
                 let pawn = Pawn {
                     tile,
-                    texture: "https://s3.rottigni.tech/rpgx/character_1.webp".to_string(),
+                    texture_id: w_library.get_key_id("character_1"),
                 };
                 let engine = use_signal(|| Engine::new(map, pawn));
                 rsx! {
                     div { class: "cluster",
-                        Engine { engine, square_size: SQUARE_SIZE }
+                        Engine { engine, square_size: SQUARE_SIZE, library }
                     }
                 }
             } else {
@@ -227,6 +231,6 @@ pub fn Home() -> Element {
         }
         None => rsx! {
             div { "no base layer" }
-        }, // xengine.write().move_to(Coordinates { x: (GRID_SIZE / 2) as f32, y: (GRID_SIZE / 2) as f32 });
+        },
     }
 }

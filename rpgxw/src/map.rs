@@ -1,7 +1,7 @@
 use js_sys::Array;
 use wasm_bindgen::prelude::*;
 
-use crate::layer::Layer;
+use crate::{coordinates::Coordinates, layer::Layer};
 
 #[wasm_bindgen]
 #[derive(Clone, Debug)]
@@ -38,6 +38,23 @@ impl Map {
     pub fn layers(&self) -> Vec<Layer> {
         self.layers.clone()
     }
+
+    #[wasm_bindgen]
+    pub fn get_actions_at(&self, pointer: Coordinates) -> Vec<JsValue> {
+        let mut actions_ids = Vec::new();
+        for layer in &self.layers {
+            if let Some(tile) = layer.get_tile(pointer) {
+                if let Some(action) = tile.effect().action_id() {
+                    actions_ids.push(action);
+                }
+            }
+        }
+        actions_ids
+            .into_iter()
+            .map(|id| JsValue::from_f64(id as f64))
+            .collect()
+    }
+
 }
 
 impl Map {

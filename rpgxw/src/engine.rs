@@ -8,6 +8,7 @@ use wasm_bindgen_futures::future_to_promise;
 use crate::coordinates::Coordinates;
 use crate::map::Map;
 use crate::pawn::Pawn;
+use crate::tile::Tile;
 
 #[wasm_bindgen]
 pub struct WasmEngine {
@@ -52,7 +53,7 @@ impl WasmEngine {
 
     /// Step in a direction (string): "Up", "Down", "Left", "Right"
     #[wasm_bindgen]
-    pub fn step_to(&mut self, direction: String) -> Result<(), JsValue> {
+    pub fn step_to(&mut self, direction: String) -> Result<Tile, JsValue> {
         let dir = match direction.to_lowercase().as_str() {
             "up" => Direction::Up,
             "down" => Direction::Down,
@@ -60,20 +61,23 @@ impl WasmEngine {
             "right" => Direction::Right,
             _ => return Err(JsValue::from_str("Invalid direction")),
         };
-        self.inner
+        let tile = self.inner
             .borrow_mut()
             .step_to(dir)
-            .map_err(|e| JsValue::from_str(&format!("step_to failed: {:?}", e)))
+            .map_err(|e| JsValue::from_str(&format!("step_to failed: {:?}", e)))?;
+
+        Ok(Tile::from_native(tile))
     }
 
     /// Move directly to coordinates (x, y)
     #[wasm_bindgen]
-    pub fn move_to(&mut self, x: i32, y: i32) -> Result<(), JsValue> {
+    pub fn move_to(&mut self, x: i32, y: i32) -> Result<Tile, JsValue> {
         let target = Coordinates::new(x, y);
-        self.inner
+        let tile = self.inner
             .borrow_mut()
             .move_to(target.to_native())
-            .map_err(|e| JsValue::from_str(&format!("move_to failed: {:?}", e)))
+            .map_err(|e| JsValue::from_str(&format!("move_to failed: {:?}", e)))?;
+        Ok(Tile::from_native(tile))
     }
 
     #[wasm_bindgen]
@@ -105,7 +109,6 @@ impl WasmEngine {
     #[wasm_bindgen(getter)]
     pub fn pawn(&self) -> Pawn {
         let pawn = &self.inner.borrow().pawn;
-        /* Convert the native Pawn to a JsValue without using serde. tile has to respect the Tile struct and texture is a string*/
         Pawn::from_native(pawn.clone())
         
     }

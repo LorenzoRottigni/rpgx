@@ -1,7 +1,7 @@
 use js_sys::{Array, Reflect};
 use wasm_bindgen::prelude::*;
 
-use crate::{mask::Mask, shape::Shape, tile::Tile};
+use crate::{coordinates::Coordinates, mask::Mask, shape::Shape, tile::Tile};
 
 #[wasm_bindgen]
 #[derive(Clone, Copy, Debug)]
@@ -86,6 +86,14 @@ impl Layer {
     #[wasm_bindgen(getter)]
     pub fn masks(&self) -> Vec<Mask> {
         self.masks.clone()
+    }
+
+    #[wasm_bindgen]
+    pub fn get_tile(&self, pointer: Coordinates) -> Option<Tile> {
+        self.tiles
+            .iter()
+            .find(|tile| tile.pointer() == pointer)
+            .cloned()
     }
 }
 

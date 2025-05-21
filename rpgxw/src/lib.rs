@@ -9,3 +9,4 @@ pub mod prelude;
 pub mod selector;
 pub mod shape;
 pub mod tile;
+pub mod library;

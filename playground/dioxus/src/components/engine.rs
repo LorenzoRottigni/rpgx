@@ -3,11 +3,14 @@ use futures_util::stream::StreamExt;
 use rpgx::common::coordinates::Coordinates;
 use rpgx::common::direction::Direction;
 use rpgx::common::errors::MapError;
+use rpgx::engine::library::{self, ResourceLibrary};
 use rpgx::prelude::{Engine, LayerType, Tile};
 use web_sys::console;
+
 #[derive(PartialEq, Props, Clone)]
 pub struct GridProps {
     engine: Signal<Engine>,
+    library: Signal<ResourceLibrary>,
     square_size: i32,
 }
 
@@ -82,8 +85,14 @@ pub fn Engine(props: GridProps) -> Element {
             };
 
             if let Some(d) = direction {
-                if let Err(_e) = engine.write().step_to(d) {
-                    // optionally log or handle error
+                let mut engine_w = engine.write();
+                if let Ok(tile) = engine_w.step_to(d) {
+                    let action_ids = engine_w.map.get_actions_at(tile.pointer);
+                    for action_id in action_ids {
+                        if let Some(action) = props.library.read().get_action_by_id(action_id) {
+                            action()
+                        }
+                    }
                 }
             }
         }
@@ -109,11 +118,15 @@ pub fn Engine(props: GridProps) -> Element {
                             .iter()
                             .enumerate()
                             .map(move |(i, tile)| {
-                                let background = if let Some(asset) = &tile.effect.texture {
-                                    format!(
-                                        "background-image: url({}); background-size: cover;",
-                                        asset,
-                                    )
+                                let background = if let Some(texture_id) = tile.effect.texture_id {
+                                    if let Some(asset) = props.library.read().get_texture_by_id(texture_id) {
+                                        format!(
+                                            "background-image: url({}); background-size: cover;",
+                                            asset,
+                                        )
+                                    } else {
+                                        "background-size: cover;".to_string()
+                                    }
                                 } else {
                                     "background-size: cover;".to_string()
                                 };
@@ -121,16 +134,16 @@ pub fn Engine(props: GridProps) -> Element {
                                 let y = tile.pointer.y;
                                 let base_style = format!(
                                     "{background} \
-                                                                                                                                                                                                                                                    position: absolute; \
-                                                                                                                                                                                                                                                    left: {}px; \
-                                                                                                                                                                                                                                                    top: {}px; \
-                                                                                                                                                                                                                                                    width: {}px; \
-                                                                                                                                                                                                                                                    height: {}px; \
-                                                                                                                                                                                                                                                    border: solid 1px rgba(255,255,255,0.1); \
-                                                                                                                                                                                                                                                    opacity: 0.7; \
-                                                                                                                                                                                                                                                    z-index: {}; \
-                                                                                                                                                                                                                                                    pointer-events: {}; \
-                                                                                                                                                                                                                                                    cursor: pointer;",
+                                        position: absolute; \
+                                        left: {}px; \
+                                        top: {}px; \
+                                        width: {}px; \
+                                        height: {}px; \
+                                        border: solid 1px rgba(255,255,255,0.1); \
+                                        opacity: 0.7; \
+                                        z-index: {}; \
+                                        pointer-events: {}; \
+                                        cursor: pointer;",
                                     x * props.square_size,
                                     y * props.square_size,
                                     if tile.effect.group { tile.shape.width } else { 1 }
@@ -153,7 +166,7 @@ pub fn Engine(props: GridProps) -> Element {
                                     rsx! {
                                         div {
                                             class: "base-layer-tile",
-                                            key: "layer-{layer_index}-{i}",
+                                            key: {format!("layer-{}-{}", layer_index, i)},
                                             style: "{base_style}",
                                             onclick: move |_| {
                                                 let _ = onclick(_tile.clone());
@@ -165,7 +178,7 @@ pub fn Engine(props: GridProps) -> Element {
                                     rsx! {
                                         div {
                                             class: "layer-tile",
-                                            key: "layer-{layer_index}-{i}",
+                                            key: {format!("layer-{}-{}", layer_index, i)},
                                             style: "{base_style}",
                                         }
                                     }
@@ -180,7 +193,7 @@ pub fn Engine(props: GridProps) -> Element {
                 style: "position: absolute; \
                         left: {engine.read().pawn.tile.pointer.x * props.square_size}px; \
                         top: {engine.read().pawn.tile.pointer.y * props.square_size - props.square_size}px; \
-                        background-image: url({engine.read().pawn.texture}); \
+                        background-image: url({props.library.read().get_texture_by_id(engine.read().pawn.texture_id).unwrap()}); \
                         background-size: cover; \
                         background-position: center center; \
                         z-index: 100; \

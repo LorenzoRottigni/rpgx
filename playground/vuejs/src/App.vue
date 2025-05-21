@@ -1,21 +1,16 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useLayer, useMap, useMasks, useRpgxwEngine } from './composables/rpgxw'
+import { useEngine, useLibrary } from './composables/rpgxw'
 import { Layer, LayerType, Tile } from './wasm/rpgxw';
 
-const engine = ref(useRpgxwEngine())
-const updateFlag = ref(0)
+const library = useLibrary()
+const engine = ref(useEngine(library))
 
-console.dir(engine)
+const updateFlag = ref(0)
 
 const map = engine.value.get_map()
 const layers = map.layers
 const squareSize = 15;
-
-console.dir(layers)
-console.dir(useMasks())
-console.dir(useLayer())
-console.dir(useMap())
 
 function getTileStyle(tile: Tile, layer: Layer, layerIndex: number) {
   const x = tile.pointer.x;
@@ -23,8 +18,8 @@ function getTileStyle(tile: Tile, layer: Layer, layerIndex: number) {
   const width = (tile.effect.group ? tile.shape.width : 1) * squareSize;
   const height = (tile.effect.group ? tile.shape.height : 1) * squareSize;
 
-  const backgroundImage = tile.effect.texture
-    ? `background-image: url(${tile.effect.texture});`
+  const backgroundImage = tile.effect.texture_id
+    ? `background-image: ${getTexture(tile.effect.texture_id)};`
     : ''
   const zIndex = layer.kind === LayerType.Default ? 999 : 5 + layerIndex;
   const pointerEvents = layer.kind === LayerType.Default ? 'auto' : 'none';
@@ -44,6 +39,13 @@ function getTileStyle(tile: Tile, layer: Layer, layerIndex: number) {
   `;
 }
 
+function getTexture(key: number) {
+  const texture = library.get_texture_by_id(key);
+  if (texture) {
+    return `url(${texture})`;
+  }
+  return '';
+}
 
 const pawnStyle = computed(() => {
   updateFlag.value;
@@ -51,7 +53,7 @@ const pawnStyle = computed(() => {
   const y = engine.value.pawn.tile.pointer.y;
 
   return `
-    ${engine.value.pawn.texture ? `background-image: url(${engine.value.pawn.texture});` : ''}
+    ${engine.value.pawn.texture_id ? `background-image: ${getTexture(engine.value.pawn.texture_id)};` : ''}
     position: absolute;
     left: ${x * squareSize}px;
     top: ${y * squareSize - squareSize}px;
@@ -64,6 +66,14 @@ const pawnStyle = computed(() => {
   `;
 });
 
+function manageActions(tile: Tile) {
+  const actions = map.get_actions_at(tile.pointer)
+  actions.forEach(a => {
+    // const action = library.get_action_by_id(a);
+    library.call_action_by_id(a)
+  })
+}
+
 function onClick(tile: Tile) {
   console.log('onclick')
   updateFlag.value++
@@ -72,7 +82,8 @@ function onClick(tile: Tile) {
   for (let i = 0; i < steps.length; i++) {
     const step = steps[i];
     setTimeout(() => {
-      engine.value.move_to(step.x, step.y);
+      const tile = engine.value.move_to(step.x, step.y);
+      manageActions(tile)
       updateFlag.value++;
     }, i * 100);
   }
@@ -80,14 +91,18 @@ function onClick(tile: Tile) {
 
 function onKeyDown(event: KeyboardEvent) {
   console.log('keydown', event.key);
+  let tile
   if (event.key === 'ArrowUp' || event.key.toLowerCase() === 'w') {
-    engine.value.step_to("up");
+    tile = engine.value.step_to("up");
   } else if (event.key === 'ArrowDown' || event.key.toLowerCase() === 's') {
-    engine.value.step_to("down");
+    tile = engine.value.step_to("down");
   } else if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'a') {
-    engine.value.step_to("left");
+    tile = engine.value.step_to("left");
   } else if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'd') {
-    engine.value.step_to("right");
+    tile = engine.value.step_to("right");
+  }
+  if (tile) {
+    manageActions(tile)
   }
   updateFlag.value++;
 }
