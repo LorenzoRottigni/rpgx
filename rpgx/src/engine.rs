@@ -1,6 +1,3 @@
-pub mod map;
-pub mod pawn;
-
 use crate::prelude::{Coordinates, Direction, MoveError, Tile, Map, Pawn};
 
 /// RPG engine providing [`Pawn`] movement computation across the [`Map`].

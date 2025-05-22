@@ -2,7 +2,7 @@ use js_sys::{Array, Reflect};
 use wasm_bindgen::prelude::*;
 
 use crate::prelude::{WasmCoordinates, WasmMask, WasmShape, WasmTile};
-
+use rpgx::prelude::{Layer};
 pub mod mask;
 
 #[wasm_bindgen]
@@ -38,7 +38,7 @@ pub struct WasmLayer {
 
 impl WasmLayer {
     /// Creates a new `WasmLayer` instance from a native RPGX layer.
-    pub fn from_native(layer: rpgx::engine::map::layer::Layer) -> Self {
+    pub fn from_native(layer: Layer) -> Self {
         Self {
             name: layer.name,
             kind: match layer.kind {
@@ -54,8 +54,8 @@ impl WasmLayer {
     }
 
     /// Converts the `WasmLayer` instance to a native RPGX layer.
-    pub fn to_native(&self) -> rpgx::engine::map::layer::Layer {
-        rpgx::engine::map::layer::Layer {
+    pub fn to_native(&self) -> Layer {
+        Layer {
             name: self.name.clone(),
             kind: self.kind.to_native(),
             shape: self.shape.to_native(),
@@ -109,7 +109,7 @@ impl WasmLayer {
             masks.push(mask);
         }
 
-        let native_layer = rpgx::engine::map::layer::Layer::new(
+        let native_layer = Layer::new(
             name.clone(),
             kind.to_native(),
             shape.to_native(),
@@ -156,7 +156,7 @@ impl WasmLayer {
             masks_vec.push(mask);
         }
 
-        let native_layer = rpgx::engine::map::layer::Layer::new(
+        let native_layer = Layer::new(
             name.clone(),
             kind.to_native(),
             shape.to_native(),

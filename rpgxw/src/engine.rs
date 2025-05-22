@@ -1,8 +1,5 @@
 use std::cell::RefCell;
 
-pub mod map;
-pub mod pawn;
-
 use js_sys::{Promise};
 use rpgx::{common::direction::Direction};
 use wasm_bindgen::prelude::*;

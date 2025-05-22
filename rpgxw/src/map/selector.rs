@@ -1,5 +1,6 @@
 use js_sys::Reflect;
 use wasm_bindgen::prelude::*;
+use rpgx::prelude::{Selector};
 
 use crate::prelude::WasmCoordinates;
 
@@ -13,13 +14,13 @@ pub struct WasmSelector {
 
 impl WasmSelector {
     /// Creates a new `WasmSelector` instance from the given start and end coordinates.
-    pub fn from_native(selector: rpgx::engine::map::selector::Selector) -> Self {
+    pub fn from_native(selector: Selector) -> Self {
         match selector {
-            rpgx::engine::map::selector::Selector::Single(coord) => Self {
+            Selector::Single(coord) => Self {
                 start: WasmCoordinates::from_native(coord),
                 end: WasmCoordinates::from_native(coord),
             },
-            rpgx::engine::map::selector::Selector::Block((start, end)) => Self {
+            Selector::Block((start, end)) => Self {
                 start: WasmCoordinates::from_native(start),
                 end: WasmCoordinates::from_native(end),
             },
@@ -28,11 +29,11 @@ impl WasmSelector {
     }
 
     /// Converts the `WasmSelector` instance to a native RPGX selector.
-    pub fn to_native(&self) -> rpgx::engine::map::selector::Selector {
+    pub fn to_native(&self) -> Selector {
         if self.start == self.end {
-            rpgx::engine::map::selector::Selector::Single(self.start.to_native())
+            Selector::Single(self.start.to_native())
         } else {
-            rpgx::engine::map::selector::Selector::Block((
+            Selector::Block((
                 self.start.to_native(),
                 self.end.to_native(),
             ))

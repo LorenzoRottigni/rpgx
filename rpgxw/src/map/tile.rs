@@ -1,5 +1,6 @@
 use js_sys::Reflect;
 use wasm_bindgen::prelude::*;
+use rpgx::prelude::{Tile};
 
 use crate::prelude::{WasmCoordinates, WasmEffect, WasmShape};
 
@@ -15,7 +16,7 @@ pub struct WasmTile {
 
 impl WasmTile {
     /// Converts the `WasmTile` instance to a native RPGX tile.
-    pub fn from_native(native_tile: rpgx::engine::map::tile::Tile) -> Self {
+    pub fn from_native(native_tile: Tile) -> Self {
         Self {
             id: native_tile.id,
             effect: WasmEffect::from_native(native_tile.effect),
@@ -25,8 +26,8 @@ impl WasmTile {
     }
 
     /// Converts the `WasmTile` instance to a native RPGX tile.
-    pub fn to_native(&self) -> rpgx::engine::map::tile::Tile {
-        rpgx::engine::map::tile::Tile {
+    pub fn to_native(&self) -> Tile {
+        Tile {
             id: self.id,
             effect: self.effect.to_native(),
             pointer: rpgx::common::coordinates::Coordinates {
