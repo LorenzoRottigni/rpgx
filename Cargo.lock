@@ -3531,6 +3531,7 @@ dependencies = [
 name = "rpgx"
 version = "0.1.0"
 dependencies = [
+ "futures",
  "indexmap 2.9.0",
 ]
 

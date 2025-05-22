@@ -9,3 +9,6 @@ pub struct Pawn {
     pub tile: Tile,
     pub texture_id: i32,
 }
+
+#[cfg(test)]
+pub mod tests {}

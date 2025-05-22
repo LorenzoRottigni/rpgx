@@ -2,9 +2,6 @@ use std::collections::{BinaryHeap, HashMap};
 
 use crate::prelude::{Coordinates,Map};
 
-#[cfg(test)]
-mod tests;
-
 #[derive(Eq, PartialEq)]
 struct Node {
     position: Coordinates,
@@ -113,5 +110,100 @@ impl Map {
         }
 
         None // No path found
+    }
+}
+
+#[cfg(test)]
+pub mod tests {
+    use super::*;
+    use crate::prelude::{Effect, Shape, Tile, Layer, LayerType, Map};
+
+    fn blocking_tile_at(coord: Coordinates) -> Tile {
+        Tile {
+            id: 0,
+            pointer: coord,
+            shape: Shape::from_square(1),
+            effect: Effect {
+                block: true,
+                ..Default::default()
+            },
+        }
+    }
+
+    fn map_with_layer(blocks: Vec<Coordinates>, width: i32, height: i32) -> Map {
+        let shape = Shape { width, height };
+        let base_layer = Layer::new(
+            "base".into(),
+            LayerType::Default,
+            shape,
+            vec![],
+        );
+
+        let block_layer = Layer {
+            name: "block".into(),
+            kind: LayerType::Block,
+            shape,
+            tiles: blocks
+                .into_iter()
+                .map(|coord| blocking_tile_at(coord))
+                .collect(),
+            masks: vec![],
+        };
+
+        Map {
+            name: "test_map".into(),
+            layers: vec![base_layer, block_layer],
+        }
+    }
+
+    #[test]
+    fn finds_clear_path() {
+        let map = map_with_layer(vec![], 5, 5);
+        let start = Coordinates { x: 0, y: 0 };
+        let goal = Coordinates { x: 2, y: 2 };
+
+        let path = map.find_path(&start, &goal).unwrap();
+        assert_eq!(path.first().unwrap(), &start);
+        assert_eq!(path.last().unwrap(), &goal);
+        assert!(path.len() >= 3);
+    }
+
+    #[test]
+    fn avoids_blocked_tiles() {
+        let blocked = vec![
+            Coordinates { x: 1, y: 0 },
+            Coordinates { x: 1, y: 1 },
+        ];
+        let map = map_with_layer(blocked, 3, 3);
+        let start = Coordinates { x: 0, y: 0 };
+        let goal = Coordinates { x: 2, y: 0 };
+
+        let path = map.find_path(&start, &goal).unwrap();
+        assert!(path.contains(&Coordinates { x: 0, y: 1 }));
+        assert!(!path.contains(&Coordinates { x: 1, y: 0 }));
+    }
+
+    #[test]
+    fn returns_none_if_no_path() {
+        let blocked = vec![
+            Coordinates { x: 1, y: 0 },
+            Coordinates { x: 1, y: 1 },
+            Coordinates { x: 1, y: 2 },
+        ];
+        let map = map_with_layer(blocked, 3, 3);
+        let start = Coordinates { x: 0, y: 0 };
+        let goal = Coordinates { x: 2, y: 0 };
+
+        let path = map.find_path(&start, &goal);
+        assert!(path.is_none());
+    }
+
+    #[test]
+    fn handles_start_equals_goal() {
+        let map = map_with_layer(vec![], 3, 3);
+        let start = Coordinates { x: 1, y: 1 };
+
+        let path = map.find_path(&start, &start).unwrap();
+        assert_eq!(path, vec![start]);
     }
 }

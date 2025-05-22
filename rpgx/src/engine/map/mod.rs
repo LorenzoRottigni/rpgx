@@ -8,10 +8,6 @@ use crate::prelude::{Coordinates,Tile,Layer,LayerType};
 
 use indexmap::IndexMap;
 
-#[cfg(test)]
-mod tests;
-
-
 #[derive(Clone)]
 pub struct Map {
     pub name: String,
@@ -99,4 +95,118 @@ impl Map {
 
         actions
     }
+}
+
+#[cfg(test)]
+pub mod tests {
+    use super::*;
+    use crate::prelude::{Effect, Shape};
+
+    fn dummy_tile(x: i32, y: i32) -> Tile {
+        Tile {
+            id: 1,
+            pointer: Coordinates { x, y },
+            shape: Shape::from_square(1),
+            effect: Effect::default(),
+        }
+    }
+
+    fn dummy_layer(name: &str, kind: LayerType, tiles: Vec<Tile>, shape: Shape) -> Layer {
+        Layer {
+            name: name.to_string(),
+            kind,
+            tiles,
+            shape,
+            masks: vec![],
+        }
+    }
+
+    #[test]
+    fn creates_map_with_layers() {
+        let tile = dummy_tile(0, 0);
+        let layer = dummy_layer("base", LayerType::Default, vec![tile], Shape::from_square(1));
+        let map = Map::new("TestMap".to_string(), vec![layer.clone()]);
+
+        assert_eq!(map.name, "TestMap");
+        assert_eq!(map.layers.len(), 1);
+        assert_eq!(map.get_base_layer().unwrap().name, "base");
+    }
+
+    #[test]
+    fn gets_tile_from_base_layer() {
+        let tile = dummy_tile(1, 2);
+        let layer = dummy_layer("base", LayerType::Default, vec![tile.clone()], Shape::from_square(3));
+        let map = Map::new("TileMap".to_string(), vec![layer]);
+
+        let result = map.get_base_tile(Coordinates { x: 1, y: 2 });
+        assert!(result.is_some());
+        assert_eq!(result.unwrap().pointer, Coordinates { x: 1, y: 2 });
+    }
+
+    #[test]
+    fn detects_blocked_tile_across_layers() {
+        let blocked_tile = Tile {
+            id: 2,
+            pointer: Coordinates { x: 0, y: 0 },
+            shape: Shape::from_square(1),
+            effect: Effect { block: true, ..Default::default() },
+        };
+        let blocking_layer = dummy_layer("block", LayerType::Block, vec![blocked_tile], Shape::from_square(1));
+        let map = Map::new("BlockMap".to_string(), vec![blocking_layer]);
+
+        assert!(map.is_tile_blocked(Coordinates { x: 0, y: 0 }));
+        assert!(!map.is_tile_blocked(Coordinates { x: 1, y: 1 }));
+    }
+
+    #[test]
+    fn retrieves_all_base_layers() {
+        let tile = dummy_tile(0, 0);
+        let base_layer = dummy_layer("base1", LayerType::Default, vec![tile.clone()], Shape::from_square(1));
+        let other_layer = dummy_layer("logic", LayerType::Action, vec![tile], Shape::from_square(1));
+        let map = Map::new("LayerMap".to_string(), vec![base_layer.clone(), other_layer]);
+
+        let bases = map.get_base_layers();
+        assert_eq!(bases.len(), 1);
+        assert_eq!(bases[0].name, "base1");
+    }
+
+    #[test]
+    fn expands_map_with_offset_layer() {
+        let tile = dummy_tile(0, 0);
+        let shape = Shape::from_square(1);
+        let mut base_map = Map::new("Base".to_string(), vec![dummy_layer("base", LayerType::Default, vec![tile.clone()], shape)]);
+
+        let offset_tile = Tile {
+            pointer: Coordinates { x: 0, y: 0 },
+            id: 10,
+            shape: Shape::from_square(1),
+            effect: Effect { action_id: Some(42), ..Default::default() },
+        };
+        let offset_layer = dummy_layer("base", LayerType::Default, vec![offset_tile], shape);
+
+        let overlay_map = Map::new("Overlay".to_string(), vec![offset_layer]);
+
+        base_map.expand_at(&overlay_map, Coordinates { x: 2, y: 3 });
+
+        let tile = base_map.get_base_tile(Coordinates { x: 2, y: 3 });
+        assert!(tile.is_some());
+        assert_eq!(tile.unwrap().effect.action_id, Some(42));
+    }
+
+    #[test]
+    fn gets_actions_at_position() {
+        let tile = Tile {
+            pointer: Coordinates { x: 1, y: 1 },
+            id: 5,
+            shape: Shape::from_square(1),
+            effect: Effect { action_id: Some(99), ..Default::default() },
+        };
+        let action_layer = dummy_layer("action", LayerType::Action, vec![tile], Shape::from_square(2));
+        let map = Map::new("ActionMap".to_string(), vec![action_layer]);
+
+        let actions = map.get_actions_at(Coordinates { x: 1, y: 1 });
+        assert_eq!(actions.len(), 1);
+        assert_eq!(actions[0], 99);
+    }
+
 }

@@ -1,6 +1,6 @@
 use crate::prelude::Coordinates;
 
-#[derive(Copy, Clone, PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct Shape {
     pub width: i32,
     pub height: i32,
@@ -68,5 +68,99 @@ impl Shape {
     pub fn expand_to_include(&mut self, offset: Coordinates, other: Shape) {
         self.width = self.width.max(offset.x + other.width);
         self.height = self.height.max(offset.y + other.height);
+    }
+}
+
+#[cfg(test)]
+#[cfg(test)]
+pub mod tests {
+    use super::*;
+    use crate::prelude::Coordinates;
+
+    #[test]
+    fn creates_square_shape() {
+        let shape = Shape::from_square(5);
+        assert_eq!(shape.width, 5);
+        assert_eq!(shape.height, 5);
+    }
+
+    #[test]
+    fn creates_rectangle_shape() {
+        let shape = Shape::from_rectangle(4, 7);
+        assert_eq!(shape.width, 4);
+        assert_eq!(shape.height, 7);
+    }
+
+    #[test]
+    fn creates_shape_from_bounds() {
+        let start = Coordinates { x: 1, y: 2 };
+        let end = Coordinates { x: 3, y: 4 };
+        let shape = Shape::from_bounds(start, end);
+        assert_eq!(shape.width, 3); // 1 to 3 is 3 tiles: 1, 2, 3
+        assert_eq!(shape.height, 3); // 2 to 4 is 3 tiles: 2, 3, 4
+    }
+
+    #[test]
+    fn in_bounds_checks_correctly() {
+        let shape = Shape::from_rectangle(3, 3);
+        assert!(shape.in_bounds(Coordinates { x: 1, y: 1 }));
+        assert!(shape.in_bounds(Coordinates { x: 2, y: 2 }));
+        assert!(!shape.in_bounds(Coordinates { x: 3, y: 3 }));
+        assert!(!shape.in_bounds(Coordinates { x: -1, y: 0 }));
+    }
+
+    #[test]
+    fn coordinates_in_range_returns_correct_coordinates() {
+        let shape = Shape::from_rectangle(4, 4);
+        let coords = shape.coordinates_in_range(Coordinates { x: 1, y: 1 }, Coordinates { x: 2, y: 2 });
+
+        let expected = vec![
+            Coordinates { x: 1, y: 1 },
+            Coordinates { x: 2, y: 1 },
+            Coordinates { x: 1, y: 2 },
+            Coordinates { x: 2, y: 2 },
+        ];
+
+        assert_eq!(coords, expected);
+    }
+
+    #[test]
+    fn filter_coordinates_filters_correctly() {
+        let shape = Shape::from_rectangle(3, 3);
+        let even_coords = shape.filter_coordinates(|c| (c.x + c.y) % 2 == 0);
+
+        let expected = vec![
+            Coordinates { x: 0, y: 0 },
+            Coordinates { x: 2, y: 0 },
+            Coordinates { x: 1, y: 1 },
+            Coordinates { x: 0, y: 2 },
+            Coordinates { x: 2, y: 2 },
+        ];
+
+        assert_eq!(even_coords, expected);
+    }
+
+    #[test]
+    fn expand_to_include_updates_shape() {
+        let mut shape = Shape::from_rectangle(2, 2);
+        let offset = Coordinates { x: 1, y: 1 };
+        let other = Shape::from_rectangle(3, 3);
+
+        shape.expand_to_include(offset, other);
+
+        assert_eq!(shape.width, 4);  // max of 2 and 1+3 = 4
+        assert_eq!(shape.height, 4); // max of 2 and 1+3 = 4
+    }
+
+    #[test]
+    fn coordinates_in_range_clamped_by_shape_bounds() {
+        let shape = Shape::from_rectangle(3, 3);
+        let coords = shape.coordinates_in_range(Coordinates { x: -2, y: -2 }, Coordinates { x: 4, y: 4 });
+
+        let expected: Vec<Coordinates> = (0..=2)
+            .flat_map(|y| (0..=2).map(move |x| Coordinates { x, y }))
+            .collect();
+
+        assert_eq!(coords, expected);
     }
 }

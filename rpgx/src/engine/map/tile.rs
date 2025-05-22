@@ -1,11 +1,7 @@
 use crate::prelude::{Coordinates, Shape, Effect, SingleSelector};
 
-#[cfg(test)]
-mod tests;
-
-
 /// Represents a single tile on the grid with unique identifier, spatial information, and effects applied.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Tile {
     pub id: i32,
     pub effect: Effect,
@@ -37,23 +33,79 @@ impl Tile {
         }
     }
 
-    pub fn generate_default_grid(shape: Shape, effect: Effect) -> Vec<Self> {
-        let mut tiles = Vec::new();
-        for y in 0..shape.height {
-            for x in 0..shape.width {
-                tiles.push(Tile {
-                    id: x,
-                    pointer: Coordinates { x, y },
-                    shape: Shape::from_square(1),
-                    effect,
-                });
-            }
-        }
-        tiles
-    }
-
     pub fn offset(&mut self, delta: Coordinates) {
         self.pointer.x += delta.x;
         self.pointer.y += delta.y;
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_tile(pointer: Coordinates, shape: Shape, effect: Effect) -> Tile {
+        Tile {
+            id: 0,
+            pointer,
+            shape,
+            effect,
+        }
+    }
+
+    #[test]
+    fn contains_its_coordinates() {
+        let tile = make_tile(Coordinates { x: 0, y: 0 }, Shape::from_square(3), Effect::default());
+        assert!(tile.contains(Coordinates { x: 1, y: 1 }));
+    }
+
+    #[test]
+    fn doesnt_contain_out_of_bounds_coordinates() {
+        let tile = make_tile(Coordinates { x: 0, y: 0 }, Shape::from_square(2), Effect::default());
+        assert!(!tile.contains(Coordinates { x: 3, y: 3 }));
+    }
+
+    #[test]
+    fn is_blocking_when_required() {
+        let effect = Effect {
+            block: true,
+            shrink: None,
+            ..Default::default()
+        };
+        let tile = make_tile(Coordinates { x: 0, y: 0 }, Shape::from_square(2), effect);
+        assert!(tile.is_blocking_at(Coordinates { x: 1, y: 1 }));
+    }
+
+    #[test]
+    fn is_not_blocking_by_default() {
+        let effect = Effect {
+            block: false,
+            shrink: None,
+            ..Default::default()
+        };
+        let tile = make_tile(Coordinates { x: 0, y: 0 }, Shape::from_square(2), effect);
+        assert!(!tile.is_blocking_at(Coordinates { x: 1, y: 1 }));
+    }
+
+    #[test]
+    fn is_blocking_when_within_shrink_bounds() {
+        let effect = Effect {
+            block: true,
+            shrink: Some((
+                Coordinates { x: 1, y: 1 },
+                Coordinates { x: 2, y: 2 },
+            )),
+            ..Default::default()
+        };
+        let tile = make_tile(Coordinates { x: 0, y: 0 }, Shape::from_square(4), effect);
+        assert!(tile.is_blocking_at(Coordinates { x: 2, y: 2 }));
+        assert!(!tile.is_blocking_at(Coordinates { x: 0, y: 0 }));
+    }
+
+    #[test]
+    fn offset_modifies_pointer() {
+        let mut tile = make_tile(Coordinates { x: 2, y: 3 }, Shape::from_square(1), Effect::default());
+        tile.offset(Coordinates { x: 1, y: 2 });
+        assert_eq!(tile.pointer, Coordinates { x: 3, y: 5 });
+    }
+
 }

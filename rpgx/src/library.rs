@@ -81,3 +81,78 @@ impl ResourceLibrary {
             .expect(format!("Key ID not found. Insert the resource before requesting its ID. {}", key).as_str())
     }
 }
+
+#[cfg(test)]
+pub mod tests {
+    use super::*;
+
+    fn dummy_action() {
+        println!("Action executed.");
+    }
+
+    #[test]
+    fn inserts_and_retrieves_texture() {
+        let mut lib = ResourceLibrary::new();
+        lib.insert_texture("hero", "hero.png".to_string());
+
+        let texture = lib.get_texture("hero");
+        assert!(texture.is_some());
+        assert_eq!(texture.unwrap(), "hero.png");
+
+        let id = lib.get_key_id("hero");
+        let texture_by_id = lib.get_texture_by_id(id);
+        assert!(texture_by_id.is_some());
+        assert_eq!(texture_by_id.unwrap(), "hero.png");
+    }
+
+    #[test]
+    fn inserts_and_retrieves_action() {
+        let mut lib = ResourceLibrary::new();
+        lib.insert_action("jump", dummy_action);
+
+        let action = lib.get_action("jump");
+        assert!(action.is_some());
+
+        let id = lib.get_key_id("jump");
+        let action_by_id = lib.get_action_by_id(id);
+        assert!(action_by_id.is_some());
+
+        // Run action to verify it's valid (prints to console)
+        action.unwrap()();
+        action_by_id.unwrap()();
+    }
+
+    #[test]
+    fn returns_none_for_missing_texture() {
+        let lib = ResourceLibrary::new();
+        assert!(lib.get_texture("nonexistent").is_none());
+    }
+
+    #[test]
+    fn returns_none_for_invalid_id() {
+        let lib = ResourceLibrary::new();
+        assert!(lib.get_texture_by_id(999).is_none());
+        assert!(lib.get_action_by_id(999).is_none());
+    }
+
+    #[test]
+    #[should_panic(expected = "Key ID not found. Insert the resource before requesting its ID. missing")]
+    fn panics_on_missing_key_id() {
+        let lib = ResourceLibrary::new();
+        lib.get_key_id("missing");
+    }
+
+    #[test]
+    fn maintains_consistent_ids() {
+        let mut lib = ResourceLibrary::new();
+        lib.insert_texture("item", "item.png".to_string());
+        lib.insert_action("interact", dummy_action);
+
+        let id_item = lib.get_key_id("item");
+        let id_interact = lib.get_key_id("interact");
+
+        assert_ne!(id_item, id_interact);
+        assert_eq!(lib.get_texture_by_id(id_item).unwrap(), "item.png");
+        assert!(lib.get_action_by_id(id_interact).is_some());
+    }
+}
