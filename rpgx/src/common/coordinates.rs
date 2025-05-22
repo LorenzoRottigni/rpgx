@@ -53,10 +53,7 @@ pub mod tests {
         let bbox = Coordinates::bounding_box(&coords);
         assert_eq!(
             bbox,
-            Some((
-                Coordinates { x: -1, y: 0 },
-                Coordinates { x: 5, y: 4 }
-            ))
+            Some((Coordinates { x: -1, y: 0 }, Coordinates { x: 5, y: 4 }))
         );
     }
 

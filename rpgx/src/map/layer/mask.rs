@@ -1,4 +1,4 @@
-use crate::prelude::{Coordinates, Shape, Selector, Effect, Tile};
+use crate::prelude::{Coordinates, Effect, Selector, Shape, Tile};
 
 /// A [`Mask`] defines a logical area on a [`super::grid::Grid`] or [`super::layer::Layer`] where specific [`Effect`]s are applied
 /// based on a [`Selector`] pattern.
@@ -77,7 +77,7 @@ impl Mask {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::prelude::{SingleSelector};
+    use crate::prelude::SingleSelector;
 
     #[test]
     fn applies_effect_to_single_tile() {
@@ -105,7 +105,10 @@ pub mod tests {
     fn applies_effect_to_block_of_tiles() {
         let mask = Mask {
             name: "TestMask".to_string(),
-            selector: Selector::Block((SingleSelector { x: 1, y: 1 }, SingleSelector { x: 3, y: 3 })),
+            selector: Selector::Block((
+                SingleSelector { x: 1, y: 1 },
+                SingleSelector { x: 3, y: 3 },
+            )),
             effect: Effect {
                 action_id: None,
                 texture_id: Some(2),
@@ -142,7 +145,10 @@ pub mod tests {
     fn groups_block_tiles_into_single_tile_when_grouped() {
         let mask = Mask {
             name: "GroupedBlock".to_string(),
-            selector: Selector::Block((SingleSelector { x: 1, y: 1 }, SingleSelector { x: 2, y: 2 })),
+            selector: Selector::Block((
+                SingleSelector { x: 1, y: 1 },
+                SingleSelector { x: 2, y: 2 },
+            )),
             effect: Effect {
                 group: true,
                 ..Default::default()
@@ -154,7 +160,7 @@ pub mod tests {
 
         assert_eq!(tiles.len(), 1);
         assert_eq!(tiles[0].pointer, SingleSelector { x: 1, y: 1 });
-        assert_eq!(tiles[0].shape.width, 2);  // 1 to 2 → width 2
+        assert_eq!(tiles[0].shape.width, 2); // 1 to 2 → width 2
         assert_eq!(tiles[0].shape.height, 2); // 1 to 2 → height 2
     }
 
@@ -169,10 +175,15 @@ pub mod tests {
             },
         };
 
-        let shape = Shape::from_bounds(SingleSelector { x: 0, y: 0 }, SingleSelector { x: 3, y: 3 });
+        let shape =
+            Shape::from_bounds(SingleSelector { x: 0, y: 0 }, SingleSelector { x: 3, y: 3 });
         let tiles = mask.apply(shape);
 
-        assert!(tiles.iter().all(|tile| tile.pointer.x % 2 == 0 && tile.pointer.y % 2 == 0));
+        assert!(
+            tiles
+                .iter()
+                .all(|tile| tile.pointer.x % 2 == 0 && tile.pointer.y % 2 == 0)
+        );
         assert!(tiles.iter().all(|tile| tile.effect.block));
     }
 
@@ -180,7 +191,10 @@ pub mod tests {
     fn handles_empty_block_range() {
         let mask = Mask {
             name: "InvalidBlock".to_string(),
-            selector: Selector::Block((SingleSelector { x: 3, y: 3 }, SingleSelector { x: 1, y: 1 })),
+            selector: Selector::Block((
+                SingleSelector { x: 3, y: 3 },
+                SingleSelector { x: 1, y: 1 },
+            )),
             effect: Effect::default(),
         };
 

@@ -42,12 +42,21 @@ impl WasmCoordinates {
     /// Converts the `WasmCoordinates` instance to a JavaScript object.
     pub fn to_js_value(&self) -> JsValue {
         let obj = js_sys::Object::new();
-        Reflect::set(&obj, &JsValue::from_str("x"), &JsValue::from_f64(self.x as f64)).unwrap();
-        Reflect::set(&obj, &JsValue::from_str("y"), &JsValue::from_f64(self.y as f64)).unwrap();
+        Reflect::set(
+            &obj,
+            &JsValue::from_str("x"),
+            &JsValue::from_f64(self.x as f64),
+        )
+        .unwrap();
+        Reflect::set(
+            &obj,
+            &JsValue::from_str("y"),
+            &JsValue::from_f64(self.y as f64),
+        )
+        .unwrap();
         obj.into()
     }
 }
-
 
 #[wasm_bindgen]
 impl WasmCoordinates {

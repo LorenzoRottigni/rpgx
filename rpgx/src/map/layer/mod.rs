@@ -1,6 +1,6 @@
 use mask::Mask;
 
-pub use crate::prelude::{BlockSelector, Effect, SingleSelector, Tile, Coordinates, Shape};
+pub use crate::prelude::{BlockSelector, Coordinates, Effect, Shape, SingleSelector, Tile};
 
 pub mod mask;
 
@@ -37,7 +37,7 @@ impl Layer {
             kind,
             shape,
             tiles,
-            masks
+            masks,
         }
     }
 
@@ -113,11 +113,29 @@ pub mod tests {
         };
 
         let shape = Shape::from_square(2);
-        let layer = Layer::new("MultiMask".to_string(), LayerType::Action, shape, vec![mask1.clone(), mask2.clone()]);
+        let layer = Layer::new(
+            "MultiMask".to_string(),
+            LayerType::Action,
+            shape,
+            vec![mask1.clone(), mask2.clone()],
+        );
 
         assert_eq!(layer.tiles.len(), 2);
-        assert!(layer.get_tile(SingleSelector { x: 0, y: 0 }).unwrap().effect.block);
-        assert_eq!(layer.get_tile(SingleSelector { x: 1, y: 0 }).unwrap().effect.action_id, Some(1));
+        assert!(
+            layer
+                .get_tile(SingleSelector { x: 0, y: 0 })
+                .unwrap()
+                .effect
+                .block
+        );
+        assert_eq!(
+            layer
+                .get_tile(SingleSelector { x: 1, y: 0 })
+                .unwrap()
+                .effect
+                .action_id,
+            Some(1)
+        );
     }
 
     #[test]
@@ -132,7 +150,12 @@ pub mod tests {
         };
 
         let shape = Shape::from_square(3);
-        let layer = Layer::new("MaskedDefault".to_string(), LayerType::Texture, shape, vec![mask]);
+        let layer = Layer::new(
+            "MaskedDefault".to_string(),
+            LayerType::Texture,
+            shape,
+            vec![mask],
+        );
 
         let block = layer.get_block((SingleSelector { x: 0, y: 0 }, SingleSelector { x: 2, y: 2 }));
         assert_eq!(block.len(), 9);
@@ -143,7 +166,10 @@ pub mod tests {
 
     #[test]
     fn empty_shape_produces_no_tiles() {
-        let shape = Shape { width: 0, height: 0 };
+        let shape = Shape {
+            width: 0,
+            height: 0,
+        };
         let layer = Layer::new("EmptyShape".to_string(), LayerType::Default, shape, vec![]);
 
         assert_eq!(layer.tiles.len(), 0);
@@ -152,7 +178,12 @@ pub mod tests {
     #[test]
     fn creates_default_layer_without_masks() {
         let shape = Shape::from_square(2);
-        let layer = Layer::new("DefaultLayer".to_string(), LayerType::Default, shape, vec![]);
+        let layer = Layer::new(
+            "DefaultLayer".to_string(),
+            LayerType::Default,
+            shape,
+            vec![],
+        );
 
         assert_eq!(layer.tiles.len(), 4); // 2x2
         for tile in &layer.tiles {
@@ -162,7 +193,12 @@ pub mod tests {
 
     #[test]
     fn returns_none_for_missing_tile() {
-        let layer = Layer::new("Empty".to_string(), LayerType::Default, Shape::from_square(2), vec![]);
+        let layer = Layer::new(
+            "Empty".to_string(),
+            LayerType::Default,
+            Shape::from_square(2),
+            vec![],
+        );
 
         let out_of_bounds = SingleSelector { x: 10, y: 10 };
         assert_eq!(layer.get_tile(out_of_bounds), None);
@@ -178,7 +214,12 @@ pub mod tests {
                 ..Default::default()
             },
         };
-        let layer = Layer::new("TestLayer".to_string(), LayerType::Action, Shape::from_square(3), vec![mask]);
+        let layer = Layer::new(
+            "TestLayer".to_string(),
+            LayerType::Action,
+            Shape::from_square(3),
+            vec![mask],
+        );
 
         let block = layer.get_block((SingleSelector { x: 0, y: 0 }, SingleSelector { x: 2, y: 2 }));
         assert_eq!(block.len(), 1);
@@ -195,7 +236,12 @@ pub mod tests {
                 ..Default::default()
             },
         };
-        let layer = Layer::new("BlockLayer".to_string(), LayerType::Block, Shape::from_square(2), vec![mask]);
+        let layer = Layer::new(
+            "BlockLayer".to_string(),
+            LayerType::Block,
+            Shape::from_square(2),
+            vec![mask],
+        );
 
         assert!(layer.is_tile_blocked(&Coordinates { x: 0, y: 0 }));
         assert!(!layer.is_tile_blocked(&Coordinates { x: 1, y: 1 }));
@@ -212,7 +258,12 @@ pub mod tests {
             },
         };
         let original_shape = Shape::from_square(2);
-        let layer = Layer::new("OffsetLayer".to_string(), LayerType::Action, original_shape, vec![mask]);
+        let layer = Layer::new(
+            "OffsetLayer".to_string(),
+            LayerType::Action,
+            original_shape,
+            vec![mask],
+        );
         let offset = Coordinates { x: 2, y: 3 };
 
         let offset_layer = layer.offset_tiles(offset);

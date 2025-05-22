@@ -1,6 +1,6 @@
 use std::collections::{BinaryHeap, HashMap};
 
-use crate::prelude::{Coordinates,Map};
+use crate::prelude::{Coordinates, Map};
 
 #[derive(Eq, PartialEq)]
 struct Node {
@@ -116,7 +116,7 @@ impl Map {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::prelude::{Effect, Shape, Tile, Layer, LayerType, Map};
+    use crate::prelude::{Effect, Layer, LayerType, Map, Shape, Tile};
 
     fn blocking_tile_at(coord: Coordinates) -> Tile {
         Tile {
@@ -132,12 +132,7 @@ pub mod tests {
 
     fn map_with_layer(blocks: Vec<Coordinates>, width: i32, height: i32) -> Map {
         let shape = Shape { width, height };
-        let base_layer = Layer::new(
-            "base".into(),
-            LayerType::Default,
-            shape,
-            vec![],
-        );
+        let base_layer = Layer::new("base".into(), LayerType::Default, shape, vec![]);
 
         let block_layer = Layer {
             name: "block".into(),
@@ -170,10 +165,7 @@ pub mod tests {
 
     #[test]
     fn avoids_blocked_tiles() {
-        let blocked = vec![
-            Coordinates { x: 1, y: 0 },
-            Coordinates { x: 1, y: 1 },
-        ];
+        let blocked = vec![Coordinates { x: 1, y: 0 }, Coordinates { x: 1, y: 1 }];
         let map = map_with_layer(blocked, 3, 3);
         let start = Coordinates { x: 0, y: 0 };
         let goal = Coordinates { x: 2, y: 0 };

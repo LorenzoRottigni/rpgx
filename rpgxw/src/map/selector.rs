@@ -1,6 +1,6 @@
 use js_sys::Reflect;
+use rpgx::prelude::Selector;
 use wasm_bindgen::prelude::*;
-use rpgx::prelude::{Selector};
 
 use crate::prelude::WasmCoordinates;
 
@@ -33,10 +33,7 @@ impl WasmSelector {
         if self.start == self.end {
             Selector::Single(self.start.to_native())
         } else {
-            Selector::Block((
-                self.start.to_native(),
-                self.end.to_native(),
-            ))
+            Selector::Block((self.start.to_native(), self.end.to_native()))
         }
         // Filter variant can't be constructed from JS currently
     }
@@ -58,7 +55,6 @@ impl WasmSelector {
         obj.into()
     }
 }
-
 
 #[wasm_bindgen]
 impl WasmSelector {

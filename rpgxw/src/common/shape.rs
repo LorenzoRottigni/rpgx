@@ -43,12 +43,21 @@ impl WasmShape {
     /// Converts the `WasmShape` instance to a JavaScript object.
     pub fn to_js_value(&self) -> JsValue {
         let obj = js_sys::Object::new();
-        Reflect::set(&obj, &JsValue::from_str("width"), &JsValue::from_f64(self.width as f64)).unwrap();
-        Reflect::set(&obj, &JsValue::from_str("height"), &JsValue::from_f64(self.height as f64)).unwrap();
+        Reflect::set(
+            &obj,
+            &JsValue::from_str("width"),
+            &JsValue::from_f64(self.width as f64),
+        )
+        .unwrap();
+        Reflect::set(
+            &obj,
+            &JsValue::from_str("height"),
+            &JsValue::from_f64(self.height as f64),
+        )
+        .unwrap();
         obj.into()
     }
 }
-
 
 #[wasm_bindgen]
 impl WasmShape {
@@ -79,11 +88,18 @@ impl WasmShape {
 
     #[wasm_bindgen]
     pub fn in_bounds(&self, coordinates: &WasmCoordinates) -> bool {
-        coordinates.x() >= 0 && coordinates.x() < self.width && coordinates.y() >= 0 && coordinates.y() < self.height
+        coordinates.x() >= 0
+            && coordinates.x() < self.width
+            && coordinates.y() >= 0
+            && coordinates.y() < self.height
     }
 
     #[wasm_bindgen]
-    pub fn coordinates_in_range(&self, start: WasmCoordinates, end: WasmCoordinates) -> Vec<WasmCoordinates> {
+    pub fn coordinates_in_range(
+        &self,
+        start: WasmCoordinates,
+        end: WasmCoordinates,
+    ) -> Vec<WasmCoordinates> {
         let start_x = start.x().max(0);
         let start_y = start.y().max(0);
         let end_x = end.x().min(self.width - 1);
@@ -107,4 +123,3 @@ impl WasmShape {
         }
     }
 }
-

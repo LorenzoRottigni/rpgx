@@ -112,7 +112,8 @@ pub mod tests {
     #[test]
     fn coordinates_in_range_returns_correct_coordinates() {
         let shape = Shape::from_rectangle(4, 4);
-        let coords = shape.coordinates_in_range(Coordinates { x: 1, y: 1 }, Coordinates { x: 2, y: 2 });
+        let coords =
+            shape.coordinates_in_range(Coordinates { x: 1, y: 1 }, Coordinates { x: 2, y: 2 });
 
         let expected = vec![
             Coordinates { x: 1, y: 1 },
@@ -148,14 +149,15 @@ pub mod tests {
 
         shape.expand_to_include(offset, other);
 
-        assert_eq!(shape.width, 4);  // max of 2 and 1+3 = 4
+        assert_eq!(shape.width, 4); // max of 2 and 1+3 = 4
         assert_eq!(shape.height, 4); // max of 2 and 1+3 = 4
     }
 
     #[test]
     fn coordinates_in_range_clamped_by_shape_bounds() {
         let shape = Shape::from_rectangle(3, 3);
-        let coords = shape.coordinates_in_range(Coordinates { x: -2, y: -2 }, Coordinates { x: 4, y: 4 });
+        let coords =
+            shape.coordinates_in_range(Coordinates { x: -2, y: -2 }, Coordinates { x: 4, y: 4 });
 
         let expected: Vec<Coordinates> = (0..=2)
             .flat_map(|y| (0..=2).map(move |x| Coordinates { x, y }))

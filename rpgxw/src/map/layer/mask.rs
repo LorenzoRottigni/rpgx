@@ -51,13 +51,27 @@ impl WasmMask {
     /// Converts the `WasmMask` instance to a JavaScript object.
     pub fn to_js_value(&self) -> JsValue {
         let obj = js_sys::Object::new();
-        Reflect::set(&obj, &JsValue::from_str("name"), &JsValue::from(self.name.clone())).unwrap();
-        Reflect::set(&obj, &JsValue::from_str("effect"), &self.effect.to_js_value()).unwrap();
-        Reflect::set(&obj, &JsValue::from_str("selector"), &self.selector.to_js_value()).unwrap();
+        Reflect::set(
+            &obj,
+            &JsValue::from_str("name"),
+            &JsValue::from(self.name.clone()),
+        )
+        .unwrap();
+        Reflect::set(
+            &obj,
+            &JsValue::from_str("effect"),
+            &self.effect.to_js_value(),
+        )
+        .unwrap();
+        Reflect::set(
+            &obj,
+            &JsValue::from_str("selector"),
+            &self.selector.to_js_value(),
+        )
+        .unwrap();
         obj.into()
     }
 }
-
 
 #[wasm_bindgen]
 impl WasmMask {
@@ -109,4 +123,3 @@ impl WasmMask {
             .collect()
     }
 }
-

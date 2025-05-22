@@ -96,5 +96,4 @@ pub mod tests {
 
         assert_eq!(format!("{:?}", original), format!("{:?}", copy));
     }
-
 }

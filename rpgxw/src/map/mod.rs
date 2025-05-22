@@ -2,10 +2,10 @@ use js_sys::Array;
 use tile::WasmTile;
 use wasm_bindgen::prelude::*;
 
-pub mod selector;
-pub mod tile;
 pub mod effect;
 pub mod layer;
+pub mod selector;
+pub mod tile;
 
 use crate::prelude::{WasmCoordinates, WasmLayer};
 
@@ -49,13 +49,21 @@ impl WasmMap {
             let layer = WasmLayer::from_js_value(&layer_js)?;
             layers_vec.push(layer);
         }
-        Ok(Self { name, layers: layers_vec })
+        Ok(Self {
+            name,
+            layers: layers_vec,
+        })
     }
 
     /// Converts the `WasmMap` instance to a JavaScript object.
     pub fn to_js_value(&self) -> JsValue {
         let obj = js_sys::Object::new();
-        js_sys::Reflect::set(&obj, &JsValue::from_str("name"), &JsValue::from(self.name.clone())).unwrap();
+        js_sys::Reflect::set(
+            &obj,
+            &JsValue::from_str("name"),
+            &JsValue::from(self.name.clone()),
+        )
+        .unwrap();
         let layers_array = Array::new();
         for layer in &self.layers {
             layers_array.push(&layer.to_js_value());
@@ -64,7 +72,6 @@ impl WasmMap {
         obj.into()
     }
 }
-
 
 #[wasm_bindgen]
 impl WasmMap {
@@ -136,6 +143,4 @@ impl WasmMap {
             .map(|id| JsValue::from_f64(id as f64))
             .collect()
     }
-
 }
-

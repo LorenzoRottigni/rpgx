@@ -2,7 +2,7 @@ use js_sys::{Array, Reflect};
 use wasm_bindgen::prelude::*;
 
 use crate::prelude::{WasmCoordinates, WasmMask, WasmShape, WasmTile};
-use rpgx::prelude::{Layer};
+use rpgx::prelude::Layer;
 pub mod mask;
 
 #[wasm_bindgen]
@@ -60,14 +60,10 @@ impl WasmLayer {
             kind: self.kind.to_native(),
             shape: self.shape.to_native(),
             tiles: self.tiles.iter().map(|t| t.to_native()).collect(),
-            masks: self
-                .masks
-                .iter()
-                .map(|m| m.to_native())
-                .collect(),
+            masks: self.masks.iter().map(|m| m.to_native()).collect(),
         }
     }
-    
+
     /// Creates a new `WasmLayer` instance from a JavaScript object.
     pub fn from_js_value(value: &JsValue) -> Result<Self, JsValue> {
         let name = Reflect::get(value, &JsValue::from_str("name"))?
@@ -101,7 +97,7 @@ impl WasmLayer {
         let masks_array = masks_js
             .dyn_ref::<Array>()
             .ok_or_else(|| JsValue::from_str("Layer.masks must be an Array"))?;
-        
+
         let mut masks = Vec::with_capacity(masks_array.length() as usize);
         for i in 0..masks_array.length() {
             let mask_js = masks_array.get(i);
@@ -122,10 +118,20 @@ impl WasmLayer {
     /// Converts the `WasmLayer` instance to a JavaScript object.
     pub fn to_js_value(&self) -> JsValue {
         let obj = js_sys::Object::new();
-        Reflect::set(&obj, &JsValue::from_str("name"), &JsValue::from(self.name.clone())).unwrap();
-        Reflect::set(&obj, &JsValue::from_str("kind"), &JsValue::from(self.kind as u32)).unwrap();
+        Reflect::set(
+            &obj,
+            &JsValue::from_str("name"),
+            &JsValue::from(self.name.clone()),
+        )
+        .unwrap();
+        Reflect::set(
+            &obj,
+            &JsValue::from_str("kind"),
+            &JsValue::from(self.kind as u32),
+        )
+        .unwrap();
         Reflect::set(&obj, &JsValue::from_str("shape"), &self.shape.to_js_value()).unwrap();
-        
+
         let masks_array = Array::new();
         for mask in &self.masks {
             masks_array.push(&mask.to_js_value());
@@ -135,7 +141,6 @@ impl WasmLayer {
         obj.into()
     }
 }
-
 
 #[wasm_bindgen]
 impl WasmLayer {
@@ -213,4 +218,3 @@ impl WasmLayer {
         self.tiles.iter().any(|tile| tile.is_blocking_at(target))
     }
 }
-

@@ -34,7 +34,8 @@ impl WasmPawn {
 
         let texture_id = Reflect::get(value, &JsValue::from_str("texture_id"))?
             .as_f64()
-            .ok_or_else(|| JsValue::from_str("Pawn.texture_id must be a number"))? as i32;
+            .ok_or_else(|| JsValue::from_str("Pawn.texture_id must be a number"))?
+            as i32;
 
         Ok(Self { tile, texture_id })
     }
@@ -43,11 +44,15 @@ impl WasmPawn {
     pub fn to_js_value(&self) -> JsValue {
         let obj = js_sys::Object::new();
         Reflect::set(&obj, &JsValue::from_str("tile"), &self.tile.to_js_value()).unwrap();
-        Reflect::set(&obj, &JsValue::from_str("texture_id"), &JsValue::from(self.texture_id)).unwrap();
+        Reflect::set(
+            &obj,
+            &JsValue::from_str("texture_id"),
+            &JsValue::from(self.texture_id),
+        )
+        .unwrap();
         obj.into()
     }
 }
-
 
 #[wasm_bindgen]
 impl WasmPawn {
@@ -76,4 +81,3 @@ impl WasmPawn {
         self.texture_id = texture_id;
     }
 }
-

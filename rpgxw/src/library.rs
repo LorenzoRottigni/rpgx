@@ -1,7 +1,7 @@
-use std::collections::HashMap;
-use wasm_bindgen::prelude::*;
-use wasm_bindgen::JsCast;
 use js_sys::Function;
+use std::collections::HashMap;
+use wasm_bindgen::JsCast;
+use wasm_bindgen::prelude::*;
 
 enum Resource {
     Texture(String),
@@ -63,12 +63,12 @@ impl ResourceLibrary {
     }
 
     pub fn get_texture_by_id(&self, id: i32) -> Option<String> {
-        self.id_keys.get(&id).and_then(|key| {
-            match self.data.get(key) {
+        self.id_keys
+            .get(&id)
+            .and_then(|key| match self.data.get(key) {
                 Some(Resource::Texture(s)) => Some(s.clone()),
                 _ => None,
-            }
-        })
+            })
     }
 
     pub fn get_action_by_id(&self, id: i32) -> JsValue {
@@ -82,14 +82,20 @@ impl ResourceLibrary {
 
     pub fn call_action(&self, key: String) {
         if let Some(Resource::Action(closure)) = self.data.get(&key) {
-            let _ = closure.as_ref().unchecked_ref::<Function>().call0(&JsValue::NULL);
+            let _ = closure
+                .as_ref()
+                .unchecked_ref::<Function>()
+                .call0(&JsValue::NULL);
         }
     }
 
     pub fn call_action_by_id(&self, id: i32) {
         if let Some(key) = self.id_keys.get(&id) {
             if let Some(Resource::Action(closure)) = self.data.get(key) {
-                let _ = closure.as_ref().unchecked_ref::<Function>().call0(&JsValue::NULL);
+                let _ = closure
+                    .as_ref()
+                    .unchecked_ref::<Function>()
+                    .call0(&JsValue::NULL);
             }
         }
     }

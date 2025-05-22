@@ -40,10 +40,22 @@ pub mod tests {
 
     #[test]
     fn from_delta_returns_correct_direction() {
-        assert_eq!(Direction::from_delta(&Coordinates { x: 0, y: -1 }), Some(Direction::Up));
-        assert_eq!(Direction::from_delta(&Coordinates { x: 0, y: 1 }), Some(Direction::Down));
-        assert_eq!(Direction::from_delta(&Coordinates { x: -1, y: 0 }), Some(Direction::Left));
-        assert_eq!(Direction::from_delta(&Coordinates { x: 1, y: 0 }), Some(Direction::Right));
+        assert_eq!(
+            Direction::from_delta(&Coordinates { x: 0, y: -1 }),
+            Some(Direction::Up)
+        );
+        assert_eq!(
+            Direction::from_delta(&Coordinates { x: 0, y: 1 }),
+            Some(Direction::Down)
+        );
+        assert_eq!(
+            Direction::from_delta(&Coordinates { x: -1, y: 0 }),
+            Some(Direction::Left)
+        );
+        assert_eq!(
+            Direction::from_delta(&Coordinates { x: 1, y: 0 }),
+            Some(Direction::Right)
+        );
     }
 
     #[test]

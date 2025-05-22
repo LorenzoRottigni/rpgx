@@ -4,22 +4,19 @@ pub mod routing;
 pub mod selector;
 pub mod tile;
 
-use crate::prelude::{Coordinates,Tile,Layer,LayerType};
+use crate::prelude::{Coordinates, Layer, LayerType, Tile};
 
 use indexmap::IndexMap;
 
 #[derive(Clone)]
 pub struct Map {
     pub name: String,
-    pub layers: Vec<Layer>
+    pub layers: Vec<Layer>,
 }
 
 impl Map {
     pub fn new(name: String, layers: Vec<Layer>) -> Self {
-        Self {
-            name,
-            layers
-        }
+        Self { name, layers }
     }
 
     /// Add another map's layers, offsetting them into this map's grid layout
@@ -124,7 +121,12 @@ pub mod tests {
     #[test]
     fn creates_map_with_layers() {
         let tile = dummy_tile(0, 0);
-        let layer = dummy_layer("base", LayerType::Default, vec![tile], Shape::from_square(1));
+        let layer = dummy_layer(
+            "base",
+            LayerType::Default,
+            vec![tile],
+            Shape::from_square(1),
+        );
         let map = Map::new("TestMap".to_string(), vec![layer.clone()]);
 
         assert_eq!(map.name, "TestMap");
@@ -135,7 +137,12 @@ pub mod tests {
     #[test]
     fn gets_tile_from_base_layer() {
         let tile = dummy_tile(1, 2);
-        let layer = dummy_layer("base", LayerType::Default, vec![tile.clone()], Shape::from_square(3));
+        let layer = dummy_layer(
+            "base",
+            LayerType::Default,
+            vec![tile.clone()],
+            Shape::from_square(3),
+        );
         let map = Map::new("TileMap".to_string(), vec![layer]);
 
         let result = map.get_base_tile(Coordinates { x: 1, y: 2 });
@@ -149,9 +156,17 @@ pub mod tests {
             id: 2,
             pointer: Coordinates { x: 0, y: 0 },
             shape: Shape::from_square(1),
-            effect: Effect { block: true, ..Default::default() },
+            effect: Effect {
+                block: true,
+                ..Default::default()
+            },
         };
-        let blocking_layer = dummy_layer("block", LayerType::Block, vec![blocked_tile], Shape::from_square(1));
+        let blocking_layer = dummy_layer(
+            "block",
+            LayerType::Block,
+            vec![blocked_tile],
+            Shape::from_square(1),
+        );
         let map = Map::new("BlockMap".to_string(), vec![blocking_layer]);
 
         assert!(map.is_tile_blocked(Coordinates { x: 0, y: 0 }));
@@ -161,9 +176,22 @@ pub mod tests {
     #[test]
     fn retrieves_all_base_layers() {
         let tile = dummy_tile(0, 0);
-        let base_layer = dummy_layer("base1", LayerType::Default, vec![tile.clone()], Shape::from_square(1));
-        let other_layer = dummy_layer("logic", LayerType::Action, vec![tile], Shape::from_square(1));
-        let map = Map::new("LayerMap".to_string(), vec![base_layer.clone(), other_layer]);
+        let base_layer = dummy_layer(
+            "base1",
+            LayerType::Default,
+            vec![tile.clone()],
+            Shape::from_square(1),
+        );
+        let other_layer = dummy_layer(
+            "logic",
+            LayerType::Action,
+            vec![tile],
+            Shape::from_square(1),
+        );
+        let map = Map::new(
+            "LayerMap".to_string(),
+            vec![base_layer.clone(), other_layer],
+        );
 
         let bases = map.get_base_layers();
         assert_eq!(bases.len(), 1);
@@ -174,13 +202,24 @@ pub mod tests {
     fn expands_map_with_offset_layer() {
         let tile = dummy_tile(0, 0);
         let shape = Shape::from_square(1);
-        let mut base_map = Map::new("Base".to_string(), vec![dummy_layer("base", LayerType::Default, vec![tile.clone()], shape)]);
+        let mut base_map = Map::new(
+            "Base".to_string(),
+            vec![dummy_layer(
+                "base",
+                LayerType::Default,
+                vec![tile.clone()],
+                shape,
+            )],
+        );
 
         let offset_tile = Tile {
             pointer: Coordinates { x: 0, y: 0 },
             id: 10,
             shape: Shape::from_square(1),
-            effect: Effect { action_id: Some(42), ..Default::default() },
+            effect: Effect {
+                action_id: Some(42),
+                ..Default::default()
+            },
         };
         let offset_layer = dummy_layer("base", LayerType::Default, vec![offset_tile], shape);
 
@@ -199,14 +238,21 @@ pub mod tests {
             pointer: Coordinates { x: 1, y: 1 },
             id: 5,
             shape: Shape::from_square(1),
-            effect: Effect { action_id: Some(99), ..Default::default() },
+            effect: Effect {
+                action_id: Some(99),
+                ..Default::default()
+            },
         };
-        let action_layer = dummy_layer("action", LayerType::Action, vec![tile], Shape::from_square(2));
+        let action_layer = dummy_layer(
+            "action",
+            LayerType::Action,
+            vec![tile],
+            Shape::from_square(2),
+        );
         let map = Map::new("ActionMap".to_string(), vec![action_layer]);
 
         let actions = map.get_actions_at(Coordinates { x: 1, y: 1 });
         assert_eq!(actions.len(), 1);
         assert_eq!(actions[0], 99);
     }
-
 }

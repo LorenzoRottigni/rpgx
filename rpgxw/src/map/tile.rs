@@ -1,6 +1,6 @@
 use js_sys::Reflect;
+use rpgx::prelude::Tile;
 use wasm_bindgen::prelude::*;
-use rpgx::prelude::{Tile};
 
 use crate::prelude::{WasmCoordinates, WasmEffect, WasmShape};
 
@@ -72,14 +72,28 @@ impl WasmTile {
     /// Converts the `WasmTile` instance to a JavaScript object.
     pub fn to_js_value(&self) -> JsValue {
         let obj = js_sys::Object::new();
-        js_sys::Reflect::set(&obj, &JsValue::from_str("id"), &JsValue::from_f64(self.id as f64)).unwrap();
-        js_sys::Reflect::set(&obj, &JsValue::from_str("effect"), &self.effect.to_js_value()).unwrap();
-        js_sys::Reflect::set(&obj, &JsValue::from_str("pointer"), &self.pointer.to_js_value()).unwrap();
+        js_sys::Reflect::set(
+            &obj,
+            &JsValue::from_str("id"),
+            &JsValue::from_f64(self.id as f64),
+        )
+        .unwrap();
+        js_sys::Reflect::set(
+            &obj,
+            &JsValue::from_str("effect"),
+            &self.effect.to_js_value(),
+        )
+        .unwrap();
+        js_sys::Reflect::set(
+            &obj,
+            &JsValue::from_str("pointer"),
+            &self.pointer.to_js_value(),
+        )
+        .unwrap();
         js_sys::Reflect::set(&obj, &JsValue::from_str("shape"), &self.shape.to_js_value()).unwrap();
         obj.into()
     }
 }
-
 
 #[wasm_bindgen]
 impl WasmTile {
@@ -141,7 +155,10 @@ impl WasmTile {
 
         if let Some(s) = self.effect().shrink() {
             // Shrink is interpreted as absolute bounds
-            target.x() >= s.start().x() && target.x() <= s.end().x() && target.y() >= s.start().y() && target.y() <= s.end().y()
+            target.x() >= s.start().x()
+                && target.x() <= s.end().x()
+                && target.y() >= s.start().y()
+                && target.y() <= s.end().y()
         } else {
             self.contains(target)
         }
@@ -150,9 +167,14 @@ impl WasmTile {
     #[wasm_bindgen]
     pub fn contains(&self, point: WasmCoordinates) -> bool {
         let start = self.pointer;
-        let end = WasmCoordinates::new(start.x() + self.shape.width() - 1, start.y() + self.shape.height() - 1);
+        let end = WasmCoordinates::new(
+            start.x() + self.shape.width() - 1,
+            start.y() + self.shape.height() - 1,
+        );
 
-        point.x() >= start.x() && point.x() <= end.x() && point.y() >= start.y() && point.y() <= end.y()
+        point.x() >= start.x()
+            && point.x() <= end.x()
+            && point.y() >= start.y()
+            && point.y() <= end.y()
     }
 }
-

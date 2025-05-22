@@ -12,7 +12,7 @@ pub struct WasmEffect {
     action_id: Option<i32>,
     block: bool,
     group: bool,
-    shrink: Option<WasmSelector>
+    shrink: Option<WasmSelector>,
 }
 
 impl WasmEffect {
@@ -23,7 +23,9 @@ impl WasmEffect {
             action_id: effect.action_id,
             block: effect.block,
             group: effect.group,
-            shrink: effect.shrink.map(|s| WasmSelector::from_native(Selector::Block(s))),
+            shrink: effect
+                .shrink
+                .map(|s| WasmSelector::from_native(Selector::Block(s))),
         }
     }
 
@@ -40,11 +42,13 @@ impl WasmEffect {
 
     /// Creates a new `WasmEffect` instance from a JavaScript object.
     pub fn from_js_value(value: &JsValue) -> Result<Self, JsValue> {
-        let texture_id: Option<i32> = Reflect::get(value, &JsValue::from_str("texture_id")).ok()
-            .and_then(|v| v.as_f64()) 
+        let texture_id: Option<i32> = Reflect::get(value, &JsValue::from_str("texture_id"))
+            .ok()
+            .and_then(|v| v.as_f64())
             .map(|n| n as i32);
-        let action_id: Option<i32> = Reflect::get(value, &JsValue::from_str("action_id")).ok()
-            .and_then(|v| v.as_f64()) 
+        let action_id: Option<i32> = Reflect::get(value, &JsValue::from_str("action_id"))
+            .ok()
+            .and_then(|v| v.as_f64())
             .map(|n| n as i32);
         let block = Reflect::get(value, &JsValue::from_str("block"))?
             .as_bool()
@@ -59,7 +63,9 @@ impl WasmEffect {
         } else if shrink_js.is_object() {
             Some(WasmSelector::from_js_value(&shrink_js)?)
         } else {
-            return Err(JsValue::from_str("Effect.shrink must be an object, null or undefined"));
+            return Err(JsValue::from_str(
+                "Effect.shrink must be an object, null or undefined",
+            ));
         };
 
         Ok(Self {
@@ -82,22 +88,20 @@ impl WasmEffect {
             Some(s) => JsValue::from_f64(*s as f64),
             None => JsValue::NULL,
         };
+        Reflect::set(&obj, &JsValue::from_str("texture_id"), &texture_jsvalue).unwrap();
+        Reflect::set(&obj, &JsValue::from_str("action_id"), &action_jsvalue).unwrap();
         Reflect::set(
             &obj,
-            &JsValue::from_str("texture_id"),
-            &texture_jsvalue,
+            &JsValue::from_str("block"),
+            &JsValue::from(self.block),
         )
         .unwrap();
         Reflect::set(
             &obj,
-            &JsValue::from_str("action_id"),
-            &action_jsvalue,
+            &JsValue::from_str("group"),
+            &JsValue::from(self.group),
         )
         .unwrap();
-        Reflect::set(&obj, &JsValue::from_str("block"), &JsValue::from(self.block))
-            .unwrap();
-        Reflect::set(&obj, &JsValue::from_str("group"), &JsValue::from(self.group))
-            .unwrap();
         if let Some(shrink) = &self.shrink {
             Reflect::set(&obj, &JsValue::from_str("shrink"), &shrink.to_js_value()).unwrap();
         } else {
@@ -110,13 +114,19 @@ impl WasmEffect {
 #[wasm_bindgen]
 impl WasmEffect {
     #[wasm_bindgen(constructor)]
-    pub fn new(texture_id: Option<i32>, action_id: Option<i32>, block: bool, group: bool, shrink: Option<WasmSelector> ) -> Self {
+    pub fn new(
+        texture_id: Option<i32>,
+        action_id: Option<i32>,
+        block: bool,
+        group: bool,
+        shrink: Option<WasmSelector>,
+    ) -> Self {
         Self {
             texture_id,
             action_id,
             block,
             group,
-            shrink
+            shrink,
         }
     }
 

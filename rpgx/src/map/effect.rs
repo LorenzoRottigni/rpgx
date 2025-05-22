@@ -29,4 +29,3 @@ mod tests {
         assert_eq!(effect.shrink, None);
     }
 }
-

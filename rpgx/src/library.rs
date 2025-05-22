@@ -51,12 +51,12 @@ impl ResourceLibrary {
     }
 
     pub fn get_texture_by_id(&self, id: i32) -> Option<&String> {
-        self.id_keys.get(&id).and_then(|&key| {
-            match self.data.get(key) {
+        self.id_keys
+            .get(&id)
+            .and_then(|&key| match self.data.get(key) {
                 Some(Resource::Texture(s)) => Some(s),
                 _ => None,
-            }
-        })
+            })
     }
 
     pub fn get_action(&self, key: &str) -> Option<fn()> {
@@ -67,18 +67,22 @@ impl ResourceLibrary {
     }
 
     pub fn get_action_by_id(&self, id: i32) -> Option<fn()> {
-        self.id_keys.get(&id).and_then(|&key| {
-            match self.data.get(key) {
+        self.id_keys
+            .get(&id)
+            .and_then(|&key| match self.data.get(key) {
                 Some(Resource::Action(f)) => Some(*f),
                 _ => None,
-            }
-        })
+            })
     }
 
     pub fn get_key_id(&self, key: &'static str) -> i32 {
-        *self.key_ids
-            .get(key)
-            .expect(format!("Key ID not found. Insert the resource before requesting its ID. {}", key).as_str())
+        *self.key_ids.get(key).expect(
+            format!(
+                "Key ID not found. Insert the resource before requesting its ID. {}",
+                key
+            )
+            .as_str(),
+        )
     }
 }
 
@@ -136,7 +140,9 @@ pub mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Key ID not found. Insert the resource before requesting its ID. missing")]
+    #[should_panic(
+        expected = "Key ID not found. Insert the resource before requesting its ID. missing"
+    )]
     fn panics_on_missing_key_id() {
         let lib = ResourceLibrary::new();
         lib.get_key_id("missing");

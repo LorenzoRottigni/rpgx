@@ -1,4 +1,4 @@
-use crate::prelude::{Coordinates, Shape, Effect, SingleSelector};
+use crate::prelude::{Coordinates, Effect, Shape, SingleSelector};
 
 /// Represents a single tile on the grid with unique identifier, spatial information, and effects applied.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -54,13 +54,21 @@ mod tests {
 
     #[test]
     fn contains_its_coordinates() {
-        let tile = make_tile(Coordinates { x: 0, y: 0 }, Shape::from_square(3), Effect::default());
+        let tile = make_tile(
+            Coordinates { x: 0, y: 0 },
+            Shape::from_square(3),
+            Effect::default(),
+        );
         assert!(tile.contains(Coordinates { x: 1, y: 1 }));
     }
 
     #[test]
     fn doesnt_contain_out_of_bounds_coordinates() {
-        let tile = make_tile(Coordinates { x: 0, y: 0 }, Shape::from_square(2), Effect::default());
+        let tile = make_tile(
+            Coordinates { x: 0, y: 0 },
+            Shape::from_square(2),
+            Effect::default(),
+        );
         assert!(!tile.contains(Coordinates { x: 3, y: 3 }));
     }
 
@@ -90,10 +98,7 @@ mod tests {
     fn is_blocking_when_within_shrink_bounds() {
         let effect = Effect {
             block: true,
-            shrink: Some((
-                Coordinates { x: 1, y: 1 },
-                Coordinates { x: 2, y: 2 },
-            )),
+            shrink: Some((Coordinates { x: 1, y: 1 }, Coordinates { x: 2, y: 2 })),
             ..Default::default()
         };
         let tile = make_tile(Coordinates { x: 0, y: 0 }, Shape::from_square(4), effect);
@@ -103,9 +108,12 @@ mod tests {
 
     #[test]
     fn offset_modifies_pointer() {
-        let mut tile = make_tile(Coordinates { x: 2, y: 3 }, Shape::from_square(1), Effect::default());
+        let mut tile = make_tile(
+            Coordinates { x: 2, y: 3 },
+            Shape::from_square(1),
+            Effect::default(),
+        );
         tile.offset(Coordinates { x: 1, y: 2 });
         assert_eq!(tile.pointer, Coordinates { x: 3, y: 5 });
     }
-
 }

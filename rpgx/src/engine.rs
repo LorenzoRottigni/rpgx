@@ -1,4 +1,4 @@
-use crate::prelude::{Coordinates, Direction, MoveError, Tile, Map, Pawn};
+use crate::prelude::{Coordinates, Direction, Map, MoveError, Pawn, Tile};
 
 /// RPG engine providing [`Pawn`] movement computation across the [`Map`].
 #[derive(Clone)]
@@ -20,7 +20,7 @@ impl Engine {
             .find_path(&start, &target_position)
             .ok_or(MoveError::PathNotFound)?;
 
-        let mut tile= None;
+        let mut tile = None;
         for step_coords in path {
             tile = Some(self.move_to(step_coords)?);
         }
@@ -61,10 +61,7 @@ impl Engine {
     }
 
     /// Get steps to reach the target [`Coordinates`] from the current position
-    pub fn steps_to(
-        &self,
-        target_position: Coordinates,
-    ) -> Result<Vec<Coordinates>, MoveError> {
+    pub fn steps_to(&self, target_position: Coordinates) -> Result<Vec<Coordinates>, MoveError> {
         let start = self.pawn.tile.pointer;
         let path = self
             .map
@@ -89,7 +86,10 @@ pub mod tests {
     }
 
     fn basic_test_map() -> Map {
-        let shape = Shape { width: 3, height: 3 };
+        let shape = Shape {
+            width: 3,
+            height: 3,
+        };
         let masks = vec![];
         let layer = Layer::new("base".to_string(), LayerType::Default, shape, masks);
         Map::new("test_map".to_string(), vec![layer])
@@ -159,7 +159,8 @@ pub mod tests {
     fn test_engine_walk_to_success() {
         let map = basic_test_map();
         let mut engine = Engine::new(map, pawn_at(0, 0));
-        let final_tile = futures::executor::block_on(engine.walk_to(Coordinates { x: 2, y: 0 })).unwrap();
+        let final_tile =
+            futures::executor::block_on(engine.walk_to(Coordinates { x: 2, y: 0 })).unwrap();
         assert_eq!(final_tile.pointer, Coordinates { x: 2, y: 0 });
     }
 
@@ -185,5 +186,4 @@ pub mod tests {
         let result = futures::executor::block_on(engine.walk_to(Coordinates { x: 2, y: 0 }));
         assert!(matches!(result, Err(MoveError::PathNotFound)));
     }
-
 }

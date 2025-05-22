@@ -1,11 +1,11 @@
 use std::cell::RefCell;
 
-use js_sys::{Promise};
-use rpgx::{common::direction::Direction};
+use js_sys::Promise;
+use rpgx::common::direction::Direction;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::future_to_promise;
 
-use crate::prelude::{WasmCoordinates,WasmMap,WasmPawn,WasmTile};
+use crate::prelude::{WasmCoordinates, WasmMap, WasmPawn, WasmTile};
 
 /// Represents the RPGX engine, which handles the game logic and interactions.
 #[wasm_bindgen]
@@ -32,7 +32,6 @@ impl WasmEngine {
     pub fn pawn(&self) -> WasmPawn {
         let pawn = &self.inner.borrow().pawn;
         WasmPawn::from_native(pawn.clone())
-        
     }
 
     /// Walk to coordinates (x, y)
@@ -63,7 +62,8 @@ impl WasmEngine {
             "right" => Direction::Right,
             _ => return Err(JsValue::from_str("Invalid direction")),
         };
-        let tile = self.inner
+        let tile = self
+            .inner
             .borrow_mut()
             .step_to(dir)
             .map_err(|e| JsValue::from_str(&format!("step_to failed: {:?}", e)))?;
@@ -74,7 +74,8 @@ impl WasmEngine {
     /// Move directly to coordinates (x, y)
     #[wasm_bindgen]
     pub fn move_to(&mut self, pointer: WasmCoordinates) -> Result<WasmTile, JsValue> {
-        let tile = self.inner
+        let tile = self
+            .inner
             .borrow_mut()
             .move_to(pointer.to_native())
             .map_err(|e| JsValue::from_str(&format!("move_to failed: {:?}", e)))?;
@@ -83,14 +84,15 @@ impl WasmEngine {
 
     /// Get steps to coordinates (x, y)
     #[wasm_bindgen]
-    pub fn steps_to(
-        &self,
-        pointer: WasmCoordinates
-    ) -> Result<Vec<WasmCoordinates>, JsValue> {
-        let steps = self.inner
+    pub fn steps_to(&self, pointer: WasmCoordinates) -> Result<Vec<WasmCoordinates>, JsValue> {
+        let steps = self
+            .inner
             .borrow()
             .steps_to(pointer.to_native())
             .map_err(|e| JsValue::from_str(&format!("steps_to failed: {:?}", e)))?;
-        Ok(steps.into_iter().map(WasmCoordinates::from_native).collect())
+        Ok(steps
+            .into_iter()
+            .map(WasmCoordinates::from_native)
+            .collect())
     }
 }
