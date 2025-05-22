@@ -37,7 +37,10 @@ jobs:
           libxrandr-dev \
           libxrender-dev \
           libxtst-dev \
-          libdbus-1-dev
+          libdbus-1-dev \
+          libsoup-3.0-dev \
+        libwebkit2gtk-4.1-dev
+
     - name: Build
       run: cargo build --verbose
     - name: Run tests
