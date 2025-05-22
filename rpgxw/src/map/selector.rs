@@ -6,7 +6,7 @@ use crate::prelude::WasmCoordinates;
 
 /// Represents a selector in the RPGX engine, which can be a single coordinate or a block of coordinates.
 #[wasm_bindgen]
-#[derive(Clone, Debug, Copy)]
+#[derive(Clone, Debug)]
 pub struct WasmSelector {
     start: WasmCoordinates,
     end: WasmCoordinates,

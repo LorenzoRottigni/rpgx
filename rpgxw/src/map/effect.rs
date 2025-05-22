@@ -6,7 +6,7 @@ use crate::prelude::WasmSelector;
 
 /// Visual and interactive properties applied to a [`super::tile::Tile`] or an UI element
 #[wasm_bindgen]
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub struct WasmEffect {
     texture_id: Option<i32>,
     action_id: Option<i32>,
@@ -53,10 +53,13 @@ impl WasmEffect {
             .as_bool()
             .ok_or_else(|| JsValue::from_str("Effect.group must be a bool"))?;
         let shrink_js = Reflect::get(value, &JsValue::from_str("shrink"))?;
-        let shrink = if shrink_js.is_null() {
+
+        let shrink = if shrink_js.is_null() || shrink_js.is_undefined() {
             None
-        } else {
+        } else if shrink_js.is_object() {
             Some(WasmSelector::from_js_value(&shrink_js)?)
+        } else {
+            return Err(JsValue::from_str("Effect.shrink must be an object, null or undefined"));
         };
 
         Ok(Self {
@@ -95,6 +98,11 @@ impl WasmEffect {
             .unwrap();
         Reflect::set(&obj, &JsValue::from_str("group"), &JsValue::from(self.group))
             .unwrap();
+        if let Some(shrink) = &self.shrink {
+            Reflect::set(&obj, &JsValue::from_str("shrink"), &shrink.to_js_value()).unwrap();
+        } else {
+            Reflect::set(&obj, &JsValue::from_str("shrink"), &JsValue::NULL).unwrap();
+        }
         obj.into()
     }
 }

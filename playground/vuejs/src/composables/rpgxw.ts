@@ -48,7 +48,7 @@ export function useEngine(library: wasm.ResourceLibrary): wasm.WasmEngine {
         [
             new wasm.WasmMask(
                 "default_floor",
-                new wasm.WasmEffect(library.get_key_id("floor_1"), undefined, false, false),
+                new wasm.WasmEffect(library.get_key_id("floor_1"), undefined, false, false, null),
                 wasm.WasmSelector.new_block(
                     new wasm.WasmCoordinates(0, 0),
                     new wasm.WasmCoordinates(grid_size - 1, grid_size - 1),
@@ -56,7 +56,7 @@ export function useEngine(library: wasm.ResourceLibrary): wasm.WasmEngine {
             ),
             new wasm.WasmMask(
                 "floor_alt",
-                new wasm.WasmEffect(library.get_key_id("floor_2"), undefined, false, false),
+                new wasm.WasmEffect(library.get_key_id("floor_2"), undefined, false, false, null),
                 wasm.WasmSelector.new_block(
                     new wasm.WasmCoordinates(0, 0),
                     new wasm.WasmCoordinates(0, grid_size - 1),
@@ -72,7 +72,7 @@ export function useEngine(library: wasm.ResourceLibrary): wasm.WasmEngine {
         [
             new wasm.WasmMask(
                 "default_building",
-                new wasm.WasmEffect(library.get_key_id("building_1"), undefined, true, true),
+                new wasm.WasmEffect(library.get_key_id("building_1"), undefined, true, true, null),
                 wasm.WasmSelector.new_block(
                     new wasm.WasmCoordinates(1, 6),
                     new wasm.WasmCoordinates(4, 11),
@@ -88,7 +88,7 @@ export function useEngine(library: wasm.ResourceLibrary): wasm.WasmEngine {
         [
             new wasm.WasmMask(
                 "logit",
-                new wasm.WasmEffect(library.get_key_id("floor_2"), library.get_key_id("logit"), false, false),
+                new wasm.WasmEffect(library.get_key_id("floor_2"), library.get_key_id("logit"), false, false, null),
                 wasm.WasmSelector.new_block(
                     new wasm.WasmCoordinates(10, 0),
                     new wasm.WasmCoordinates(11, 0),
@@ -110,7 +110,7 @@ export function useEngine(library: wasm.ResourceLibrary): wasm.WasmEngine {
     const pawn = new wasm.WasmPawn(
         new wasm.WasmTile(
             0,
-            new wasm.WasmEffect(undefined, undefined, false, false),
+            new wasm.WasmEffect(undefined, undefined, false, false, null),
             new wasm.WasmCoordinates(0, 0),
             new wasm.WasmShape(1, 1),
         ),
