@@ -12,7 +12,7 @@ dioxus-logger = "0.6.2"
 futures-util = "0.3.31"
 gloo-timers = { version = "0.3", features = ["futures"] }
 web-sys = "0.3.77"
-rpgx = { path = "../../rpgx" }
+rpgx = { path = "../../packages/rpgx" }
 log = "0.4.27"
 tokio = "1.45.0"
 
