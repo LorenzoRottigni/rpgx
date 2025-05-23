@@ -4,6 +4,9 @@ pub mod routing;
 pub mod selector;
 pub mod tile;
 
+// #[cfg(feature = "presets")]
+// pub mod presets;
+
 use crate::prelude::{Coordinates, Layer, LayerType, Tile};
 
 use indexmap::IndexMap;

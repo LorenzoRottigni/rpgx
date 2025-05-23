@@ -15,6 +15,12 @@ pub struct Effect {
     // TODO: opaque
 }
 
+impl Effect {
+    pub fn new(action_id: Option<i32>, texture_id: Option<i32>, block: bool, group: bool, shrink: Option<BlockSelector>) -> Self {
+        Self { action_id, texture_id, block, group, shrink }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

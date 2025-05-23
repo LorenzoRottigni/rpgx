@@ -8,6 +8,10 @@ name = "rpgx"
 path = "src/lib.rs"
 crate-type = ["rlib"]
 
+[features]
+default = []
+presets = []
+
 [dependencies]
 indexmap = "2.9.0"
 

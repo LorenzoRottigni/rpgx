@@ -15,6 +15,10 @@ pub struct Mask {
 }
 
 impl Mask {
+    pub fn new(name: String, selector: Selector, effect: Effect) -> Self {
+        Self { name, selector, effect }
+    }
+
     pub fn apply(&self, shape: Shape) -> Vec<Tile> {
         match self.selector {
             Selector::Single(pointer) => {

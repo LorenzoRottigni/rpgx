@@ -10,6 +10,15 @@ pub struct Tile {
 }
 
 impl Tile {
+    pub fn new(id: i32, effect: Effect, pointer: SingleSelector, shape: Shape) -> Self {
+        Self {
+            id,
+            effect,
+            pointer,
+            shape
+        }
+    }
+
     pub fn contains(&self, point: Coordinates) -> bool {
         let start = self.pointer;
         let end = Coordinates {
@@ -43,31 +52,26 @@ impl Tile {
 mod tests {
     use super::*;
 
-    fn make_tile(pointer: Coordinates, shape: Shape, effect: Effect) -> Tile {
-        Tile {
-            id: 0,
-            pointer,
-            shape,
-            effect,
-        }
-    }
-
     #[test]
     fn contains_its_coordinates() {
-        let tile = make_tile(
+        let tile = Tile::new(
+            0,
+            Effect::default(),
             Coordinates { x: 0, y: 0 },
             Shape::from_square(3),
-            Effect::default(),
         );
+
         assert!(tile.contains(Coordinates { x: 1, y: 1 }));
     }
 
     #[test]
     fn doesnt_contain_out_of_bounds_coordinates() {
-        let tile = make_tile(
+        let tile = Tile::new(
+            0,
+            Effect::default(),
             Coordinates { x: 0, y: 0 },
             Shape::from_square(2),
-            Effect::default(),
+            
         );
         assert!(!tile.contains(Coordinates { x: 3, y: 3 }));
     }
@@ -79,7 +83,7 @@ mod tests {
             shrink: None,
             ..Default::default()
         };
-        let tile = make_tile(Coordinates { x: 0, y: 0 }, Shape::from_square(2), effect);
+        let tile = Tile::new(0, effect,Coordinates { x: 0, y: 0 }, Shape::from_square(2));
         assert!(tile.is_blocking_at(Coordinates { x: 1, y: 1 }));
     }
 
@@ -90,7 +94,7 @@ mod tests {
             shrink: None,
             ..Default::default()
         };
-        let tile = make_tile(Coordinates { x: 0, y: 0 }, Shape::from_square(2), effect);
+        let tile = Tile::new(0, effect, Coordinates { x: 0, y: 0 }, Shape::from_square(2));
         assert!(!tile.is_blocking_at(Coordinates { x: 1, y: 1 }));
     }
 
@@ -101,17 +105,18 @@ mod tests {
             shrink: Some((Coordinates { x: 1, y: 1 }, Coordinates { x: 2, y: 2 })),
             ..Default::default()
         };
-        let tile = make_tile(Coordinates { x: 0, y: 0 }, Shape::from_square(4), effect);
+        let tile = Tile::new(0, effect, Coordinates { x: 0, y: 0 }, Shape::from_square(4));
         assert!(tile.is_blocking_at(Coordinates { x: 2, y: 2 }));
         assert!(!tile.is_blocking_at(Coordinates { x: 0, y: 0 }));
     }
 
     #[test]
     fn offset_modifies_pointer() {
-        let mut tile = make_tile(
+        let mut tile = Tile::new(
+            0,
+            Effect::default(),
             Coordinates { x: 2, y: 3 },
             Shape::from_square(1),
-            Effect::default(),
         );
         tile.offset(Coordinates { x: 1, y: 2 });
         assert_eq!(tile.pointer, Coordinates { x: 3, y: 5 });
