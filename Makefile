@@ -1,69 +1,67 @@
-# Makefile at repo root
+.PHONY: dev-vue dev-node dev-dioxus-web dev-dioxus-desktop clean test build wasm-build \
+        build-vue build-dioxus-web build-dioxus-desktop
 
-.PHONY: clean build-rpgx build-rpgxw wasm-pack-vuejs wasm-pack-nodejs \
-        dev-vuejs dev-nodejs dev-dioxus fmt fmt-js build/all wasm-pack-all dev-all lint test \
+WASM_TARGET=wasm32-unknown-unknown
+WASM_OUT_VUE=playground/vuejs/src/wasm
+WASM_OUT_NODE=playground/nodejs/wasm
+WASM_BIN=target/$(WASM_TARGET)/release/rpgxw.wasm
 
-build-all: build-rpgx build-rpgxw
+define wasm_bundle
+	@echo "🔧 Generating RPGXW WASM bundle..."
+	cargo build --target $(WASM_TARGET) --release -p rpgxw
+	@echo "🔧 Generating RPGXW WASM NodeJS loader..."
+	wasm-bindgen $(WASM_BIN) --out-dir $(1) --target bundler
+endef
 
-wasm-pack-all: wasm-pack-nodejs wasm-pack-vuejs
-
-dev-all: dev-dioxus dev-nodejs dev-vuejs
-
-build-rpgx:
-	@echo "🔧 Building rpgx"
-	$(MAKE) clean
-	cargo build --release -p rpgx
-
-build-rpgxw:
-	@echo "🔧 Building rpgxw (WASM)"
-	$(MAKE) clean
-	cargo build --target wasm32-unknown-unknown --release -p rpgxw
-
-wasm-pack-vuejs:
-	@echo "📦 Building wasm for Vue.js"
-	wasm-bindgen target/wasm32-unknown-unknown/release/rpgxw.wasm \
-		--out-dir playground/vuejs/src/wasm --target bundler
-
-wasm-pack-nodejs:
-	@echo "📦 Building wasm for Node.js"
-	wasm-bindgen target/wasm32-unknown-unknown/release/rpgxw.wasm \
-		--out-dir playground/nodejs/wasm --target nodejs
-
-dev-vuejs:
-	@echo "🚀 Starting Vue.js dev server"
+dev-vue:
+	$(call wasm_bundle,$(WASM_OUT_VUE))
+	@echo "🚀 Starting Vue.js playground..."
 	cd playground/vuejs && npm install && npm run dev
 
-dev-nodejs:
-	@echo "🚀 Starting Node.js dev server"
-	cd playground/nodejs && npm install && npx ts-node src/main.ts
+dev-node:
+	$(call wasm_bundle,$(WASM_OUT_NODE))
+	@echo "🚀 Starting NodeJS playground..."
+	cd playground/nodejs && npx ts-node index.ts
 
 dev-dioxus-web:
-	@echo "🚀 Starting Dioxus dev server"
+	@echo "🚀 Starting Dioxus Web Application..."
 	cd playground/dioxus && cargo install --locked dioxus-cli && dx serve --platform web
 
 dev-dioxus-desktop:
-	@echo "🚀 Starting Dioxus dev server"
+	@echo "🚀 Starting Dioxus Desktop Application..."
 	cd playground/dioxus && cargo install --locked dioxus-cli && dx serve --platform desktop
 
 clean:
-	@echo "🧹 Cleaning project"
+	@echo "🧹 Cleaning project..."
 	cargo clean
-	cd playground/nodejs && rm -rf node_modules dist
-	cd playground/vuejs && rm -rf node_modules dist
+	rm -rf playground/vuejs/node_modules playground/vuejs/dist
 	cd playground/dioxus && cargo clean
 
-fmt:
-	@echo "🎨 Formatting Rust code"
-	cargo fmt --all
+test-core:
+	@echo "🧪 Running tests for RPGX..."
+	cargo test -p rpgx
 
-fmt-js:
-	cd playground/vuejs && npx prettier --write .
-	cd playground/nodejs && npx prettier --write .
+test-wasm:
+	@echo "🧪 Running tests for RPGXW..."
+	cargo test -p rpgxw
 
-lint:
-	@echo "🔍 Linting Rust code"
-	cargo clippy --workspace --all-targets -- -D warnings
+build-core:
+	@echo "📦 Building release for Rust crate..."
+	cargo build --release -p rpgx
 
-test:
-	@echo "🧪 Running all Rust tests"
-	cargo test --workspace
+build-wasm:
+	@echo "🔧 Building RPGXW..."
+	cargo build --target $(WASM_TARGET) --release -p rpgxw
+
+build-vue:
+	$(call wasm_bundle,$(WASM_OUT_VUE))
+	@echo "🚀 Building Vue.js playground..."
+	cd playground/vuejs && npm install && npm run build
+
+build-dioxus-web:
+	@echo "🚀 Building Dioxus Web Application..."
+	cd playground/dioxus && cargo install --locked dioxus-cli && dx build --platform web
+
+build-dioxus-desktop:
+	@echo "🚀 Building Dioxus Desktop Application..."
+	cd playground/dioxus && cargo install --locked dioxus-cli && dx build --platform desktop

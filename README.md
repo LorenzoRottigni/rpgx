@@ -10,6 +10,47 @@ RPGX is fully compatible with [Dioxus](https://dioxuslabs.com/), a powerful Rust
 
 This combination of Rust’s performance, WASM’s portability, and Dioxus’s reactive UI system provides a robust foundation for developing cross-platform RPG games that can run natively, on the web, or in hybrid contexts.
 
+## 🚀 Getting Started
+
+> ⚠️ **Note:** RPGX is still under active development and not yet published to public registries. To use it, you may need to reference the source directly from GitHub.
+
+---
+
+### 🦀 Rust (Native)
+
+Install the core engine crate:
+
+```sh
+cargo add rpgx
+```
+
+Or add it manually in your Cargo.toml:
+
+```toml
+[dependencies]
+rpgx = { git = "https://github.com/LorenzoRottigni/rpgx", package = "rpgx" }
+```
+
+Docs: https://github.com/LorenzoRottigni/rpgx/tree/master/packages/rpgx
+
+### 🌐 Node.js / WebAssembly
+
+Install the WebAssembly wrapper for use in JS/TS:
+
+```sh
+npm install rpgxw
+# or
+yarn add rpgxw
+# or
+pnpm install rpgxw
+```
+
+Docs: https://github.com/LorenzoRottigni/rpgx/tree/master/packages/rpgxw
+
+### 🧱 C++ (WASM interop)
+
+🚧 Planned: A C++-friendly wrapper using wasm-bindgen-cxx or cxx, to allow integration with C++ game engines and UIs like Qt or Unreal.
+
 ## Glossary
 
 ### Effect
@@ -107,3 +148,109 @@ Typical usage involves creating an `Engine` with a map and pawn, then calling mo
 
 ---
 
+
+## Contributing
+
+### 🛠 Development Setup
+
+Requirements:
+
+- [Rust](https://rustup.rs) (with `wasm32-unknown-unknown` target)
+- [Node.js](https://nodejs.org)
+- [wasm-bindgen CLI](https://rustwasm.github.io/docs/wasm-bindgen/):
+
+  ```sh
+  cargo install wasm-bindgen-cli
+  ```
+
+- [Dioxus CLI](https://dioxuslabs.com/):
+
+  ```sh
+  cargo install --locked dioxus-cli
+  ```
+
+Clone the repo and initialize your environment using the provided `Makefile`.
+
+---
+
+### 🚀 Common Development Workflows
+
+#### Run RPGX in Vue Playground
+
+```sh
+make dev-vue
+```
+
+- Builds the `rpgxw` WebAssembly bundle.
+- Generates JS bindings using `wasm-bindgen`.
+- Launches the Vue.js playground.
+
+#### Run RPGX in Node.js Playground
+
+```sh
+make dev-node
+```
+
+- Builds and binds the WASM module.
+- Starts the Node.js script using TypeScript.
+
+#### Run RPGX in Dioxus (Web/Desktop)
+
+```sh
+make dev-dioxus-web     # For web browser rendering
+make dev-dioxus-desktop # For native desktop app
+```
+
+---
+
+### 🧪 Testing
+
+Run all unit tests for the Rust core and WASM crates:
+
+```sh
+make test-core     # Tests for core engine (rpgx)
+make test-wasm     # Tests for WASM wrapper (rpgxw)
+```
+
+---
+
+### 🧹 Clean Up Build Artifacts
+
+```sh
+make clean
+```
+
+This removes compiled files, WASM output, and `node_modules` from playgrounds.
+
+---
+
+### 📦 Production Builds
+
+#### Core Engine (Native)
+
+```sh
+make build-core
+```
+
+#### WASM Package
+
+```sh
+make build-wasm
+```
+
+#### Vue Production Build
+
+```sh
+make build-vue
+```
+
+#### Dioxus Builds
+
+```sh
+make build-dioxus-web
+make build-dioxus-desktop
+```
+
+## License
+
+RPGX is licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute it under the terms of this license.
