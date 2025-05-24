@@ -3,6 +3,7 @@
 use dioxus::prelude::*;
 
 use views::Home;
+use views::Test;
 
 /// Define a components module that contains all shared components for our app.
 mod components;
@@ -24,6 +25,8 @@ enum Route {
         // the component for that route will be rendered. The component name that is rendered defaults to the variant name.
     #[route("/")]
     Home {},
+    #[route("/test")]
+    Test {}
 }
 
 // We can import assets in dioxus with the `asset!` macro. This macro takes a path to an asset relative to the crate root.

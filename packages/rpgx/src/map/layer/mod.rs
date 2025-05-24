@@ -27,14 +27,45 @@ pub struct Layer {
 
 impl Layer {
     pub fn new(name: String, kind: LayerType, shape: Shape, masks: Vec<Mask>) -> Self {
-        let tiles = if kind == LayerType::Default {
-            Self::generate_default_grid(shape, Effect::default())
-        } else {
-            masks.iter().flat_map(|mask| mask.apply(shape)).collect()
-        };
+        match kind {
+            LayerType::Default => Layer::base(name, shape, masks),
+            _ => {
+                let tiles = masks.iter().flat_map(|mask| mask.apply(shape)).collect();
+                Self {
+                    name,
+                    kind,
+                    shape,
+                    tiles,
+                    masks,
+                }
+            }
+        }
+    }
+
+    pub fn base(name: impl Into<String>, shape: Shape, masks: Vec<Mask>) -> Self {
+        let mut tiles = Vec::new();
+        for y in 0..shape.height {
+            for x in 0..shape.width {
+                tiles.push(Tile {
+                    id: x,
+                    pointer: Coordinates { x, y },
+                    shape: Shape::from_square(1),
+                    effect: Effect::default(),
+                });
+            }
+        }
+
+        for mask in &masks {
+            for tile in mask.apply(shape) {
+                if let Some(t) = tiles.iter_mut().find(|t| t.pointer == tile.pointer) {
+                    t.effect = tile.effect.clone(); // or merge if needed
+                }
+            }
+        }
+
         Self {
-            name,
-            kind,
+            name: name.into(),
+            kind: LayerType::Default,
             shape,
             tiles,
             masks,
@@ -69,21 +100,6 @@ impl Layer {
         self.shape.width += delta.x;
         self.shape.height += delta.y;
         self
-    }
-
-    pub fn generate_default_grid(shape: Shape, effect: Effect) -> Vec<Tile> {
-        let mut tiles = Vec::new();
-        for y in 0..shape.height {
-            for x in 0..shape.width {
-                tiles.push(Tile {
-                    id: x,
-                    pointer: Coordinates { x, y },
-                    shape: Shape::from_square(1),
-                    effect,
-                });
-            }
-        }
-        tiles
     }
 }
 

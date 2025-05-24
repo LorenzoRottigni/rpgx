@@ -10,3 +10,6 @@
 
 mod home;
 pub use home::Home;
+
+mod test;
+pub use test::Test;
