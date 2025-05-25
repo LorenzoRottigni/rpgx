@@ -16,13 +16,9 @@ pub fn street_layer_around(shape: Shape, texture_id: i32) -> Layer {
             group: false,
             shrink: None,
         },
-        selector: Selector::Block((
-            Coordinates { x: 0, y: 0 },
-            Coordinates {
-                x: outer_shape.width,
-                y: outer_shape.height,
-            },
-        )),
+        selector: Selector::Filter(move |coords: Coordinates, shape: Shape| {
+            coords.x == 0 || coords.y == 0 || coords.x == shape.width - 1 || coords.y == shape.height - 1
+        }),
     };
 
     Layer::new(

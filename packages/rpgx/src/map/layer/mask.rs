@@ -172,7 +172,7 @@ pub mod tests {
     fn applies_effect_using_filter_selector() {
         let mask = Mask {
             name: "FilterMask".to_string(),
-            selector: Selector::Filter(|coord| coord.x % 2 == 0 && coord.y % 2 == 0),
+            selector: Selector::Filter(|coord, _s| coord.x % 2 == 0 && coord.y % 2 == 0),
             effect: Effect {
                 block: true,
                 ..Default::default()

@@ -24,6 +24,7 @@ impl Map {
 
     pub fn load_layer(&mut self, layer: Layer) {
         self.layers.push(layer);
+        // reshape base layer
     }
 
     /// Add another map's layers, offsetting them into this map's grid layout

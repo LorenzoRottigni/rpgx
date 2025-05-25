@@ -21,7 +21,7 @@ const GRID_SIZE: i32 = 15;
 
 #[component]
 pub fn Home() -> Element {
-    fn is_center_tile(pointer: Coordinates) -> bool {
+    fn is_center_tile(pointer: Coordinates, _shape: Shape) -> bool {
         let x = pointer.x;
         let y = pointer.y;
         let center_x = GRID_SIZE / 2;

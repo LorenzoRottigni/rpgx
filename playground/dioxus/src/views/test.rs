@@ -55,7 +55,29 @@ pub fn Test() -> Element {
 
     let w_library = library.read();
 
-    let single_map = rpgx::factory::map::presets::building::building_2x3(
+    // let mut single_map = Map {
+    //     layers: vec![
+    //         rpgx::factory::layer::presets::street::street_layer_around(
+    //             Shape {
+    //                 width: 4,
+    //                 height: 6,
+    //             }, 
+    //             w_library.get_key_id("floor_2")
+    //         )
+    //     ],
+    //     name: "text".to_string(),
+    // };
+// 
+    // single_map.expand_at(&rpgx::factory::map::presets::building::building_2x3(
+    //     Shape {
+    //         width: 4,
+    //         height: 6,
+    //     },
+    //     w_library.get_key_id("building_1"),
+    //     w_library.get_key_id("consolelog"),
+    // ), Coordinates { x: 1, y: 1 });
+
+    let mut single_map = rpgx::factory::map::presets::building::building_2x3(
         Shape {
             width: 4,
             height: 6,
@@ -63,6 +85,14 @@ pub fn Test() -> Element {
         w_library.get_key_id("building_1"),
         w_library.get_key_id("consolelog"),
     );
+    // single_map.load_layer(rpgx::factory::layer::presets::street::street_layer_around(
+    //     Shape {
+    //         width: 4,
+    //         height: 6,
+    //     }, 
+    //     w_library.get_key_id("floor_2")
+    // ));
+
     let mut map = single_map.clone();
     map.expand_at(&single_map.clone(), Coordinates { x: 4, y: 0 });
     map.expand_at(&single_map.clone(), Coordinates { x: 0, y: 6 });

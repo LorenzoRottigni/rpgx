@@ -1,4 +1,4 @@
-use crate::prelude::Coordinates;
+use crate::prelude::{Coordinates, Shape};
 
 /// A [`SingleSelector`] targets a single tile using its [`Coordinates`] on the grid.
 pub type SingleSelector = Coordinates;
@@ -9,7 +9,7 @@ pub type BlockSelector = (Coordinates, Coordinates);
 
 /// A [`FilterSelector`] is a function that receives a reference to a [`Grid`] and returns a filtered list
 /// of [`Tile`]s based on custom logic (e.g. pathfinding zones, terrain type).
-pub type FilterSelector = fn(Coordinates) -> bool;
+pub type FilterSelector = fn(Coordinates, Shape) -> bool;
 
 /// A [`Selector`] defines how to target a subset of [`Tile`]s on a [`Grid`] for applying effects or logic.
 /// It supports selecting individual [`Tile`]s, rectangular blocks, or filtered custom selections.
@@ -58,14 +58,14 @@ pub mod tests {
 
     #[test]
     fn selector_filter_works() {
-        fn only_even(c: Coordinates) -> bool {
+        fn only_even(c: Coordinates, _s: Shape) -> bool {
             c.x % 2 == 0 && c.y % 2 == 0
         }
 
         let selector = Selector::Filter(only_even);
         if let Selector::Filter(f) = selector {
-            assert!(f(Coordinates { x: 2, y: 2 }));
-            assert!(!f(Coordinates { x: 1, y: 2 }));
+            assert!(f(Coordinates { x: 2, y: 2 }, Shape { width: 6, height: 6 }));
+            assert!(!f(Coordinates { x: 1, y: 2 }, Shape { width: 6, height: 6 }));
         } else {
             panic!("Expected Selector::Filter");
         }

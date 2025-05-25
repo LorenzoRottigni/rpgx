@@ -49,14 +49,14 @@ impl Shape {
 
     pub fn filter_coordinates<F>(&self, mut filter_fn: F) -> Vec<Coordinates>
     where
-        F: FnMut(Coordinates) -> bool,
+        F: FnMut(Coordinates, Shape) -> bool,
     {
         let mut coords = Vec::new();
 
         for y in 0..self.height {
             for x in 0..self.width {
                 let coord = Coordinates { x, y };
-                if filter_fn(coord) {
+                if filter_fn(coord, *self) {
                     coords.push(coord);
                 }
             }
@@ -128,7 +128,7 @@ pub mod tests {
     #[test]
     fn filter_coordinates_filters_correctly() {
         let shape = Shape::from_rectangle(3, 3);
-        let even_coords = shape.filter_coordinates(|c| (c.x + c.y) % 2 == 0);
+        let even_coords = shape.filter_coordinates(|c, _s| (c.x + c.y) % 2 == 0);
 
         let expected = vec![
             Coordinates { x: 0, y: 0 },
