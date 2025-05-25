@@ -6,7 +6,7 @@ pub mod mask;
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum LayerType {
-    Default,
+    Base,
     Action,
     Texture,
     Block,
@@ -28,7 +28,7 @@ pub struct Layer {
 impl Layer {
     pub fn new(name: String, kind: LayerType, shape: Shape, masks: Vec<Mask>) -> Self {
         match kind {
-            LayerType::Default => Layer::base(name, shape, masks),
+            LayerType::Base => Layer::base(name, shape, masks),
             _ => {
                 let tiles = masks.iter().flat_map(|mask| mask.apply(shape)).collect();
                 Self {
@@ -65,7 +65,7 @@ impl Layer {
 
         Self {
             name: name.into(),
-            kind: LayerType::Default,
+            kind: LayerType::Base,
             shape,
             tiles,
             masks,
@@ -186,7 +186,7 @@ pub mod tests {
             width: 0,
             height: 0,
         };
-        let layer = Layer::new("EmptyShape".to_string(), LayerType::Default, shape, vec![]);
+        let layer = Layer::new("EmptyShape".to_string(), LayerType::Base, shape, vec![]);
 
         assert_eq!(layer.tiles.len(), 0);
     }
@@ -194,12 +194,7 @@ pub mod tests {
     #[test]
     fn creates_default_layer_without_masks() {
         let shape = Shape::from_square(2);
-        let layer = Layer::new(
-            "DefaultLayer".to_string(),
-            LayerType::Default,
-            shape,
-            vec![],
-        );
+        let layer = Layer::new("BaseLayer".to_string(), LayerType::Base, shape, vec![]);
 
         assert_eq!(layer.tiles.len(), 4); // 2x2
         for tile in &layer.tiles {
@@ -211,7 +206,7 @@ pub mod tests {
     fn returns_none_for_missing_tile() {
         let layer = Layer::new(
             "Empty".to_string(),
-            LayerType::Default,
+            LayerType::Base,
             Shape::from_square(2),
             vec![],
         );

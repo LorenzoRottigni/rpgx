@@ -132,7 +132,7 @@ pub mod tests {
 
     fn map_with_layer(blocks: Vec<Coordinates>, width: i32, height: i32) -> Map {
         let shape = Shape { width, height };
-        let base_layer = Layer::new("base".into(), LayerType::Default, shape, vec![]);
+        let base_layer = Layer::new("base".into(), LayerType::Base, shape, vec![]);
 
         let block_layer = Layer {
             name: "block".into(),

@@ -65,7 +65,7 @@ pub fn Home() -> Element {
 
     let default_layer = Layer::new(
         "base".to_string(),
-        LayerType::Default,
+        LayerType::Base,
         Shape {
             height: GRID_SIZE,
             width: GRID_SIZE,
@@ -153,7 +153,7 @@ pub fn Home() -> Element {
     );
 
     let mut map = Map::new(
-        "default".to_string(),
+        "base".to_string(),
         vec![
             default_layer.clone(),
             ground_layer.clone(),
@@ -164,7 +164,7 @@ pub fn Home() -> Element {
 
     map.expand_at(
         &Map::new(
-            "default".to_string(),
+            "base".to_string(),
             vec![
                 default_layer.clone(),
                 ground_layer.clone(),
@@ -177,7 +177,7 @@ pub fn Home() -> Element {
 
     map.expand_at(
         &Map::new(
-            "default".to_string(),
+            "base".to_string(),
             vec![
                 default_layer.clone(),
                 ground_layer.clone(),
@@ -190,7 +190,7 @@ pub fn Home() -> Element {
 
     map.expand_at(
         &Map::new(
-            "default".to_string(),
+            "base".to_string(),
             vec![
                 default_layer.clone(),
                 ground_layer.clone(),
@@ -206,7 +206,7 @@ pub fn Home() -> Element {
 
     map.expand_at(
         &Map::new(
-            "default".to_string(),
+            "base".to_string(),
             vec![
                 default_layer.clone(),
                 ground_layer.clone(),

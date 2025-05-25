@@ -8,7 +8,7 @@ pub mod mask;
 #[wasm_bindgen]
 #[derive(Clone, Copy, Debug)]
 pub enum WasmLayerType {
-    Default,
+    Base,
     Texture,
     Block,
     Action,
@@ -17,7 +17,7 @@ pub enum WasmLayerType {
 impl WasmLayerType {
     fn to_native(&self) -> rpgx::prelude::LayerType {
         match self {
-            WasmLayerType::Default => rpgx::prelude::LayerType::Default,
+            WasmLayerType::Base => rpgx::prelude::LayerType::Base,
             WasmLayerType::Action => rpgx::prelude::LayerType::Action,
             WasmLayerType::Texture => rpgx::prelude::LayerType::Texture,
             WasmLayerType::Block => rpgx::prelude::LayerType::Block,
@@ -42,7 +42,7 @@ impl WasmLayer {
         Self {
             name: layer.name,
             kind: match layer.kind {
-                rpgx::prelude::LayerType::Default => WasmLayerType::Default,
+                rpgx::prelude::LayerType::Base => WasmLayerType::Base,
                 rpgx::prelude::LayerType::Texture => WasmLayerType::Texture,
                 rpgx::prelude::LayerType::Block => WasmLayerType::Block,
                 rpgx::prelude::LayerType::Action => WasmLayerType::Action,
@@ -75,7 +75,7 @@ impl WasmLayer {
             .as_f64()
             .ok_or_else(|| JsValue::from_str("Layer.kind must be a number"))?;
         let kind = match kind_num as u32 {
-            0 => WasmLayerType::Default,
+            0 => WasmLayerType::Base,
             1 => WasmLayerType::Texture,
             2 => WasmLayerType::Block,
             3 => WasmLayerType::Action,

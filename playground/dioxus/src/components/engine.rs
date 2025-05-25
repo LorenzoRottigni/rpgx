@@ -158,11 +158,11 @@ pub fn Engine(props: GridProps) -> Element {
                                     y * props.square_size,
                                     if tile.effect.group { tile.shape.width } else { 1 } * props.square_size,
                                     if tile.effect.group { tile.shape.height } else { 1 } * props.square_size,
-                                    if layer.kind == LayerType::Default { 999 } else { 5 + layer_index },
-                                    if layer.kind == LayerType::Default { "auto" } else { "none" },
+                                    if layer.kind == LayerType::Base { 999 } else { 5 + layer_index },
+                                    if layer.kind == LayerType::Base { "auto" } else { "none" },
                                 );
 
-                                let onclick_handler = if layer.kind == LayerType::Default {
+                                let onclick_handler = if layer.kind == LayerType::Base {
                                     let _tile = tile.clone();
                                     rsx! {
                                         div {

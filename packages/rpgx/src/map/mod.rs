@@ -22,6 +22,10 @@ impl Map {
         Self { name, layers }
     }
 
+    pub fn load_layer(&mut self, layer: Layer) {
+        self.layers.push(layer);
+    }
+
     /// Add another map's layers, offsetting them into this map's grid layout
     pub fn expand_at(&mut self, other: &Map, top_left: Coordinates) {
         let mut layers_by_name: IndexMap<String, Layer> = self
@@ -64,7 +68,7 @@ impl Map {
     pub fn get_base_layer(&self) -> Option<Layer> {
         self.layers
             .iter()
-            .find(|layer| layer.kind == LayerType::Default)
+            .find(|layer| layer.kind == LayerType::Base)
             .cloned()
     }
 
@@ -72,7 +76,7 @@ impl Map {
     pub fn get_base_layers(&self) -> Vec<Layer> {
         self.layers
             .iter()
-            .filter(|layer| layer.kind == LayerType::Default)
+            .filter(|layer| layer.kind == LayerType::Base)
             .cloned()
             .collect()
     }
@@ -124,12 +128,7 @@ pub mod tests {
     #[test]
     fn creates_map_with_layers() {
         let tile = dummy_tile(0, 0);
-        let layer = dummy_layer(
-            "base",
-            LayerType::Default,
-            vec![tile],
-            Shape::from_square(1),
-        );
+        let layer = dummy_layer("base", LayerType::Base, vec![tile], Shape::from_square(1));
         let map = Map::new("TestMap".to_string(), vec![layer.clone()]);
 
         assert_eq!(map.name, "TestMap");
@@ -142,7 +141,7 @@ pub mod tests {
         let tile = dummy_tile(1, 2);
         let layer = dummy_layer(
             "base",
-            LayerType::Default,
+            LayerType::Base,
             vec![tile.clone()],
             Shape::from_square(3),
         );
@@ -181,7 +180,7 @@ pub mod tests {
         let tile = dummy_tile(0, 0);
         let base_layer = dummy_layer(
             "base1",
-            LayerType::Default,
+            LayerType::Base,
             vec![tile.clone()],
             Shape::from_square(1),
         );
@@ -209,7 +208,7 @@ pub mod tests {
             "Base".to_string(),
             vec![dummy_layer(
                 "base",
-                LayerType::Default,
+                LayerType::Base,
                 vec![tile.clone()],
                 shape,
             )],
@@ -224,7 +223,7 @@ pub mod tests {
                 ..Default::default()
             },
         };
-        let offset_layer = dummy_layer("base", LayerType::Default, vec![offset_tile], shape);
+        let offset_layer = dummy_layer("base", LayerType::Base, vec![offset_tile], shape);
 
         let overlay_map = Map::new("Overlay".to_string(), vec![offset_layer]);
 

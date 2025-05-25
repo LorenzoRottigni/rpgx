@@ -55,7 +55,7 @@ pub fn Test() -> Element {
 
     let w_library = library.read();
 
-    let single_map = rpgx::factory::building::building_2x3(
+    let single_map = rpgx::factory::map::presets::building::building_2x3(
         Shape {
             width: 4,
             height: 6,
