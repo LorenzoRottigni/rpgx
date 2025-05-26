@@ -1,0 +1,13 @@
+
+{
+  "recommendations": [
+    "rust-lang.rust-analyzer",
+    "serayuzgur.crates",
+    "vadimcn.vscode-lldb",
+    "ms-vscode.vscode-typescript-next",
+    "dioxuslabs.vscode-plugin",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "wasm-language-server.wasm-language-server"
+  ]
+}

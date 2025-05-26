@@ -1,0 +1,8 @@
+{
+  "rust-analyzer.cargo.target": "wasm32-unknown-unknown",
+  "rust-analyzer.checkOnSave.command": "clippy",
+  "editor.formatOnSave": true,
+  "files.watcherExclude": {
+    "**/target/**": true
+  }
+}
