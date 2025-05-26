@@ -39,6 +39,13 @@ impl Shape {
             && coordinates.y < self.height
     }
 
+    pub fn offset_by(&self, offset: Coordinates) -> Self {
+        Self {
+            width: self.width + offset.x,
+            height: self.height + offset.y,
+        }
+    }
+
     pub fn coordinates_in_range(&self, start: Coordinates, end: Coordinates) -> Vec<Coordinates> {
         let start_x = start.x.max(0);
         let start_y = start.y.max(0);

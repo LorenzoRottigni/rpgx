@@ -63,16 +63,6 @@ pub fn Home() -> Element {
 
     let w_library = library.read();
 
-    let default_layer = Layer::new(
-        "base".to_string(),
-        LayerType::Base,
-        Shape {
-            height: GRID_SIZE,
-            width: GRID_SIZE,
-        },
-        vec![],
-    );
-
     let ground_layer = Layer::new(
         "ground".to_string(),
         LayerType::Texture,
@@ -153,9 +143,8 @@ pub fn Home() -> Element {
     );
 
     let mut map = Map::new(
-        "base".to_string(),
+        "home".to_string(),
         vec![
-            default_layer.clone(),
             ground_layer.clone(),
             building_layer.clone(),
             action_layer.clone(),
@@ -164,9 +153,8 @@ pub fn Home() -> Element {
 
     map.expand_at(
         &Map::new(
-            "base".to_string(),
+            "home".to_string(),
             vec![
-                default_layer.clone(),
                 ground_layer.clone(),
                 building_layer.clone(),
                 action_layer.clone(),
@@ -177,9 +165,8 @@ pub fn Home() -> Element {
 
     map.expand_at(
         &Map::new(
-            "base".to_string(),
+            "home".to_string(),
             vec![
-                default_layer.clone(),
                 ground_layer.clone(),
                 building_layer.clone(),
                 action_layer.clone(),
@@ -190,9 +177,8 @@ pub fn Home() -> Element {
 
     map.expand_at(
         &Map::new(
-            "base".to_string(),
+            "home".to_string(),
             vec![
-                default_layer.clone(),
                 ground_layer.clone(),
                 building_layer.clone(),
                 action_layer.clone(),
@@ -206,9 +192,8 @@ pub fn Home() -> Element {
 
     map.expand_at(
         &Map::new(
-            "base".to_string(),
+            "home".to_string(),
             vec![
-                default_layer.clone(),
                 ground_layer.clone(),
                 building_layer.clone(),
                 action_layer.clone(),
@@ -222,7 +207,7 @@ pub fn Home() -> Element {
 
     match map.get_base_layer() {
         Some(layer) => {
-            if let Some(tile) = layer.get_tile(Coordinates { x: 0, y: 0 }) {
+            if let Some(tile) = layer.get_tile_at(Coordinates { x: 0, y: 0 }) {
                 let pawn = Pawn {
                     tile,
                     texture_id: w_library.get_key_id("character_1"),

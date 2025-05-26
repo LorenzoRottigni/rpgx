@@ -47,7 +47,7 @@ impl Engine {
 
         let base_layer = self.map.get_base_layer().ok_or(MoveError::TileNotFound)?;
         let tile = base_layer
-            .get_tile(target_position)
+            .get_tile_at(target_position)
             .ok_or(MoveError::TileNotFound)?;
 
         self.pawn.tile = tile;

@@ -123,7 +123,7 @@ impl Layer {
             for y in 0..self.shape.height {
                 for x in 0..self.shape.width {
                     let pointer = Coordinates { x, y };
-                    let effect = if let Some(tile) = self.get_tile(pointer) {
+                    let effect = if let Some(tile) = self.get_tile_at(pointer) {
                         tile.effect
                     } else {
                         Effect::default()
@@ -151,12 +151,15 @@ impl Layer {
         self.reshape(self.shape);
     }
 
-    /// Retrieves a single tile from the layer by coordinates.
-    pub fn get_tile(&self, pointer: SingleSelector) -> Option<Tile> {
-        self.tiles
-            .iter()
-            .find(|tile| tile.pointer == pointer)
-            .cloned()
+    /// Finds the tile covering the given coordinates, accounting for both tile origin and shape.
+    pub fn get_tile_at(&self, pointer: Coordinates) -> Option<Tile> {
+        self.tiles.iter().find(|tile| {
+            let local = Coordinates {
+                x: pointer.x - tile.pointer.x,
+                y: pointer.y - tile.pointer.y,
+            };
+            tile.shape.in_bounds(local)
+        }).cloned()
     }
 
     /// Retrieves all tiles within a rectangular block defined by two coordinates.
@@ -220,14 +223,14 @@ pub mod tests {
         assert_eq!(layer.tiles.len(), 2);
         assert!(
             layer
-                .get_tile(SingleSelector { x: 0, y: 0 })
+                .get_tile_at(SingleSelector { x: 0, y: 0 })
                 .unwrap()
                 .effect
                 .block
         );
         assert_eq!(
             layer
-                .get_tile(SingleSelector { x: 1, y: 0 })
+                .get_tile_at(SingleSelector { x: 1, y: 0 })
                 .unwrap()
                 .effect
                 .action_id,
@@ -282,7 +285,7 @@ pub mod tests {
         );
 
         let out_of_bounds = SingleSelector { x: 10, y: 10 };
-        assert_eq!(layer.get_tile(out_of_bounds), None);
+        assert_eq!(layer.get_tile_at(out_of_bounds), None);
     }
 
     #[test]

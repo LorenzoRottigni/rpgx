@@ -77,6 +77,7 @@ pub fn Test() -> Element {
     //     w_library.get_key_id("consolelog"),
     // ), Coordinates { x: 1, y: 1 });
 
+
     let mut single_map = rpgx::factory::map::presets::building::building_2x3(
         Shape {
             width: 4,
@@ -85,22 +86,44 @@ pub fn Test() -> Element {
         w_library.get_key_id("building_1"),
         w_library.get_key_id("consolelog"),
     );
-    // single_map.load_layer(rpgx::factory::layer::presets::street::street_layer_around(
-    //     Shape {
-    //         width: 4,
-    //         height: 6,
-    //     }, 
-    //     w_library.get_key_id("floor_2")
-    // ));
+    // single_map.load_layer(
+    //     rpgx::factory::layer::presets::ground::ground_layer(
+    //         Shape {
+    //             width: 16,
+    //             height: 18,
+    //         }, 
+    //         w_library.get_key_id("floor_1")
+    //     ),
+    // );
+    single_map.load_layer(
+        rpgx::factory::layer::presets::street::street_layer_around(
+            Shape {
+                width: 4,
+                height: 6,
+            }, 
+            w_library.get_key_id("floor_2")
+        ),
+    );
+    single_map.load_layer(
+        rpgx::factory::layer::presets::street::street_layer_around(
+            Shape {
+                width: 6,
+                height: 8,
+            }, 
+            w_library.get_key_id("floor_2")
+        ),
+    );
+
+    
 
     let mut map = single_map.clone();
-    map.expand_at(&single_map.clone(), Coordinates { x: 4, y: 0 });
-    map.expand_at(&single_map.clone(), Coordinates { x: 0, y: 6 });
-    map.expand_at(&single_map.clone(), Coordinates { x: 4, y: 6 });
+    map.expand_at(&single_map.clone(), Coordinates { x: 8, y: 0 });
+    map.expand_at(&single_map.clone(), Coordinates { x: 0, y: 10 });
+    map.expand_at(&single_map.clone(), Coordinates { x: 8, y: 10 });
 
     match map.get_base_layer() {
         Some(layer) => {
-            if let Some(tile) = layer.get_tile(Coordinates { x: 0, y: 0 }) {
+            if let Some(tile) = layer.get_tile_at(Coordinates { x: 0, y: 0 }) {
                 let pawn = Pawn {
                     tile,
                     texture_id: w_library.get_key_id("character_1"),

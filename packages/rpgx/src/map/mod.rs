@@ -1,5 +1,6 @@
 use crate::prelude::{Coordinates, Layer, LayerType, Tile};
 use indexmap::IndexMap;
+use layer::Effect;
 
 pub mod routing;
 pub mod layer;
@@ -24,10 +25,36 @@ impl Map {
     }
 
     /// Adds a layer, reshaping base if present or creating one if missing.
-    pub fn load_layer(&mut self, layer: Layer) {
-        if let Some(i) = self.layers.iter().position(|l| l.kind == LayerType::Base) {
-            self.layers[i].positive_reshape(layer.shape);
+    pub fn load_layer(&mut self, layer: Layer /* , offset: Coordinates */) {
+        if let Some(base_layer) = self.get_base_layer() {
+            let offset = Coordinates {
+                x: if layer.shape.width > base_layer.shape.width {
+                    layer.shape.width - base_layer.shape.width - 1
+                } else {
+                    0
+                },
+                y: if layer.shape.height > base_layer.shape.height {
+                    layer.shape.height - base_layer.shape.height - 1
+                } else {
+                    0
+                },
+            };
+            // Offset the tiles in the incoming layer
+            for existing_layer in &mut self.layers {
+                let _offset = 
+                existing_layer.offset(offset);
+            }
+
+            // Add the updated layer
             self.layers.push(layer);
+
+            // Remove old base layer
+            self.layers.retain(|l| l.kind != LayerType::Base);
+
+            // Regenerate base layer from all non-base layers
+            let base_layer = Layer::base(self.layers.clone());
+
+            self.layers.push(base_layer);
         } else {
             self.layers.push(layer);
             let base_layer = Layer::base(self.layers.clone());
@@ -70,20 +97,36 @@ impl Map {
         self.layers.iter().find(|l| l.kind == LayerType::Base).cloned()
     }
 
+    /// TODO: deprecated
+    /// 
     /// Returns all base layers.
     pub fn get_base_layers(&self) -> Vec<Layer> {
         self.layers.iter().filter(|l| l.kind == LayerType::Base).cloned().collect()
     }
 
-    /// Returns the tile at `pointer` in the base layer, if present.
-    pub fn get_base_tile(&self, pointer: Coordinates) -> Option<Tile> {
-        self.get_base_layer()?.get_tile(pointer)
+    pub fn get_layers(&self, kind: LayerType) -> Vec<Layer> {
+        self.layers.iter().filter(|l| l.kind == kind).cloned().collect()
     }
 
-    /// Returns all action IDs present at `pointer` across layers.
+    /// Returns the tile at `pointer` in the base layer, if present.
+    pub fn get_base_tile(&self, pointer: Coordinates) -> Option<Tile> {
+        self.get_base_layer()?.get_tile_at(pointer)
+    }
+
+    pub fn get_tiles_at(&self, pointer: Coordinates) -> Vec<Tile> {
+        self.layers.iter().flat_map(|layer| layer.get_tile_at(pointer)).collect()
+    }
+
+    pub fn get_effects_at(&self, pointer: Coordinates) -> Vec<Effect> {
+        self.layers.iter().flat_map(|layer| {
+            layer.get_tile_at(pointer).and_then(|tile| Some(tile.effect))
+        }).collect()
+    }
+
+    /// Returns all action IDs present at `pointer` across action layers.
     pub fn get_actions_at(&self, pointer: Coordinates) -> Vec<i32> {
-        self.layers.iter().filter_map(|layer| {
-            layer.get_tile(pointer).and_then(|tile| tile.effect.action_id)
+        self.get_layers(LayerType::Action).into_iter().flat_map(|layer| {
+            layer.get_tile_at(pointer).and_then(|tile| tile.effect.action_id)
         }).collect()
     }
 }
