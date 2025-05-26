@@ -12,7 +12,7 @@ const map = engine.value.map()
 const layers = map.layers
 const squareSize = 15;
 
-function getTileStyle(tile: Tile, layer: Layer, layerIndex: number) {
+function getTileStyle(tile: Tile, layer: Layer) {
   const x = tile.pointer.x;
   const y = tile.pointer.y;
   const width = (tile.effect.group ? tile.shape.width : 1) * squareSize;
@@ -21,8 +21,8 @@ function getTileStyle(tile: Tile, layer: Layer, layerIndex: number) {
   const backgroundImage = tile.effect.texture_id
     ? `background-image: ${getTexture(tile.effect.texture_id)};`
     : ''
-  const zIndex = layer.kind === LayerType.Default ? 999 : 5 + layerIndex;
-  const pointerEvents = layer.kind === LayerType.Default ? 'auto' : 'none';
+  const zIndex = 10 + layer.z;
+  const pointerEvents = layer.kind === LayerType.Base ? 'auto' : 'none';
 
   return `
     ${backgroundImage}
@@ -130,8 +130,8 @@ onMounted(() => {
         <div
           v-for="(tile, tileIndex) in layer.tiles"
           :key="`layer-${layerIndex}-${tileIndex}`"
-          :class="layer.kind === LayerType.Default ? 'base-layer-tile' : 'layer-tile'"
-          :style="getTileStyle(tile, layer, layerIndex)"
+          :class="layer.kind === LayerType.Base ? 'base-layer-tile' : 'layer-tile'"
+          :style="getTileStyle(tile, layer)"
           @click="onClick(tile)"
         ></div>
       </div>

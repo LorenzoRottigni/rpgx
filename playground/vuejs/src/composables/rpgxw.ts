@@ -34,12 +34,13 @@ export function useLibrary(): wasm.ResourceLibrary {
 export function useEngine(library: wasm.ResourceLibrary): wasm.WasmEngine {
     const grid_size = 25;
 
-    const defaultLayer = new wasm.WasmLayer(
-        "base",
-        wasm.WasmLayerType.Default,
-        new wasm.WasmShape(grid_size, grid_size),
-        []
-    )
+    // const defaultLayer = new wasm.WasmLayer(
+    //     "base",
+    //     wasm.WasmLayerType.Base,
+    //     new wasm.WasmShape(grid_size, grid_size),
+    //     [],
+    //     1
+    // )
 
     const groundLayer = new wasm.WasmLayer(
         "ground",
@@ -62,7 +63,8 @@ export function useEngine(library: wasm.ResourceLibrary): wasm.WasmEngine {
                     new wasm.WasmCoordinates(0, grid_size - 1),
                 ),
             )
-        ]
+        ],
+        1
     )
 
     const buildingLayer = new wasm.WasmLayer(
@@ -78,7 +80,8 @@ export function useEngine(library: wasm.ResourceLibrary): wasm.WasmEngine {
                     new wasm.WasmCoordinates(4, 11),
                 ),
             ),
-        ]
+        ],
+        5
     )
 
     const actionLayer = new wasm.WasmLayer(
@@ -94,13 +97,13 @@ export function useEngine(library: wasm.ResourceLibrary): wasm.WasmEngine {
                     new wasm.WasmCoordinates(11, 0),
                 ),
             )
-        ]
+        ],
+        6
     )
 
     const map = new wasm.WasmMap(
         "test_map",
         [
-            defaultLayer,
             groundLayer,
             buildingLayer,
             actionLayer
