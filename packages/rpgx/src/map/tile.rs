@@ -45,6 +45,9 @@ impl Tile {
     pub fn offset(&mut self, delta: Coordinates) {
         self.pointer.x += delta.x;
         self.pointer.y += delta.y;
+        if let Some((start, end)) = self.effect.shrink {
+            self.effect.shrink = Some((start + delta, end + delta));
+        }
     }
 }
 

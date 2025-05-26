@@ -1,16 +1,13 @@
-pub mod effect;
-pub mod layer;
-pub mod routing;
-pub mod selector;
-pub mod tile;
-
-// #[cfg(feature = "presets")]
-// pub mod presets;
-
 use crate::prelude::{Coordinates, Layer, LayerType, Tile};
-
 use indexmap::IndexMap;
 
+pub mod routing;
+pub mod layer;
+pub mod selector;
+pub mod tile;
+pub mod effect;
+
+/// Game map containing multiple layers.
 #[derive(Clone)]
 pub struct Map {
     pub name: String,
@@ -18,38 +15,43 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn new(name: String, layers: Vec<Layer>) -> Self {
+    /// Creates a new map, adding a base layer if none exists.
+    pub fn new(name: String, mut layers: Vec<Layer>) -> Self {
+        if !layers.iter().any(|layer| layer.kind == LayerType::Base) {
+            layers.push(Layer::base(layers.clone()));
+        }
         Self { name, layers }
     }
 
+    /// Adds a layer, reshaping base if present or creating one if missing.
     pub fn load_layer(&mut self, layer: Layer) {
-        self.layers.push(layer);
-        // reshape base layer
+        if let Some(i) = self.layers.iter().position(|l| l.kind == LayerType::Base) {
+            self.layers[i].positive_reshape(layer.shape);
+            self.layers.push(layer);
+        } else {
+            self.layers.push(layer);
+            let base_layer = Layer::base(self.layers.clone());
+            self.layers.push(base_layer);
+        }
     }
 
-    /// Add another map's layers, offsetting them into this map's grid layout
+    /// Returns a map of layer name to layer.
+    pub fn layers_by_name(&self) -> IndexMap<String, Layer> {
+        self.layers.iter().map(|l| (l.name.clone(), l.clone())).collect()
+    }
+
+    /// Merges another map’s layers, offset by `top_left`.
     pub fn expand_at(&mut self, other: &Map, top_left: Coordinates) {
-        let mut layers_by_name: IndexMap<String, Layer> = self
-            .layers
-            .clone()
-            .into_iter()
-            .map(|layer| (layer.name.clone(), layer))
-            .collect();
+        let mut layers_by_name = self.layers_by_name();
 
         for layer in &other.layers {
-            let mut offset_layer = layer.clone().offset_tiles(top_left);
-
-            // 🔁 Offset shrink values
-            for tile in &mut offset_layer.tiles {
-                if let Some((start, end)) = tile.effect.shrink {
-                    tile.effect.shrink = Some((start + top_left, end + top_left));
-                }
-            }
+            let mut offset_layer = layer.clone();
+            offset_layer.offset(top_left);
 
             layers_by_name
                 .entry(layer.name.clone())
                 .and_modify(|existing| {
-                    existing.tiles.extend(offset_layer.tiles.clone());
+                    existing.tiles.extend(&offset_layer.tiles);
                     existing.shape.expand_to_include(top_left, layer.shape);
                 })
                 .or_insert(offset_layer);
@@ -58,49 +60,34 @@ impl Map {
         self.layers = layers_by_name.into_values().collect();
     }
 
-    /// Determine if a [`Tile`] is blocked in any layer
+    /// Returns `true` if any layer blocks the tile at `target`.
     pub fn is_tile_blocked(&self, target: Coordinates) -> bool {
-        self.layers
-            .iter()
-            .any(|layer| layer.is_tile_blocked(&target))
+        self.layers.iter().any(|layer| layer.is_tile_blocked(&target))
     }
 
-    /// Get the first base layer (Default type)
+    /// Returns the first base layer, if any.
     pub fn get_base_layer(&self) -> Option<Layer> {
-        self.layers
-            .iter()
-            .find(|layer| layer.kind == LayerType::Base)
-            .cloned()
+        self.layers.iter().find(|l| l.kind == LayerType::Base).cloned()
     }
 
-    /// Get all base layers
+    /// Returns all base layers.
     pub fn get_base_layers(&self) -> Vec<Layer> {
-        self.layers
-            .iter()
-            .filter(|layer| layer.kind == LayerType::Base)
-            .cloned()
-            .collect()
+        self.layers.iter().filter(|l| l.kind == LayerType::Base).cloned().collect()
     }
 
-    /// Retrieve a [`Tile`] from the base layer using a coordinate
+    /// Returns the tile at `pointer` in the base layer, if present.
     pub fn get_base_tile(&self, pointer: Coordinates) -> Option<Tile> {
         self.get_base_layer()?.get_tile(pointer)
     }
 
+    /// Returns all action IDs present at `pointer` across layers.
     pub fn get_actions_at(&self, pointer: Coordinates) -> Vec<i32> {
-        let mut actions = vec![];
-
-        for layer in &self.layers {
-            if let Some(tile) = layer.get_tile(pointer) {
-                if let Some(action) = tile.effect.action_id {
-                    actions.push(action);
-                }
-            }
-        }
-
-        actions
+        self.layers.iter().filter_map(|layer| {
+            layer.get_tile(pointer).and_then(|tile| tile.effect.action_id)
+        }).collect()
     }
 }
+
 
 #[cfg(test)]
 pub mod tests {

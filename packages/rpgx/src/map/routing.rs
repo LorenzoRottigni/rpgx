@@ -132,23 +132,18 @@ pub mod tests {
 
     fn map_with_layer(blocks: Vec<Coordinates>, width: i32, height: i32) -> Map {
         let shape = Shape { width, height };
-        let base_layer = Layer::new("base".into(), LayerType::Base, shape, vec![]);
 
+        let block_tiles = blocks.into_iter().map(blocking_tile_at).collect::<Vec<_>>();
         let block_layer = Layer {
             name: "block".into(),
             kind: LayerType::Block,
             shape,
-            tiles: blocks
-                .into_iter()
-                .map(|coord| blocking_tile_at(coord))
-                .collect(),
+            tiles: block_tiles,
             masks: vec![],
         };
 
-        Map {
-            name: "test_map".into(),
-            layers: vec![base_layer, block_layer],
-        }
+        // Construct via Map::new to trigger base layer creation automatically
+        Map::new("test_map".into(), vec![block_layer])
     }
 
     #[test]

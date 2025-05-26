@@ -1,6 +1,6 @@
 use crate::prelude::Coordinates;
 
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug, Default)]
 pub struct Shape {
     pub width: i32,
     pub height: i32,
@@ -23,6 +23,13 @@ impl Shape {
         let height = (start.y.max(end.y) - start.y.min(end.y) + 1).abs();
 
         Self { width, height }
+    }
+
+    pub fn union(&self, other: Shape) -> Self {
+        Self {
+            width: self.width.max(other.width),
+            height: self.height.max(other.height),
+        }
     }
 
     pub fn in_bounds(&self, coordinates: Coordinates) -> bool {

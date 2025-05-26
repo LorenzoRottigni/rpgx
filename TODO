@@ -1,0 +1,7 @@
+- Map should expose it size
+- Map's base layer should be computed based off its layers sizes and offsets
+- Each time the map loads a layer should need a "load strategy" (how existing layers tiles coords should be offset) to determine how its Shape should be modified
+- Base layer should be foreign to the user since it's used internally, need to allow the user to apply a mask on it...
+- Should layers be merged into 1 at build time instead of resolving effect at runtime iterating layers? (tile might become an array of texture,actions,...)
+- Retrieve effects based of LayerType to improve performances (e.g. if caller is looking for an action only consider action layers). A ground layer that usually covers the whole grid is resource intensitive to be iterated through and likely there won't never be the need of iterate over it to retrieve some effect.
+- Make LayerType a better logical structure, add meaning
