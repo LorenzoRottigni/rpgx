@@ -26,5 +26,6 @@ pub fn ground_layer(shape: Shape, texture_id: i32) -> Layer {
         LayerType::Texture,
         shape,
         vec![mask],
+        1
     )
 }

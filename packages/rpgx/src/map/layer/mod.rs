@@ -34,13 +34,14 @@ pub struct Layer {
     pub shape: Shape,
     /// All masks that were used to generate the tiles.
     pub masks: Vec<Mask>,
+    pub z: i32, // Z-index for rendering order
 }
 
 impl Layer {
     /// Constructs a new non-base layer by applying masks to the given shape.
     ///
     /// Panics if called with [`LayerType::Base`] (use [`Layer::base`] instead).
-    pub fn new(name: String, kind: LayerType, shape: Shape, masks: Vec<Mask>) -> Self {
+    pub fn new(name: String, kind: LayerType, shape: Shape, masks: Vec<Mask>, z: i32) -> Self {
         assert!(kind != LayerType::Base, "Use Layer::base instead of Layer::new for Base layers");
 
         let tiles = masks.iter().flat_map(|mask| mask.apply(shape)).collect();
@@ -50,6 +51,7 @@ impl Layer {
             tiles,
             shape,
             masks,
+            z
         }
     }
 
@@ -83,6 +85,7 @@ impl Layer {
             shape: base_shape,
             tiles,
             masks: vec![],
+            z: 1,
         };
 
         for layer in &layers {
@@ -218,6 +221,7 @@ pub mod tests {
             LayerType::Action,
             shape,
             vec![mask1.clone(), mask2.clone()],
+            1,
         );
 
         assert_eq!(layer.tiles.len(), 2);
@@ -255,6 +259,7 @@ pub mod tests {
             LayerType::Texture,
             shape,
             vec![mask],
+            1
         );
 
         let block = layer.get_block((SingleSelector { x: 0, y: 0 }, SingleSelector { x: 2, y: 2 }));
@@ -270,7 +275,7 @@ pub mod tests {
             width: 0,
             height: 0,
         };
-        let layer = Layer::new("EmptyShape".to_string(), LayerType::Texture, shape, vec![]);
+        let layer = Layer::new("EmptyShape".to_string(), LayerType::Texture, shape, vec![], 1);
 
         assert_eq!(layer.tiles.len(), 0);
     }
@@ -282,6 +287,7 @@ pub mod tests {
             LayerType::Texture,
             Shape::from_square(2),
             vec![],
+            1
         );
 
         let out_of_bounds = SingleSelector { x: 10, y: 10 };
@@ -303,6 +309,7 @@ pub mod tests {
             LayerType::Action,
             Shape::from_square(3),
             vec![mask],
+            1
         );
 
         let block = layer.get_block((SingleSelector { x: 0, y: 0 }, SingleSelector { x: 2, y: 2 }));
@@ -325,6 +332,7 @@ pub mod tests {
             LayerType::Block,
             Shape::from_square(2),
             vec![mask],
+            1
         );
 
         assert!(layer.is_tile_blocked(&Coordinates { x: 0, y: 0 }));
@@ -347,6 +355,7 @@ pub mod tests {
             LayerType::Action,
             original_shape,
             vec![mask],
+            1
         );
         let offset = Coordinates { x: 2, y: 3 };
 

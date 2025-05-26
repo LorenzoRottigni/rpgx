@@ -123,6 +123,7 @@ pub fn Engine(props: GridProps) -> Element {
                     .map
                     .layers
                     .iter()
+                    .filter(|layer| layer.kind != LayerType::Texture)
                     .enumerate()
                     .flat_map(|(layer_index, layer)| {
                         layer
@@ -158,7 +159,7 @@ pub fn Engine(props: GridProps) -> Element {
                                     y * props.square_size,
                                     if tile.effect.group { tile.shape.width } else { 1 } * props.square_size,
                                     if tile.effect.group { tile.shape.height } else { 1 } * props.square_size,
-                                    if layer.kind == LayerType::Base { 999 } else { 5 + layer_index },
+                                    layer.z,
                                     if layer.kind == LayerType::Base { "auto" } else { "none" },
                                 );
 

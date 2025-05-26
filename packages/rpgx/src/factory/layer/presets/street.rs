@@ -26,5 +26,6 @@ pub fn street_layer_around(shape: Shape, texture_id: i32) -> Layer {
         LayerType::Texture,
         outer_shape,
         vec![mask],
+        3
     )
 }

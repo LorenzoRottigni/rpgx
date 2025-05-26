@@ -13,6 +13,7 @@ pub mod effect;
 pub struct Map {
     pub name: String,
     pub layers: Vec<Layer>,
+
 }
 
 impl Map {
@@ -153,6 +154,7 @@ pub mod tests {
             tiles,
             shape,
             masks: vec![],
+            z: 1,
         }
     }
 

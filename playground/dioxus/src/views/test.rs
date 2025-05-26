@@ -51,6 +51,10 @@ pub fn Test() -> Element {
         w_library.insert_action("consolelog", || {
             log_message("Hello from Rust!");
         });
+
+        w_library.insert_action("teleport", || {
+
+        });
     }
 
     let w_library = library.read();
@@ -86,15 +90,15 @@ pub fn Test() -> Element {
         w_library.get_key_id("building_1"),
         w_library.get_key_id("consolelog"),
     );
-    // single_map.load_layer(
-    //     rpgx::factory::layer::presets::ground::ground_layer(
-    //         Shape {
-    //             width: 16,
-    //             height: 18,
-    //         }, 
-    //         w_library.get_key_id("floor_1")
-    //     ),
-    // );
+    single_map.load_layer(
+        rpgx::factory::layer::presets::ground::ground_layer(
+            Shape {
+                width: 6,
+                height: 8,
+            }, 
+            w_library.get_key_id("floor_1")
+        ),
+    );
     single_map.load_layer(
         rpgx::factory::layer::presets::street::street_layer_around(
             Shape {
@@ -120,6 +124,19 @@ pub fn Test() -> Element {
     map.expand_at(&single_map.clone(), Coordinates { x: 8, y: 0 });
     map.expand_at(&single_map.clone(), Coordinates { x: 0, y: 10 });
     map.expand_at(&single_map.clone(), Coordinates { x: 8, y: 10 });
+
+    let portal = rpgx::factory::map::presets::building::building_2x3(
+        Shape {
+            width: 4,
+            height: 6,
+        },
+        w_library.get_key_id("portal_1"),
+        w_library.get_key_id("consolelog"),
+    );
+    map.expand_at(&portal, Coordinates { x: 6, y: 0 });
+    map.expand_at(&map.clone(), Coordinates { x: 16, y: 0 });
+    map.expand_at(&map.clone(), Coordinates { x: 8, y: 20 });
+    map.expand_at(&map.clone(), Coordinates { x: 32, y: 0 });
 
     match map.get_base_layer() {
         Some(layer) => {

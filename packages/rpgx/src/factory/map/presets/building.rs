@@ -29,6 +29,7 @@ pub fn building_2x3(shape: Shape, texture_id: i32, action_id: i32) -> Map {
                 },
             )),
         }],
+        5
     );
 
     let (start_x, end_x) = if shape.width % 2 == 0 {
@@ -65,6 +66,7 @@ pub fn building_2x3(shape: Shape, texture_id: i32, action_id: i32) -> Map {
                 },
             )),
         }],
+        6
     );
 
     Map::new(
@@ -106,6 +108,7 @@ pub fn building_1x1(shape: Shape, texture_id: i32, action_id: i32) -> Map {
                 },
             )),
         }],
+        5
     );
 
     let start_x = 0;
@@ -136,6 +139,7 @@ pub fn building_1x1(shape: Shape, texture_id: i32, action_id: i32) -> Map {
                 },
             )),
         }],
+        6
     );
 
     Map::new(
@@ -173,6 +177,7 @@ pub fn building_3x2(shape: Shape, texture_id: i32, action_id: i32) -> Map {
                 },
             )),
         }],
+        5
     );
 
     let (start_x, end_x) = if shape.width % 2 == 0 {
@@ -209,6 +214,7 @@ pub fn building_3x2(shape: Shape, texture_id: i32, action_id: i32) -> Map {
                 },
             )),
         }],
+        6
     );
 
     Map::new(

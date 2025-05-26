@@ -91,7 +91,7 @@ pub mod tests {
             height: 3,
         };
         let masks = vec![];
-        let layer = Layer::new("ground".to_string(), LayerType::Texture, shape, masks);
+        let layer = Layer::new("ground".to_string(), LayerType::Texture, shape, masks, 1);
         Map::new("test_map".to_string(), vec![layer])
     }
 
