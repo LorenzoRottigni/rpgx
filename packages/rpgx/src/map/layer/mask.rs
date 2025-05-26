@@ -16,11 +16,7 @@ pub struct Mask {
 
 impl Mask {
     pub fn new(name: String, selector: Selector, effect: Effect) -> Self {
-        Self {
-            name,
-            selector,
-            effect,
-        }
+        Self { name, selector, effect }
     }
 
     pub fn apply(&self, shape: Shape) -> Vec<Tile> {
@@ -52,10 +48,9 @@ impl Mask {
 
                 if tiles.iter().all(|t| t.effect.group) {
                     if let Some(first_tile) = tiles.first() {
-                        // Collect tile pointers into a Vec to get a slice
-                        let coords: Vec<Coordinates> = tiles.iter().map(|t| t.pointer).collect();
-
-                        if let Some((top_left, bottom_right)) = Coordinates::bounding_box(&coords) {
+                        if let Some((top_left, bottom_right)) = Coordinates::bounding_box(
+                            &tiles.iter().map(|t| t.pointer).collect::<Vec<_>>(),
+                        ) {
                             return vec![Tile {
                                 id: first_tile.id,
                                 pointer: top_left,

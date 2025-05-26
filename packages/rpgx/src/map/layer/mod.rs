@@ -42,10 +42,7 @@ impl Layer {
     ///
     /// Panics if called with [`LayerType::Base`] (use [`Layer::base`] instead).
     pub fn new(name: String, kind: LayerType, shape: Shape, masks: Vec<Mask>, z: i32) -> Self {
-        assert!(
-            kind != LayerType::Base,
-            "Use Layer::base instead of Layer::new for Base layers"
-        );
+        assert!(kind != LayerType::Base, "Use Layer::base instead of Layer::new for Base layers");
 
         let tiles = masks.iter().flat_map(|mask| mask.apply(shape)).collect();
         Self {
@@ -54,7 +51,7 @@ impl Layer {
             tiles,
             shape,
             masks,
-            z,
+            z
         }
     }
 
@@ -96,11 +93,11 @@ impl Layer {
 
             // Merge texture effects
             if layer.kind == LayerType::Texture {
-                for tile in &layer.tiles {
+                'tileloop: for tile in &layer.tiles {
                     for base_tile in base_layer.tiles.iter_mut() {
-                        if tile.contains(base_tile.pointer) {
-                            base_tile.effect = tile.effect;
-                            break;
+                        if base_tile.pointer == tile.pointer {
+                            base_tile.effect = tile.effect.clone();
+                            continue 'tileloop;
                         }
                     }
                 }
@@ -109,6 +106,7 @@ impl Layer {
 
         base_layer
     }
+
 }
 
 impl Layer {
@@ -161,19 +159,13 @@ impl Layer {
 
     /// Finds the tile covering the given coordinates, accounting for both tile origin and shape.
     pub fn get_tile_at(&self, pointer: Coordinates) -> Option<Tile> {
-        self.tiles
-            .iter()
-            .find(|tile| {
-                if pointer.x < tile.pointer.x || pointer.y < tile.pointer.y {
-                    return false;
-                }
-                let local = Coordinates {
-                    x: pointer.x - tile.pointer.x,
-                    y: pointer.y - tile.pointer.y,
-                };
-                tile.shape.in_bounds(local)
-            })
-            .cloned()
+        self.tiles.iter().find(|tile| {
+            let local = Coordinates {
+                x: pointer.x - tile.pointer.x,
+                y: pointer.y - tile.pointer.y,
+            };
+            tile.shape.in_bounds(local)
+        }).cloned()
     }
 
     /// Retrieves all tiles within a rectangular block defined by two coordinates.
@@ -181,7 +173,7 @@ impl Layer {
         self.shape
             .coordinates_in_range(pointer.0, pointer.1)
             .into_iter()
-            .filter_map(|coord| self.get_tile_at(coord))
+            .filter_map(|coord| self.tiles.iter().find(|t| t.pointer == coord).cloned())
             .collect()
     }
 
@@ -196,34 +188,8 @@ impl Layer {
             tile.offset(delta);
         }
 
-        // Recalculate shape from tile positions
-        if self.tiles.is_empty() {
-            self.shape = Shape {
-                width: 0,
-                height: 0,
-            };
-            return;
-        }
-
-        let min_x = self.tiles.iter().map(|t| t.pointer.x).min().unwrap();
-        let max_x = self
-            .tiles
-            .iter()
-            .map(|t| t.pointer.x + t.shape.width)
-            .max()
-            .unwrap();
-        let min_y = self.tiles.iter().map(|t| t.pointer.y).min().unwrap();
-        let max_y = self
-            .tiles
-            .iter()
-            .map(|t| t.pointer.y + t.shape.height)
-            .max()
-            .unwrap();
-
-        self.shape = Shape {
-            width: max_x - min_x,
-            height: max_y - min_y,
-        };
+        self.shape.width = (self.shape.width + delta.x).max(0);
+        self.shape.height = (self.shape.height + delta.y).max(0);
     }
 }
 
@@ -296,11 +262,10 @@ pub mod tests {
             LayerType::Texture,
             shape,
             vec![mask],
-            1,
+            1
         );
 
-        let block =
-            layer.get_block_at((SingleSelector { x: 0, y: 0 }, SingleSelector { x: 2, y: 2 }));
+        let block = layer.get_block_at((SingleSelector { x: 0, y: 0 }, SingleSelector { x: 2, y: 2 }));
         assert_eq!(block.len(), 9);
         for tile in block {
             assert!(tile.effect.block);
@@ -313,13 +278,7 @@ pub mod tests {
             width: 0,
             height: 0,
         };
-        let layer = Layer::new(
-            "EmptyShape".to_string(),
-            LayerType::Texture,
-            shape,
-            vec![],
-            1,
-        );
+        let layer = Layer::new("EmptyShape".to_string(), LayerType::Texture, shape, vec![], 1);
 
         assert_eq!(layer.tiles.len(), 0);
     }
@@ -331,7 +290,7 @@ pub mod tests {
             LayerType::Texture,
             Shape::from_square(2),
             vec![],
-            1,
+            1
         );
 
         let out_of_bounds = SingleSelector { x: 10, y: 10 };
@@ -353,11 +312,10 @@ pub mod tests {
             LayerType::Action,
             Shape::from_square(3),
             vec![mask],
-            1,
+            1
         );
 
-        let block =
-            layer.get_block_at((SingleSelector { x: 0, y: 0 }, SingleSelector { x: 2, y: 2 }));
+        let block = layer.get_block_at((SingleSelector { x: 0, y: 0 }, SingleSelector { x: 2, y: 2 }));
         assert_eq!(block.len(), 1);
         assert_eq!(block[0].pointer, SingleSelector { x: 1, y: 1 });
     }
@@ -377,7 +335,7 @@ pub mod tests {
             LayerType::Block,
             Shape::from_square(2),
             vec![mask],
-            1,
+            1
         );
 
         assert!(layer.is_blocking_at(&Coordinates { x: 0, y: 0 }));
@@ -400,7 +358,7 @@ pub mod tests {
             LayerType::Action,
             original_shape,
             vec![mask],
-            1,
+            1
         );
         let offset = Coordinates { x: 2, y: 3 };
 
