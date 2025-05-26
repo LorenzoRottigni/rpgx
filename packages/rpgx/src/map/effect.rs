@@ -11,13 +11,26 @@ pub struct Effect {
     pub block: bool,
     /// determine if [`super::tile::Tile`] belongs to a group spanning several contingent [`super::tile::Tile`]s
     pub group: bool,
+    /// Defines an absolute coordinate bounding box overriding the tile's normal bounds.
     pub shrink: Option<BlockSelector>,
     // TODO: opaque
 }
 
 impl Effect {
-    pub fn new(action_id: Option<i32>, texture_id: Option<i32>, block: bool, group: bool, shrink: Option<BlockSelector>) -> Self {
-        Self { action_id, texture_id, block, group, shrink }
+    pub fn new(
+        action_id: Option<i32>,
+        texture_id: Option<i32>,
+        block: bool,
+        group: bool,
+        shrink: Option<BlockSelector>,
+    ) -> Self {
+        Self {
+            action_id,
+            texture_id,
+            block,
+            group,
+            shrink,
+        }
     }
 }
 
