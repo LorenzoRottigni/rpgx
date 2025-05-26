@@ -154,7 +154,7 @@ pub fn Home() -> Element {
         ],
     );
 
-    map.expand_at(
+    map.merge_at(
         &Map::new(
             "home".to_string(),
             vec![
@@ -166,7 +166,7 @@ pub fn Home() -> Element {
         Coordinates { x: GRID_SIZE, y: 0 },
     );
 
-    map.expand_at(
+    map.merge_at(
         &Map::new(
             "home".to_string(),
             vec![
@@ -178,7 +178,7 @@ pub fn Home() -> Element {
         Coordinates { x: 0, y: GRID_SIZE },
     );
 
-    map.expand_at(
+    map.merge_at(
         &Map::new(
             "home".to_string(),
             vec![
@@ -193,7 +193,7 @@ pub fn Home() -> Element {
         },
     );
 
-    map.expand_at(
+    map.merge_at(
         &Map::new(
             "home".to_string(),
             vec![

@@ -41,7 +41,7 @@ impl Engine {
 
     /// Move to the provided [`Coordinates`] if allowed
     pub fn move_to(&mut self, target_position: Coordinates) -> Result<Tile, MoveError> {
-        if self.map.is_tile_blocked(target_position) {
+        if self.map.is_blocking_at(target_position) {
             return Err(MoveError::TileBlocked);
         }
 

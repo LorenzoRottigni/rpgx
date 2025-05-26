@@ -90,7 +90,7 @@ impl Map {
                 }
 
                 // Check if blocked in any layer
-                if self.is_tile_blocked(neighbor) {
+                if self.is_blocking_at(neighbor) {
                     continue;
                 }
 
@@ -140,6 +140,7 @@ pub mod tests {
             shape,
             tiles: block_tiles,
             masks: vec![],
+            z: 1
         };
 
         // Construct via Map::new to trigger base layer creation automatically

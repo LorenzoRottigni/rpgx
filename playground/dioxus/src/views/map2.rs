@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 use rpgx::{
     common::{coordinates::Coordinates, shape::Shape},
     library::ResourceLibrary,
-    prelude::{Effect, Engine, Layer, LayerType, Map, Mask, Pawn, Selector},
+    prelude::{Effect, Engine, Layer, LayerType, Map, Mask, Pawn, Selector, Direction},
 };
 
 // Platform-agnostic logger
@@ -20,7 +20,7 @@ const SQUARE_SIZE: i32 = 75;
 const GRID_SIZE: i32 = 15;
 
 #[component]
-pub fn Test() -> Element {
+pub fn Map2() -> Element {
     let mut library = use_signal(|| ResourceLibrary::new());
 
     {
@@ -35,8 +35,16 @@ pub fn Test() -> Element {
             "https://s3.rottigni.tech/rpgx/spaceship_floor_2.webp".to_string(),
         );
         w_library.insert_texture(
+            "floor_3",
+            "https://s3.rottigni.tech/rpgx/spaceship_floor_3.webp".to_string(),
+        );
+        w_library.insert_texture(
             "building_1",
             "https://s3.rottigni.tech/rpgx/processor_8.webp".to_string(),
+        );
+        w_library.insert_texture(
+            "building_2",
+            "https://s3.rottigni.tech/rpgx/processor_9.webp".to_string(),
         );
         w_library.insert_texture(
             "portal_1",
@@ -59,30 +67,7 @@ pub fn Test() -> Element {
 
     let w_library = library.read();
 
-    // let mut single_map = Map {
-    //     layers: vec![
-    //         rpgx::factory::layer::presets::street::street_layer_around(
-    //             Shape {
-    //                 width: 4,
-    //                 height: 6,
-    //             }, 
-    //             w_library.get_key_id("floor_2")
-    //         )
-    //     ],
-    //     name: "text".to_string(),
-    // };
-// 
-    // single_map.expand_at(&rpgx::factory::map::presets::building::building_2x3(
-    //     Shape {
-    //         width: 4,
-    //         height: 6,
-    //     },
-    //     w_library.get_key_id("building_1"),
-    //     w_library.get_key_id("consolelog"),
-    // ), Coordinates { x: 1, y: 1 });
-
-
-    let mut single_map = rpgx::factory::map::presets::building::building_2x3(
+    let mut building_1 = rpgx::factory::map::presets::building::building_2x3(
         Shape {
             width: 4,
             height: 6,
@@ -90,7 +75,7 @@ pub fn Test() -> Element {
         w_library.get_key_id("building_1"),
         w_library.get_key_id("consolelog"),
     );
-    single_map.load_layer(
+    building_1.load_layer(
         rpgx::factory::layer::presets::ground::ground_layer(
             Shape {
                 width: 6,
@@ -99,7 +84,7 @@ pub fn Test() -> Element {
             w_library.get_key_id("floor_1")
         ),
     );
-    single_map.load_layer(
+    building_1.load_layer(
         rpgx::factory::layer::presets::street::street_layer_around(
             Shape {
                 width: 4,
@@ -108,7 +93,7 @@ pub fn Test() -> Element {
             w_library.get_key_id("floor_2")
         ),
     );
-    single_map.load_layer(
+    building_1.load_layer(
         rpgx::factory::layer::presets::street::street_layer_around(
             Shape {
                 width: 6,
@@ -118,25 +103,69 @@ pub fn Test() -> Element {
         ),
     );
 
-    
-
-    let mut map = single_map.clone();
-    map.expand_at(&single_map.clone(), Coordinates { x: 8, y: 0 });
-    map.expand_at(&single_map.clone(), Coordinates { x: 0, y: 10 });
-    map.expand_at(&single_map.clone(), Coordinates { x: 8, y: 10 });
-
-    let portal = rpgx::factory::map::presets::building::building_2x3(
+    let mut building_2 = rpgx::factory::map::presets::building::building_2x3(
         Shape {
             width: 4,
             height: 6,
         },
-        w_library.get_key_id("portal_1"),
+        w_library.get_key_id("building_2"),
         w_library.get_key_id("consolelog"),
     );
-    map.expand_at(&portal, Coordinates { x: 6, y: 0 });
-    map.expand_at(&map.clone(), Coordinates { x: 16, y: 0 });
-    map.expand_at(&map.clone(), Coordinates { x: 8, y: 20 });
-    map.expand_at(&map.clone(), Coordinates { x: 32, y: 0 });
+    building_2.load_layer(
+        rpgx::factory::layer::presets::ground::ground_layer(
+            Shape {
+                width: 6,
+                height: 8,
+            }, 
+            w_library.get_key_id("floor_1")
+        ),
+    );
+    building_2.load_layer(
+        rpgx::factory::layer::presets::street::street_layer_around(
+            Shape {
+                width: 4,
+                height: 6,
+            }, 
+            w_library.get_key_id("floor_2")
+        ),
+    );
+    building_2.load_layer(
+        rpgx::factory::layer::presets::street::street_layer_around(
+            Shape {
+                width: 6,
+                height: 8,
+            }, 
+            w_library.get_key_id("floor_2")
+        ),
+    );
+
+    let mut map = Map::compose(
+        "TestMap".to_string(),
+        vec![
+            (building_1, Coordinates { x: 0, y: 0 }),
+            (building_2, Coordinates { x: 8, y: 0 }),
+        ],
+        vec![]
+    );
+
+    map.load_layer(
+        Layer::new(
+            "ground_decoration".to_string(),
+            LayerType::Texture,
+            map.get_shape(),
+            vec![
+                Mask::new(
+                    "ground_decoration".to_string(),
+                    Selector::Filter(|pointer, shape| pointer.x == 0 || pointer.y == 0 || pointer.x == shape.width - 1 || pointer.y == shape.height - 1),
+                    Effect { action_id: None, texture_id: Some(w_library.get_key_id("floor_3")), block: false, group: false, shrink: None }
+                ),
+            ],
+            1
+        )
+    );
+
+    map.duplicate_to_the(Direction::Right);
+    map.duplicate_to_the(Direction::Down);
 
     match map.get_base_layer() {
         Some(layer) => {

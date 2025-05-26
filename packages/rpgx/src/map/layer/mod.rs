@@ -107,6 +107,9 @@ impl Layer {
         base_layer
     }
 
+}
+
+impl Layer {
     /// Reshapes the layer to the given bounds.
     ///
     /// This will discard any tiles outside the shape. For `Base` layers,
@@ -166,7 +169,7 @@ impl Layer {
     }
 
     /// Retrieves all tiles within a rectangular block defined by two coordinates.
-    pub fn get_block(&self, pointer: BlockSelector) -> Vec<Tile> {
+    pub fn get_block_at(&self, pointer: BlockSelector) -> Vec<Tile> {
         self.shape
             .coordinates_in_range(pointer.0, pointer.1)
             .into_iter()
@@ -175,7 +178,7 @@ impl Layer {
     }
 
     /// Checks if the tile at a given coordinate is blocking.
-    pub fn is_tile_blocked(&self, target: &Coordinates) -> bool {
+    pub fn is_blocking_at(&self, target: &Coordinates) -> bool {
         self.tiles.iter().any(|tile| tile.is_blocking_at(*target))
     }
 
@@ -262,7 +265,7 @@ pub mod tests {
             1
         );
 
-        let block = layer.get_block((SingleSelector { x: 0, y: 0 }, SingleSelector { x: 2, y: 2 }));
+        let block = layer.get_block_at((SingleSelector { x: 0, y: 0 }, SingleSelector { x: 2, y: 2 }));
         assert_eq!(block.len(), 9);
         for tile in block {
             assert!(tile.effect.block);
@@ -312,7 +315,7 @@ pub mod tests {
             1
         );
 
-        let block = layer.get_block((SingleSelector { x: 0, y: 0 }, SingleSelector { x: 2, y: 2 }));
+        let block = layer.get_block_at((SingleSelector { x: 0, y: 0 }, SingleSelector { x: 2, y: 2 }));
         assert_eq!(block.len(), 1);
         assert_eq!(block[0].pointer, SingleSelector { x: 1, y: 1 });
     }
@@ -335,8 +338,8 @@ pub mod tests {
             1
         );
 
-        assert!(layer.is_tile_blocked(&Coordinates { x: 0, y: 0 }));
-        assert!(!layer.is_tile_blocked(&Coordinates { x: 1, y: 1 }));
+        assert!(layer.is_blocking_at(&Coordinates { x: 0, y: 0 }));
+        assert!(!layer.is_blocking_at(&Coordinates { x: 1, y: 1 }));
     }
 
     #[test]

@@ -103,10 +103,10 @@ impl WasmMap {
     }
 
     #[wasm_bindgen]
-    pub fn expand_at(&mut self, other: &WasmMap, top_left: WasmCoordinates) {
+    pub fn merge_at(&mut self, other: &WasmMap, top_left: WasmCoordinates) {
         let other_map = other.to_native();
         let top_left_coords = top_left.to_native();
-        self.to_native().expand_at(&other_map, top_left_coords);
+        self.to_native().merge_at(&other_map, top_left_coords);
     }
 
     pub fn is_tile_blocked(&self, target: WasmCoordinates) -> bool {

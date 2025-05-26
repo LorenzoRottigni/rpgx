@@ -11,5 +11,8 @@
 mod home;
 pub use home::Home;
 
-mod test;
-pub use test::Test;
+mod map1;
+pub use map1::Map1;
+
+mod map2;
+pub use map2::Map2;
