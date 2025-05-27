@@ -1,8 +1,5 @@
 use crate::controller::{Command, use_controller};
 use dioxus::prelude::*;
-use futures_util::stream::StreamExt;
-use log::error;
-use rpgx::common::coordinates::Coordinates;
 use rpgx::common::direction::Direction;
 use rpgx::common::errors::MapError;
 use rpgx::library::ResourceLibrary;
@@ -98,16 +95,16 @@ pub fn Engine(props: GridProps) -> Element {
                                 let y = tile.pointer.y;
                                 let base_style = format!(
                                     "{background} \
-                                                                                                                             position: absolute; \
-                                                                                                                             left: {}px; \
-                                                                                                                             top: {}px; \
-                                                                                                                             width: {}px; \
-                                                                                                                             height: {}px; \
-                                                                                                                             border: solid 1px rgba(255,255,255,0.1); \
-                                                                                                                             opacity: 0.7; \
-                                                                                                                             z-index: {}; \
-                                                                                                                             pointer-events: {}; \
-                                                                                                                             cursor: pointer;",
+                                                                                                                                     position: absolute; \
+                                                                                                                                     left: {}px; \
+                                                                                                                                     top: {}px; \
+                                                                                                                                     width: {}px; \
+                                                                                                                                     height: {}px; \
+                                                                                                                                     border: solid 1px rgba(255,255,255,0.1); \
+                                                                                                                                     opacity: 0.7; \
+                                                                                                                                     z-index: {}; \
+                                                                                                                                     pointer-events: {}; \
+                                                                                                                                     cursor: pointer;",
                                     x * props.square_size,
                                     y * props.square_size,
                                     if tile.effect.group { tile.shape.width } else { 1 }
@@ -147,15 +144,15 @@ pub fn Engine(props: GridProps) -> Element {
                 class: "pawn",
                 style: format!(
                     "position: absolute; \
-                                                                                                                                                                                             left: {}px; \
-                                                                                                                                                                                             top: {}px; \
-                                                                                                                                                                                             background-image: url({}); \
-                                                                                                                                                                                             background-size: cover; \
-                                                                                                                                                                                             background-position: center center; \
-                                                                                                                                                                                             z-index: 100; \
-                                                                                                                                                                                             width: {}px; \
-                                                                                                                                                                                             height: {}px; \
-                                                                                                                                                                                             transition: all 0.1s;",
+                                                                                                                                                                                                         left: {}px; \
+                                                                                                                                                                                                         top: {}px; \
+                                                                                                                                                                                                         background-image: url({}); \
+                                                                                                                                                                                                         background-size: cover; \
+                                                                                                                                                                                                         background-position: center center; \
+                                                                                                                                                                                                         z-index: 100; \
+                                                                                                                                                                                                         width: {}px; \
+                                                                                                                                                                                                         height: {}px; \
+                                                                                                                                                                                                         transition: all 0.1s;",
                     pawn_pos.x * props.square_size,
                     pawn_pos.y * props.square_size - props.square_size,
                     pawn_texture,
