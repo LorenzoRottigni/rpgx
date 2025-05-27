@@ -25,11 +25,11 @@ dev-node:
 
 dev-dioxus-web:
 	@echo "🚀 Starting Dioxus Web Application..."
-	cd playground/dioxus && cargo install --locked dioxus-cli && dx serve --platform web
+	cd playground/dioxus && cargo install --locked dioxus-cli && dx serve --platform web --features web
 
 dev-dioxus-desktop:
 	@echo "🚀 Starting Dioxus Desktop Application..."
-	cd playground/dioxus && cargo install --locked dioxus-cli && dx serve --platform desktop
+	cd playground/dioxus && cargo install --locked dioxus-cli && dx serve --platform desktop --features desktop
 
 clean:
 	@echo "🧹 Cleaning project..."

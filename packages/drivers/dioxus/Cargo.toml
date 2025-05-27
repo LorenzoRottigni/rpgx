@@ -3,6 +3,11 @@ name = "rpgx-dioxus"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "rpgx_dioxus"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
 [dependencies]
 # Shared
 dioxus = { version = "0.6.3", features = ["router", "fullstack"] }
