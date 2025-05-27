@@ -3535,7 +3535,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rpgx-dioxus"
+name = "rpgx-spaceship"
 version = "0.1.0"
 dependencies = [
  "dioxus",
@@ -3549,7 +3549,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rpgx-spaceship"
+name = "rpgx_dioxus"
 version = "0.1.0"
 dependencies = [
  "dioxus",

@@ -4,5 +4,5 @@ members = [
     "packages/rpgx",
     "packages/rpgxw",
     "packages/drivers/dioxus",
-    "playground/dioxus"
+    "playground/dioxus",
 ]

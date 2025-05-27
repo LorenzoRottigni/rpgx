@@ -1,12 +1,7 @@
 [package]
-name = "rpgx-dioxus"
+name = "rpgx_dioxus"
 version = "0.1.0"
 edition = "2024"
-
-[lib]
-name = "rpgx"
-path = "src/lib.rs"
-crate-type = ["rlib"]
 
 [dependencies]
 dioxus = { version = "0.6.3", features = ["router", "fullstack"] }
