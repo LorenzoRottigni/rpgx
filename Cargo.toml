@@ -1,7 +1,7 @@
 [workspace]
 resolver = "3"
 members = [
-    "packages/rpgx",
+    "packages/core",
     "packages/rpgxw",
     "packages/drivers/dioxus",
     "playground/dioxus",

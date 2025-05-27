@@ -10,7 +10,7 @@ dioxus-logger = "0.6.2"
 futures-util = "0.3.31"
 gloo-timers = { version = "0.3", features = ["futures"] }
 web-sys = "0.3.77"
-rpgx = { path = "../../packages/rpgx" }
+rpgx = { path = "../../packages/core" }
 log = "0.4.27"
 
 # Note: optional and no default features here

@@ -13,7 +13,7 @@ crate-type = ["rlib"]
 dioxus = { version = "0.6.3", features = ["router", "fullstack"] }
 dioxus-logger = "0.6.2"
 futures-util = "0.3.31"
-rpgx = { path = "../../rpgx" }
+rpgx = { path = "../../core" }
 log = "0.4.27"
 
 # --- Web-only dependencies ---

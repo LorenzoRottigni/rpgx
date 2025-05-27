@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 js-sys = "0.3.77"
-rpgx = { path = "../rpgx" }
+rpgx = { path = "../core" }
 wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4.50"
 
