@@ -8,7 +8,7 @@ pub struct TileProps {
     layer_kind: LayerType,
     square_size: i32,
     library: Signal<ResourceLibrary>,
-    onclick: EventHandler<Result<(rpgx::prelude::Tile), MapError>>,
+    onclick: EventHandler<Result<rpgx::prelude::Tile, MapError>>,
 }
 
 #[allow(non_snake_case)]

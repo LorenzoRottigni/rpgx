@@ -24,15 +24,15 @@ pub fn Pawn(props: PawnProps) -> Element {
             class: "pawn",
             style: format!(
                 "position: absolute; \
-                                                                        left: {}px; \
-                                                                        top: {}px; \
-                                                                        background-image: url({}); \
-                                                                        background-size: cover; \
-                                                                        background-position: center center; \
-                                                                        z-index: 100; \
-                                                                        width: {}px; \
-                                                                        height: {}px; \
-                                                                        transition: all 0.1s;",
+                        left: {}px; \
+                        top: {}px; \
+                        background-image: url({}); \
+                        background-size: cover; \
+                        background-position: center center; \
+                        z-index: 100; \
+                        width: {}px; \
+                        height: {}px; \
+                        transition: all 0.1s;",
                 pawn_pos.x * props.square_size,
                 pawn_pos.y * props.square_size - props.square_size,
                 pawn_texture,

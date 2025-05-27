@@ -22,7 +22,11 @@ pub fn Map3() -> Element {
                 let engine = use_signal(|| Engine::new(map, pawn));
                 rsx! {
                     div { class: "cluster",
-                        rpgx_dioxus::component::Engine { engine, square_size: 75, library }
+                        rpgx_dioxus::components::engine::Engine {
+                            engine: engine.clone(),
+                            library: library.clone(),
+                            square_size: 32,
+                        }
                     }
                 }
             } else {
