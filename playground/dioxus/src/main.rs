@@ -3,11 +3,9 @@
 use dioxus::prelude::*;
 
 use views::Home;
-use views::Map1;
-use views::Map2;
+use views::*;
 
-/// Define a components module that contains all shared components for our app.
-mod components;
+mod config;
 /// Define a views module that contains the UI for all Layouts and Routes for our app.
 mod views;
 
@@ -29,7 +27,9 @@ enum Route {
     #[route("/map1")]
     Map1 {},
     #[route("/map2")]
-    Map2 {}
+    Map2 {},
+    #[route("/map3")]
+    Map3 {}
 }
 
 // We can import assets in dioxus with the `asset!` macro. This macro takes a path to an asset relative to the crate root.

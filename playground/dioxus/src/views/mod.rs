@@ -16,3 +16,6 @@ pub use map1::Map1;
 
 mod map2;
 pub use map2::Map2;
+
+mod map3;
+pub use map3::Map3;

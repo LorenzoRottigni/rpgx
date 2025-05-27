@@ -4,13 +4,13 @@ use rpgx::{
     prelude::{Engine, Pawn},
 };
 
-use crate::config::{library::use_library, map::map2::use_map2};
+use crate::config::{library::use_library, map::map3::use_map3};
 
 #[component]
-pub fn Map2() -> Element {
+pub fn Map3() -> Element {
     let library = use_signal(|| use_library());
 
-    let map = use_map2(library.read().clone());
+    let map = use_map3(library.read().clone());
 
     match map.get_base_layer() {
         Some(layer) => {
