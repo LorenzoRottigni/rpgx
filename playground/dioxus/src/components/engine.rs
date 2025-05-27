@@ -21,13 +21,13 @@ enum Command {
 }
 
 // Cross-platform sleep function
-async fn sleep_ms(ms: u64) {
-    #[cfg(target_arch = "wasm32")]
+pub async fn sleep_ms(ms: u64) {
+    #[cfg(feature = "web")]
     {
         gloo_timers::future::TimeoutFuture::new(ms as u32).await;
     }
 
-    #[cfg(not(target_arch = "wasm32"))]
+    #[cfg(feature = "desktop")]
     {
         tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
     }
@@ -152,16 +152,16 @@ pub fn Engine(props: GridProps) -> Element {
                                 let y = tile.pointer.y;
                                 let base_style = format!(
                                     "{background} \
-                                                position: absolute; \
-                                                left: {}px; \
-                                                top: {}px; \
-                                                width: {}px; \
-                                                height: {}px; \
-                                                border: solid 1px rgba(255,255,255,0.1); \
-                                                opacity: 0.7; \
-                                                z-index: {}; \
-                                                pointer-events: {}; \
-                                                cursor: pointer;",
+                                                                                        position: absolute; \
+                                                                                        left: {}px; \
+                                                                                        top: {}px; \
+                                                                                        width: {}px; \
+                                                                                        height: {}px; \
+                                                                                        border: solid 1px rgba(255,255,255,0.1); \
+                                                                                        opacity: 0.7; \
+                                                                                        z-index: {}; \
+                                                                                        pointer-events: {}; \
+                                                                                        cursor: pointer;",
                                     x * props.square_size,
                                     y * props.square_size,
                                     if tile.effect.group { tile.shape.width } else { 1 }

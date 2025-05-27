@@ -1,6 +1,6 @@
 use crate::prelude::Coordinates;
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Clone, Copy, Debug)]
 pub enum Direction {
     Up,
     Down,

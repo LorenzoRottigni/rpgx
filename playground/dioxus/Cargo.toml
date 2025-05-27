@@ -4,8 +4,6 @@ version = "0.1.0"
 authors = ["loren"]
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 dioxus = { version = "0.6.3", features = ["router", "fullstack"] }
 dioxus-logger = "0.6.2"
@@ -14,15 +12,28 @@ gloo-timers = { version = "0.3", features = ["futures"] }
 web-sys = "0.3.77"
 rpgx = { path = "../../packages/rpgx" }
 log = "0.4.27"
-tokio = "1.45.0"
+
+# Note: optional and no default features here
+tokio = { version = "1.45.0", optional = true }
+rpgx-dioxus = { path = "../../packages/drivers/dioxus", optional = true }
 
 [features]
-default = ["web","desktop"]
-# The feature that are only required for the web = ["dioxus/web"] build target should be optional and only enabled in the web = ["dioxus/web"] feature
-web = ["dioxus/web"]
-# The feature that are only required for the desktop = ["dioxus/desktop"] build target should be optional and only enabled in the desktop = ["dioxus/desktop"] feature
-desktop = ["dioxus/desktop"]
-# The feature that are only required for the mobile = ["dioxus/mobile"] build target should be optional and only enabled in the mobile = ["dioxus/mobile"] feature
+default = []
+
+# Web build features — enable rpgx-dioxus/web (no tokio)
+web = [
+  "dioxus/web",
+  "rpgx-dioxus/web"
+]
+
+# Desktop build features — enable tokio + rpgx-dioxus/desktop
+desktop = [
+  "dioxus/desktop",
+  "tokio",
+  "rpgx-dioxus/desktop"
+]
+
+# Mobile build (optional)
 mobile = ["dioxus/mobile"]
 
 [profile]

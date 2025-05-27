@@ -3535,6 +3535,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "rpgx-dioxus"
+version = "0.1.0"
+dependencies = [
+ "dioxus",
+ "dioxus-logger",
+ "futures-util",
+ "gloo-timers",
+ "js-sys",
+ "log",
+ "rpgx",
+ "tokio",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
 name = "rpgx-spaceship"
 version = "0.1.0"
 dependencies = [
@@ -3544,20 +3560,7 @@ dependencies = [
  "gloo-timers",
  "log",
  "rpgx",
- "tokio",
- "web-sys",
-]
-
-[[package]]
-name = "rpgx_dioxus"
-version = "0.1.0"
-dependencies = [
- "dioxus",
- "dioxus-logger",
- "futures-util",
- "gloo-timers",
- "log",
- "rpgx",
+ "rpgx-dioxus",
  "tokio",
  "web-sys",
 ]
