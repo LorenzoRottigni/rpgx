@@ -36,7 +36,7 @@ impl Engine {
     pub fn step_to(&mut self, direction: Direction) -> Result<Tile, MoveError> {
         let delta = direction.to_delta();
         let target_position = self.pawn.tile.pointer + delta;
-        Ok(self.move_to(target_position)?)
+        self.move_to(target_position)
     }
 
     /// Move to the provided [`Coordinates`] if allowed

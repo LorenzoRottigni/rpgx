@@ -42,7 +42,10 @@ impl Layer {
     ///
     /// Panics if called with [`LayerType::Base`] (use [`Layer::base`] instead).
     pub fn new(name: String, kind: LayerType, shape: Shape, masks: Vec<Mask>, z: i32) -> Self {
-        assert!(kind != LayerType::Base, "Use Layer::base instead of Layer::new for Base layers");
+        assert!(
+            kind != LayerType::Base,
+            "Use Layer::base instead of Layer::new for Base layers"
+        );
 
         let tiles = masks.iter().flat_map(|mask| mask.apply(shape)).collect();
         Self {
@@ -51,7 +54,7 @@ impl Layer {
             tiles,
             shape,
             masks,
-            z
+            z,
         }
     }
 
@@ -96,7 +99,7 @@ impl Layer {
                 'tileloop: for tile in &layer.tiles {
                     for base_tile in base_layer.tiles.iter_mut() {
                         if base_tile.pointer == tile.pointer {
-                            base_tile.effect = tile.effect.clone();
+                            base_tile.effect = tile.effect;
                             continue 'tileloop;
                         }
                     }
@@ -106,7 +109,6 @@ impl Layer {
 
         base_layer
     }
-
 }
 
 impl Layer {
@@ -159,13 +161,16 @@ impl Layer {
 
     /// Finds the tile covering the given coordinates, accounting for both tile origin and shape.
     pub fn get_tile_at(&self, pointer: Coordinates) -> Option<Tile> {
-        self.tiles.iter().find(|tile| {
-            let local = Coordinates {
-                x: pointer.x - tile.pointer.x,
-                y: pointer.y - tile.pointer.y,
-            };
-            tile.shape.in_bounds(local)
-        }).cloned()
+        self.tiles
+            .iter()
+            .find(|tile| {
+                let local = Coordinates {
+                    x: pointer.x - tile.pointer.x,
+                    y: pointer.y - tile.pointer.y,
+                };
+                tile.shape.in_bounds(local)
+            })
+            .cloned()
     }
 
     /// Retrieves all tiles within a rectangular block defined by two coordinates.
@@ -262,10 +267,11 @@ pub mod tests {
             LayerType::Texture,
             shape,
             vec![mask],
-            1
+            1,
         );
 
-        let block = layer.get_block_at((SingleSelector { x: 0, y: 0 }, SingleSelector { x: 2, y: 2 }));
+        let block =
+            layer.get_block_at((SingleSelector { x: 0, y: 0 }, SingleSelector { x: 2, y: 2 }));
         assert_eq!(block.len(), 9);
         for tile in block {
             assert!(tile.effect.block);
@@ -278,7 +284,13 @@ pub mod tests {
             width: 0,
             height: 0,
         };
-        let layer = Layer::new("EmptyShape".to_string(), LayerType::Texture, shape, vec![], 1);
+        let layer = Layer::new(
+            "EmptyShape".to_string(),
+            LayerType::Texture,
+            shape,
+            vec![],
+            1,
+        );
 
         assert_eq!(layer.tiles.len(), 0);
     }
@@ -290,7 +302,7 @@ pub mod tests {
             LayerType::Texture,
             Shape::from_square(2),
             vec![],
-            1
+            1,
         );
 
         let out_of_bounds = SingleSelector { x: 10, y: 10 };
@@ -312,10 +324,11 @@ pub mod tests {
             LayerType::Action,
             Shape::from_square(3),
             vec![mask],
-            1
+            1,
         );
 
-        let block = layer.get_block_at((SingleSelector { x: 0, y: 0 }, SingleSelector { x: 2, y: 2 }));
+        let block =
+            layer.get_block_at((SingleSelector { x: 0, y: 0 }, SingleSelector { x: 2, y: 2 }));
         assert_eq!(block.len(), 1);
         assert_eq!(block[0].pointer, SingleSelector { x: 1, y: 1 });
     }
@@ -335,7 +348,7 @@ pub mod tests {
             LayerType::Block,
             Shape::from_square(2),
             vec![mask],
-            1
+            1,
         );
 
         assert!(layer.is_blocking_at(&Coordinates { x: 0, y: 0 }));
@@ -358,7 +371,7 @@ pub mod tests {
             LayerType::Action,
             original_shape,
             vec![mask],
-            1
+            1,
         );
         let offset = Coordinates { x: 2, y: 3 };
 

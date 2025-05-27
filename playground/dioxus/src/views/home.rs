@@ -100,7 +100,7 @@ pub fn Home() -> Element {
                 selector: Selector::Filter(is_center_tile),
             },
         ],
-        1
+        1,
     );
 
     let building_layer = Layer::new(
@@ -121,7 +121,7 @@ pub fn Home() -> Element {
             },
             selector: Selector::Block((Coordinates { x: 1, y: 6 }, Coordinates { x: 4, y: 11 })),
         }],
-        5
+        5,
     );
 
     let action_layer = Layer::new(
@@ -142,7 +142,7 @@ pub fn Home() -> Element {
             },
             selector: Selector::Block((Coordinates { x: 2, y: 11 }, Coordinates { x: 3, y: 11 })),
         }],
-        6
+        6,
     );
 
     let mut map = Map::new(
@@ -218,7 +218,11 @@ pub fn Home() -> Element {
                 let engine = use_signal(|| Engine::new(map, pawn));
                 rsx! {
                     div { class: "cluster",
-                        Engine { engine, square_size: SQUARE_SIZE, library }
+                        Engine {
+                            engine,
+                            square_size: SQUARE_SIZE,
+                            library,
+                        }
                     }
                 }
             } else {

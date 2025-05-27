@@ -2,18 +2,17 @@ use crate::prelude::{Coordinates, Direction, Layer, LayerType, Tile};
 use indexmap::IndexMap;
 use layer::{Effect, Shape, SingleSelector};
 
-pub mod routing;
+pub mod effect;
 pub mod layer;
+pub mod routing;
 pub mod selector;
 pub mod tile;
-pub mod effect;
 
 /// Game map containing multiple layers.
 #[derive(Clone)]
 pub struct Map {
     pub name: String,
     pub layers: Vec<Layer>,
-
 }
 
 impl Map {
@@ -29,9 +28,9 @@ impl Map {
     pub fn compose(name: String, maps: Vec<(Map, SingleSelector)>, layers: Vec<Layer>) -> Self {
         let mut map = Map::new(name, layers);
         for (other_map, top_left) in maps.iter() {
-            map.merge_at(&other_map, *top_left);
-        };
-        return map
+            map.merge_at(other_map, *top_left);
+        }
+        map
     }
 }
 
@@ -53,7 +52,6 @@ impl Map {
             };
             // Offset the tiles in the incoming layer
             for existing_layer in &mut self.layers {
-                let _offset = 
                 existing_layer.offset(offset);
             }
 
@@ -76,7 +74,10 @@ impl Map {
 
     /// Returns a map of layer name to layer.
     pub fn layers_by_name(&self) -> IndexMap<String, Layer> {
-        self.layers.iter().map(|l| (l.name.clone(), l.clone())).collect()
+        self.layers
+            .iter()
+            .map(|l| (l.name.clone(), l.clone()))
+            .collect()
     }
 
     /// Merges another map into this one at the specified top-left coordinates.
@@ -103,15 +104,23 @@ impl Map {
     pub fn duplicate_to_the(&mut self, direction: Direction) {
         let shape = self.get_shape();
         let top_left = match direction {
-            Direction::Up | Direction::Down => Coordinates { x: 0, y: shape.height },
-            Direction::Left | Direction::Right => Coordinates { x: shape.width, y: 0 },
+            Direction::Up | Direction::Down => Coordinates {
+                x: 0,
+                y: shape.height,
+            },
+            Direction::Left | Direction::Right => Coordinates {
+                x: shape.width,
+                y: 0,
+            },
         };
         self.merge_at(&self.clone(), top_left);
     }
 
     /// Returns `true` if any layer blocks the tile at `target`.
     pub fn is_blocking_at(&self, target: Coordinates) -> bool {
-        self.layers.iter().any(|layer| layer.is_blocking_at(&target))
+        self.layers
+            .iter()
+            .any(|layer| layer.is_blocking_at(&target))
     }
 
     /// Returns the shape of the map, which is the shape of the base layer.
@@ -121,16 +130,23 @@ impl Map {
         } else {
             Shape::default()
         }
-    } 
+    }
 
     /// Returns the first base layer, if any.
     pub fn get_base_layer(&self) -> Option<Layer> {
-        self.layers.iter().find(|l| l.kind == LayerType::Base).cloned()
+        self.layers
+            .iter()
+            .find(|l| l.kind == LayerType::Base)
+            .cloned()
     }
 
     /// Return map layers of the specified type.
     pub fn get_layers_of_type(&self, kind: LayerType) -> Vec<Layer> {
-        self.layers.iter().filter(|l| l.kind == kind).cloned().collect()
+        self.layers
+            .iter()
+            .filter(|l| l.kind == kind)
+            .cloned()
+            .collect()
     }
 
     /// Returns the tile at `pointer` in the base layer, if present.
@@ -140,24 +156,32 @@ impl Map {
 
     /// Return stacked tiles from all layers at the specified pointer.
     pub fn get_tiles_at(&self, pointer: Coordinates) -> Vec<Tile> {
-        self.layers.iter().flat_map(|layer| layer.get_tile_at(pointer)).collect()
+        self.layers
+            .iter()
+            .flat_map(|layer| layer.get_tile_at(pointer))
+            .collect()
     }
 
     /// Returns all effects present at `pointer` across all layers.
     pub fn get_effects_at(&self, pointer: Coordinates) -> Vec<Effect> {
-        self.layers.iter().flat_map(|layer| {
-            layer.get_tile_at(pointer).and_then(|tile| Some(tile.effect))
-        }).collect()
+        self.layers
+            .iter()
+            .flat_map(|layer| layer.get_tile_at(pointer).map(|tile| tile.effect))
+            .collect()
     }
 
     /// Returns all action IDs present at `pointer` across action layers.
     pub fn get_actions_at(&self, pointer: Coordinates) -> Vec<i32> {
-        self.get_layers_of_type(LayerType::Action).into_iter().flat_map(|layer| {
-            layer.get_tile_at(pointer).and_then(|tile| tile.effect.action_id)
-        }).collect()
+        self.get_layers_of_type(LayerType::Action)
+            .into_iter()
+            .flat_map(|layer| {
+                layer
+                    .get_tile_at(pointer)
+                    .and_then(|tile| tile.effect.action_id)
+            })
+            .collect()
     }
 }
-
 
 #[cfg(test)]
 pub mod tests {
@@ -198,12 +222,7 @@ pub mod tests {
     #[test]
     fn gets_tile_from_base_layer() {
         let tile = dummy_tile(1, 2);
-        let layer = dummy_layer(
-            "base",
-            LayerType::Base,
-            vec![tile.clone()],
-            Shape::from_square(3),
-        );
+        let layer = dummy_layer("base", LayerType::Base, vec![tile], Shape::from_square(3));
         let map = Map::new("TileMap".to_string(), vec![layer]);
 
         let result = map.get_base_tile(Coordinates { x: 1, y: 2 });
@@ -240,12 +259,7 @@ pub mod tests {
         let shape = Shape::from_square(1);
         let mut base_map = Map::new(
             "Base".to_string(),
-            vec![dummy_layer(
-                "base",
-                LayerType::Base,
-                vec![tile.clone()],
-                shape,
-            )],
+            vec![dummy_layer("base", LayerType::Base, vec![tile], shape)],
         );
 
         let offset_tile = Tile {
