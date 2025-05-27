@@ -33,6 +33,7 @@ async fn sleep_ms(ms: u64) {
     }
 }
 
+#[allow(non_snake_case)]
 pub fn Engine(props: GridProps) -> Element {
     let mut engine = props.engine.clone();
 
@@ -110,6 +111,15 @@ pub fn Engine(props: GridProps) -> Element {
         }
     };
 
+    let engine_ref = engine.read();
+    let pawn_pos = engine_ref.pawn.tile.pointer;
+    let pawn_texture = props
+        .library
+        .read()
+        .get_texture_by_id(engine_ref.pawn.texture_id)
+        .cloned()
+        .unwrap_or_default();
+
     rsx! {
         div {
             class: "container",
@@ -117,9 +127,9 @@ pub fn Engine(props: GridProps) -> Element {
             onkeydown,
             style: "position: relative;",
 
+            // FIX: wrap your iterator producing elements in { ... }
             {
-                engine
-                    .read()
+                (engine_ref)
                     .map
                     .layers
                     .iter()
@@ -130,7 +140,7 @@ pub fn Engine(props: GridProps) -> Element {
                             .tiles
                             .iter()
                             .enumerate()
-                            .map(move |(_i, tile)| {
+                            .filter_map(move |(i, tile)| {
                                 let background = if let Some(texture_id) = tile.effect.texture_id
                                 {
                                     if let Some(asset) = props
@@ -152,16 +162,16 @@ pub fn Engine(props: GridProps) -> Element {
                                 let y = tile.pointer.y;
                                 let base_style = format!(
                                     "{background} \
-                                                        position: absolute; \
-                                                        left: {}px; \
-                                                        top: {}px; \
-                                                        width: {}px; \
-                                                        height: {}px; \
-                                                        border: solid 1px rgba(255,255,255,0.1); \
-                                                        opacity: 0.7; \
-                                                        z-index: {}; \
-                                                        pointer-events: {}; \
-                                                        cursor: pointer;",
+                                     position: absolute; \
+                                     left: {}px; \
+                                     top: {}px; \
+                                     width: {}px; \
+                                     height: {}px; \
+                                     border: solid 1px rgba(255,255,255,0.1); \
+                                     opacity: 0.7; \
+                                     z-index: {}; \
+                                     pointer-events: {}; \
+                                     cursor: pointer;",
                                     x * props.square_size,
                                     y * props.square_size,
                                     if tile.effect.group { tile.shape.width } else { 1 }
@@ -171,44 +181,51 @@ pub fn Engine(props: GridProps) -> Element {
                                     layer.z,
                                     if layer.kind == LayerType::Base { "auto" } else { "none" },
                                 );
-                                let onclick_handler = if layer.kind == LayerType::Base {
+                                if layer.kind == LayerType::Base {
                                     let _tile = tile.clone();
                                     rsx! {
                                         div {
                                             class: "base-layer-tile",
-                                            key: {format!("layer-{}-{}", layer_index, i)},
+                                            key: format!("layer-{}-{}", layer_index, i),
                                             style: "{base_style}",
                                             onclick: move |_| {
                                                 let _ = onclick(_tile);
                                             },
                                         }
-                                    }
+                                    }.ok()
                                 } else {
                                     rsx! {
                                         div {
                                             class: "layer-tile",
-                                            key: {format!("layer-{}-{}", layer_index, i)},
+                                            key: format!("layer-{}-{}", layer_index, i),
                                             style: "{base_style}",
                                         }
-                                    }
-                                };
-                                onclick_handler
+                                    }.ok()
+                                }
                             })
                     })
             }
 
+
             div {
                 class: "pawn",
-                style: "position: absolute; \
-                        left: {engine.read().pawn.tile.pointer.x * props.square_size}px; \
-                        top: {engine.read().pawn.tile.pointer.y * props.square_size - props.square_size}px; \
-                        background-image: url({props.library.read().get_texture_by_id(engine.read().pawn.texture_id).unwrap()}); \
-                        background-size: cover; \
-                        background-position: center center; \
-                        z-index: 100; \
-                        width: {props.square_size}px; \
-                        height: {props.square_size * 2}px; \
-                        transition: all 0.1s;",
+                style: format!(
+                    "position: absolute; \
+                                                         left: {}px; \
+                                                         top: {}px; \
+                                                         background-image: url({}); \
+                                                         background-size: cover; \
+                                                         background-position: center center; \
+                                                         z-index: 100; \
+                                                         width: {}px; \
+                                                         height: {}px; \
+                                                         transition: all 0.1s;",
+                    pawn_pos.x * props.square_size,
+                    pawn_pos.y * props.square_size - props.square_size,
+                    pawn_texture,
+                    props.square_size,
+                    props.square_size * 2,
+                ),
             }
         }
     }
