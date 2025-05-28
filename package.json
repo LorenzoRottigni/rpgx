@@ -1,0 +1,8 @@
+{
+  "name": "rpgx",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "playgrounds/*"
+  ]
+}
