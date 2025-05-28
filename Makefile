@@ -1,5 +1,5 @@
 .PHONY: dev-vue dev-node dev-dioxus-web dev-dioxus-desktop clean test build wasm-build \
-        build-vue build-dioxus-web build-dioxus-desktop
+        build-vue build-dioxus-web build-dioxus-desktop build-vue-plugin
 
 WASM_TARGET=wasm32-unknown-unknown
 WASM_OUT_VUE=playground/vuejs/src/wasm
@@ -57,6 +57,10 @@ build-js-driver:
 	cargo build --target $(WASM_TARGET) --release -p rpgx-wasm
 	@echo "🔧 Generating RPGX WASM NodeJS loader..."
 	wasm-bindgen $(WASM_BIN) --out-dir $(WASM_OUT_DRIVER_JS) --target bundler
+
+build-vue-plugin:
+	$(MAKE) build-js-driver
+	cd packages/plugins/vue && npm install && npm run build
 
 build-dioxus-web:
 	@echo "🚀 Building Dioxus Web Application..."

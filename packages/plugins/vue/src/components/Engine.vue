@@ -1,4 +1,5 @@
 <script setup>
+import { } from '@rpgx/js'
 const c = 'test'
 </script>
 
