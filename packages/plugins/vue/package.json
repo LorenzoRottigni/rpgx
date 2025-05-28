@@ -1,10 +1,19 @@
 {
-  "name": "rpgx-vue",
+  "name": "@rpgx/vue",
   "version": "0.1.0",
   "type": "module",
   "main": "dist/rpgx.cjs.js",
   "module": "dist/rpgx.esm.js",
   "unpkg": "dist/rpgx.umd.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./cjs": "./dist/rpgx.cjs.js",
+    "./esm": "./dist/rpgx.esm.js",
+    "./umd": "./dist/rpgx.umd.js"
+  },
   "files": [
     "dist"
   ],
