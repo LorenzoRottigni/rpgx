@@ -1,0 +1,28 @@
+{
+  "name": "@rpgx/js",
+  "version": "0.1.0",
+  "description": "JavaScript driver wrapper for RPGX wasm engine",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "pkg"
+  ],
+  "exports": {
+    "import": "./dist/index.esm.js",
+    "require": "./dist/index.cjs.js"
+  },
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "rollup": "^4.41.1",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "typescript": "^5.0.0",
+    "rollup-plugin-typescript2": "^0.36.0"
+  },
+  "sideEffects": false,
+  "license": "MIT"
+}

@@ -4,6 +4,7 @@
 WASM_TARGET=wasm32-unknown-unknown
 WASM_OUT_VUE=playground/vuejs/src/wasm
 WASM_OUT_NODE=playground/nodejs/wasm
+WASM_OUT_DRIVER_JS=packages/drivers/js/pkg
 WASM_BIN=target/$(WASM_TARGET)/release/rpgx_wasm.wasm
 
 define wasm_bundle
@@ -57,6 +58,9 @@ build-vue:
 	$(call wasm_bundle,$(WASM_OUT_VUE))
 	@echo "🚀 Building Vue.js playground..."
 	cd playground/vuejs && npm install && npm run build
+
+build-js-driver:
+	$(call wasm_bundle,$(WASM_OUT_DRIVER_JS))
 
 build-dioxus-web:
 	@echo "🚀 Building Dioxus Web Application..."
