@@ -1,7 +1,8 @@
-import * as wasm from '../wasm/rpgx_wasm.js';
+// import * as wasm from '../wasm/rpgx_js';
+import { ResourceLibrary, WasmCoordinates, WasmEffect, WasmEngine, WasmLayer, WasmLayerType, WasmMap, WasmMask, WasmPawn, WasmSelector, WasmShape, WasmTile} from '@rpgx/js'
 
-export function useLibrary(): wasm.ResourceLibrary {
-    const library = new wasm.ResourceLibrary();
+export function useLibrary(): ResourceLibrary {
+    const library = new ResourceLibrary();
     library.insert_texture(
         "floor_1",
         "https://s3.rottigni.tech/rpgx/spaceship_floor_1.webp"
@@ -31,77 +32,77 @@ export function useLibrary(): wasm.ResourceLibrary {
     return library
 }
 
-export function useEngine(library: wasm.ResourceLibrary): wasm.WasmEngine {
+export function useEngine(library: ResourceLibrary): WasmEngine {
     const grid_size = 25;
 
-    // const defaultLayer = new wasm.WasmLayer(
+    // const defaultLayer = new WasmLayer(
     //     "base",
-    //     wasm.WasmLayerType.Base,
-    //     new wasm.WasmShape(grid_size, grid_size),
+    //     WasmLayerType.Base,
+    //     new WasmShape(grid_size, grid_size),
     //     [],
     //     1
     // )
 
-    const groundLayer = new wasm.WasmLayer(
+    const groundLayer = new WasmLayer(
         "ground",
-        wasm.WasmLayerType.Texture,
-        new wasm.WasmShape(grid_size, grid_size),
+        WasmLayerType.Texture,
+        new WasmShape(grid_size, grid_size),
         [
-            new wasm.WasmMask(
+            new WasmMask(
                 "default_floor",
-                new wasm.WasmEffect(library.get_key_id("floor_1"), undefined, false, false, null),
-                wasm.WasmSelector.new_block(
-                    new wasm.WasmCoordinates(0, 0),
-                    new wasm.WasmCoordinates(grid_size - 1, grid_size - 1),
+                new WasmEffect(library.get_key_id("floor_1"), undefined, false, false, null),
+                WasmSelector.new_block(
+                    new WasmCoordinates(0, 0),
+                    new WasmCoordinates(grid_size - 1, grid_size - 1),
                 ),
             ),
-            new wasm.WasmMask(
+            new WasmMask(
                 "floor_alt",
-                new wasm.WasmEffect(library.get_key_id("floor_2"), undefined, false, false, null),
-                wasm.WasmSelector.new_block(
-                    new wasm.WasmCoordinates(0, 0),
-                    new wasm.WasmCoordinates(0, grid_size - 1),
+                new WasmEffect(library.get_key_id("floor_2"), undefined, false, false, null),
+                WasmSelector.new_block(
+                    new WasmCoordinates(0, 0),
+                    new WasmCoordinates(0, grid_size - 1),
                 ),
             )
         ],
         1
     )
 
-    const buildingLayer = new wasm.WasmLayer(
+    const buildingLayer = new WasmLayer(
         "building",
-        wasm.WasmLayerType.Block,
-        new wasm.WasmShape(grid_size, grid_size),
+        WasmLayerType.Block,
+        new WasmShape(grid_size, grid_size),
         [
-            new wasm.WasmMask(
+            new WasmMask(
                 "default_building",
-                new wasm.WasmEffect(library.get_key_id("building_1"), undefined, true, true, null),
-                wasm.WasmSelector.new_block(
-                    new wasm.WasmCoordinates(1, 6),
-                    new wasm.WasmCoordinates(4, 11),
+                new WasmEffect(library.get_key_id("building_1"), undefined, true, true, null),
+                WasmSelector.new_block(
+                    new WasmCoordinates(1, 6),
+                    new WasmCoordinates(4, 11),
                 ),
             ),
         ],
         5
     )
 
-    const actionLayer = new wasm.WasmLayer(
+    const actionLayer = new WasmLayer(
         "action",
-        wasm.WasmLayerType.Action,
-        new wasm.WasmShape(grid_size, grid_size),
+        WasmLayerType.Action,
+        new WasmShape(grid_size, grid_size),
         [
-            new wasm.WasmMask(
+            new WasmMask(
                 "logit",
-                new wasm.WasmEffect(library.get_key_id("floor_2"), library.get_key_id("logit"), false, false, null),
-                wasm.WasmSelector.new_block(
-                    new wasm.WasmCoordinates(10, 0),
-                    new wasm.WasmCoordinates(11, 0),
+                new WasmEffect(library.get_key_id("floor_2"), library.get_key_id("logit"), false, false, null),
+                WasmSelector.new_block(
+                    new WasmCoordinates(10, 0),
+                    new WasmCoordinates(11, 0),
                 ),
             )
         ],
         6
     )
 
-    const map = new wasm.WasmMap(
+    const map = new WasmMap(
         "test_map",
         [
             groundLayer,
@@ -110,17 +111,17 @@ export function useEngine(library: wasm.ResourceLibrary): wasm.WasmEngine {
         ]
     )
 
-    const pawn = new wasm.WasmPawn(
-        new wasm.WasmTile(
+    const pawn = new WasmPawn(
+        new WasmTile(
             0,
-            new wasm.WasmEffect(undefined, undefined, false, false, null),
-            new wasm.WasmCoordinates(0, 0),
-            new wasm.WasmShape(1, 1),
+            new WasmEffect(undefined, undefined, false, false, null),
+            new WasmCoordinates(0, 0),
+            new WasmShape(1, 1),
         ),
         library.get_key_id("character_1"),
     );
 
-    const engine = new wasm.WasmEngine(map, pawn)
+    const engine = new WasmEngine(map, pawn)
 
     return engine
 }

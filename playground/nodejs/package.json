@@ -1,0 +1,14 @@
+{
+  "name": "nodejs-playground",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "test": "ts-node ."
+  },
+  "dependencies": {
+    "@rpgx/js": "file:../../packages/drivers/js"
+  },
+  "author": "LorenzoRottigni",
+  "license": "ISC"
+}

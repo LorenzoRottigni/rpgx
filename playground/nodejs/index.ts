@@ -1,55 +1,55 @@
-import wasm from './wasm/rpgx-wasm.js';
-
+import { WasmLayer, WasmMask, WasmShape, WasmEffect, WasmSelector, WasmLayerType, WasmCoordinates, WasmMap, WasmEngine } from '@rpgx/js';
+/* TODO: remake nodejs playground
 const grid_size = 25;
 
-const defaultLayer = new wasm.Layer(
+const defaultLayer = new WasmLayer(
     "base",
-    wasm.LayerType.Default,
-    new wasm.Shape(grid_size, grid_size),
+    LayerType.Default,
+    new WasmShape(grid_size, grid_size),
     []
 )
 
-const groundLayer = new wasm.Layer(
+const groundLayer = new WasmLayer(
     "ground",
-    wasm.LayerType.Texture,
-    new wasm.Shape(grid_size, grid_size),
+    WasmLayerType.Texture,
+    new WasmShape(grid_size, grid_size),
     [
-        new wasm.Mask(
+        new WasmMask(
             "default_floor",
-            new wasm.Effect("texture.png", false, false),
-            wasm.Selector.new_block(
-                new wasm.Coordinates(0, 0),
-                new wasm.Coordinates(grid_size - 1, grid_size - 1),
+            new WasmEffect("texture.png", false, false),
+            WasmSelector.new_block(
+                new WasmCoordinates(0, 0),
+                new WasmCoordinates(grid_size - 1, grid_size - 1),
             ),
         ),
-        new wasm.Mask(
+        new WasmMask(
             "floor_alt",
-            new wasm.Effect("texture.png", false, false),
-            wasm.Selector.new_block(
-                new wasm.Coordinates(0, 0),
-                new wasm.Coordinates(0, grid_size - 1),
+            new WasmEffect("texture.png", false, false),
+            WasmSelector.new_block(
+                new WasmCoordinates(0, 0),
+                new WasmCoordinates(0, grid_size - 1),
             ),
         )
     ]
 )
 
-const buildingLayer = new wasm.Layer(
+const buildingLayer = new WasmLayer(
     "building",
-    wasm.LayerType.Block,
-    new wasm.Shape(grid_size, grid_size),
+    WasmLayerType.Block,
+    new WasmShape(grid_size, grid_size),
     [
-        new wasm.Mask(
+        new WasmMask(
             "default_building",
-            new wasm.Effect("texture.png", true, true),
-            wasm.Selector.new_block(
-                new wasm.Coordinates(1, 6),
-                new wasm.Coordinates(4, 11),
+            new WasmEffect("texture.png", true, true),
+            WasmSelector.new_block(
+                new WasmCoordinates(1, 6),
+                new WasmCoordinates(4, 11),
             ),
         ),
     ]
 )
 
-const map = new wasm.Map(
+const map = new WasmMap(
     "test_map",
     [
         defaultLayer,
@@ -58,20 +58,21 @@ const map = new wasm.Map(
     ]
 )
 
-const pawn = new wasm.Pawn(
-    new wasm.Tile(
+const pawn = new WasmPawn(
+    new WasmTile(
         0,
-        new wasm.Effect(null, false, false),
-        new wasm.Coordinates(0, 0),
-        new wasm.Shape(1, 1),
+        new WasmEffect(null, false, false),
+        new WasmCoordinates(0, 0),
+        new WasmShape(1, 1),
     ),
     ""
 );
 
-const engine = new wasm.WasmEngine(map, pawn)
+const engine = new WasmEngine(map, pawn)
 
 console.log(engine.pawn_position)
 console.dir(engine)
 engine.move_to(3,3)
 console.log(engine.pawn_position)
 console.dir(Object.keys(engine))
+*/

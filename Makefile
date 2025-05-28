@@ -7,20 +7,13 @@ WASM_OUT_NODE=playground/nodejs/wasm
 WASM_OUT_DRIVER_JS=packages/drivers/js/pkg
 WASM_BIN=target/$(WASM_TARGET)/release/rpgx_wasm.wasm
 
-define wasm_bundle
-	@echo "🔧 Generating RPGX WASM driver..."
-	cargo build --target $(WASM_TARGET) --release -p rpgx-wasm
-	@echo "🔧 Generating RPGX WASM NodeJS loader..."
-	wasm-bindgen $(WASM_BIN) --out-dir $(1) --target bundler
-endef
-
 dev-vue:
-	$(call wasm_bundle,$(WASM_OUT_VUE))
+	$(MAKE) build-js-driver
 	@echo "🚀 Starting Vue.js playground..."
 	cd playground/vuejs && npm install && npm run dev
 
 dev-node:
-	$(call wasm_bundle,$(WASM_OUT_NODE))
+	$(MAKE) build-js-driver
 	@echo "🚀 Starting NodeJS playground..."
 	cd playground/nodejs && npx ts-node index.ts
 
@@ -60,7 +53,10 @@ build-vue:
 	cd playground/vuejs && npm install && npm run build
 
 build-js-driver:
-	$(call wasm_bundle,$(WASM_OUT_DRIVER_JS))
+	@echo "🔧 Generating RPGX WASM driver..."
+	cargo build --target $(WASM_TARGET) --release -p rpgx-wasm
+	@echo "🔧 Generating RPGX WASM NodeJS loader..."
+	wasm-bindgen $(WASM_BIN) --out-dir $(WASM_OUT_DRIVER_JS) --target bundler
 
 build-dioxus-web:
 	@echo "🚀 Building Dioxus Web Application..."

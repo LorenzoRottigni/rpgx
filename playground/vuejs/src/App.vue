@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useEngine, useLibrary } from './composables/rpgx'
-import { WasmLayer as Layer, WasmLayerType as LayerType, WasmTile as Tile } from './wasm/rpgx_wasm';
+import { WasmLayer as Layer, WasmLayerType as LayerType, WasmTile as Tile } from '@rpgx/js';
 
 const library = useLibrary()
 const engine = ref(useEngine(library))
