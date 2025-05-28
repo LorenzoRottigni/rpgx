@@ -21,8 +21,10 @@
     "@rollup/plugin-typescript": "^12.1.2",
     "@rollup/plugin-wasm": "^6.2.2",
     "rollup": "^4.41.1",
+    "rollup-plugin-typescript2": "^0.36.0",
     "rollup-plugin-vue": "^6.0.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "unplugin-vue": "^6.2.0"
   },
   "dependencies": {
     "@rpgx/js": "file:../../drivers/js",
