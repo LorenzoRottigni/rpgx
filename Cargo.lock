@@ -3565,7 +3565,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rpgxw"
+name = "rpgx-wasm"
 version = "0.1.0"
 dependencies = [
  "js-sys",

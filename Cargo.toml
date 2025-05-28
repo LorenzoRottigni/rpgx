@@ -2,8 +2,8 @@
 resolver = "3"
 members = [
     "packages/core",
-    "packages/rpgxw",
-    "packages/drivers/dioxus",
+    "packages/drivers/wasm",
+    "packages/plugins/dioxus",
     "playground/dioxus",
 ]
 

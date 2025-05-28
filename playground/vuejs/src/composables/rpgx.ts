@@ -1,4 +1,4 @@
-import * as wasm from '../wasm/rpgxw.js';
+import * as wasm from '../wasm/rpgx_wasm.js';
 
 export function useLibrary(): wasm.ResourceLibrary {
     const library = new wasm.ResourceLibrary();

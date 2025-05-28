@@ -4,12 +4,12 @@
 WASM_TARGET=wasm32-unknown-unknown
 WASM_OUT_VUE=playground/vuejs/src/wasm
 WASM_OUT_NODE=playground/nodejs/wasm
-WASM_BIN=target/$(WASM_TARGET)/release/rpgxw.wasm
+WASM_BIN=target/$(WASM_TARGET)/release/rpgx_wasm.wasm
 
 define wasm_bundle
-	@echo "🔧 Generating RPGXW WASM bundle..."
-	cargo build --target $(WASM_TARGET) --release -p rpgxw
-	@echo "🔧 Generating RPGXW WASM NodeJS loader..."
+	@echo "🔧 Generating RPGX WASM driver..."
+	cargo build --target $(WASM_TARGET) --release -p rpgx-wasm
+	@echo "🔧 Generating RPGX WASM NodeJS loader..."
 	wasm-bindgen $(WASM_BIN) --out-dir $(1) --target bundler
 endef
 
@@ -42,16 +42,16 @@ test-core:
 	cargo test -p rpgx
 
 test-wasm:
-	@echo "🧪 Running tests for RPGXW..."
-	cargo test -p rpgxw
+	@echo "🧪 Running tests for RPGX wasm driver..."
+	cargo test -p rpgx-wasm
 
 build-core:
 	@echo "📦 Building release for Rust crate..."
 	cargo build --release -p rpgx
 
 build-wasm:
-	@echo "🔧 Building RPGXW..."
-	cargo build --target $(WASM_TARGET) --release -p rpgxw
+	@echo "🔧 Building RPGX wasm driver..."
+	cargo build --target $(WASM_TARGET) --release -p rpgx-wasm
 
 build-vue:
 	$(call wasm_bundle,$(WASM_OUT_VUE))

@@ -1,4 +1,4 @@
-import wasm from './wasm/rpgxw.js';
+import wasm from './wasm/rpgx-wasm.js';
 
 const grid_size = 25;
 

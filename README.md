@@ -35,17 +35,17 @@ Docs: https://github.com/LorenzoRottigni/rpgx/tree/master/packages/rpgx
 
 ### 🌐 Node.js / WebAssembly
 
-Install the WebAssembly wrapper for use in JS/TS:
+Install the WebAssembly driver for use in JS/TS:
 
 ```sh
-npm install rpgxw
+npm install rpgx-wasm
 # or
-yarn add rpgxw
+yarn add rpgx-wasm
 # or
-pnpm install rpgxw
+pnpm install rpgx-wasm
 ```
 
-Docs: https://github.com/LorenzoRottigni/rpgx/tree/master/packages/rpgxw
+Docs: https://github.com/LorenzoRottigni/rpgx/tree/master/packages/drivers/wasm
 
 ### 🧱 C++ (WASM interop)
 
@@ -181,7 +181,7 @@ Clone the repo and initialize your environment using the provided `Makefile`.
 make dev-vue
 ```
 
-- Builds the `rpgxw` WebAssembly bundle.
+- Builds the `rpgx-wasm` driver bundle.
 - Generates JS bindings using `wasm-bindgen`.
 - Launches the Vue.js playground.
 
@@ -209,7 +209,7 @@ Run all unit tests for the Rust core and WASM crates:
 
 ```sh
 make test-core     # Tests for core engine (rpgx)
-make test-wasm     # Tests for WASM wrapper (rpgxw)
+make test-wasm     # Tests for WASM driver (rpgx-wasm)
 ```
 
 ---

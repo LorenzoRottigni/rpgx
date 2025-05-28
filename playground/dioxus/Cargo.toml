@@ -14,7 +14,7 @@ rpgx = { path = "../../packages/core" }
 log = "0.4.27"
 
 # Note: optional and no default features here
-rpgx-dioxus = { path = "../../packages/drivers/dioxus", optional = true }
+rpgx-dioxus = { path = "../../packages/plugins/dioxus", optional = true }
 
 [features]
 default = ["web"]
