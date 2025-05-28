@@ -1,0 +1,8 @@
+- git submodules to create repos:
+    rpgx/core	Rust core crates (lib, engine, etc.)
+    rpgx/js	JS driver package
+    rpgx/vue	Vue driver plugin
+    rpgx/wasm	Wasm driver
+    rpgx/playground-vue	Vue playground frontend
+    rpgx/playground-node	Node playground
+    rpgx/monorepo   Wrapper repo with Makefile package.json and cargo.json workspaces
