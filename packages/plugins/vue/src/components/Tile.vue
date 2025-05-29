@@ -25,7 +25,7 @@ const style = computed(() => {
   const pointerEvents = layer.kind === WasmLayerType.Base ? 'auto' : 'none'
 
   return `
-    background-image: ${tile.effect.texture_id ? getTexture(tile.effect.texture_id) : ''};
+    background-image: ${tile.effect.textureId ? getTexture(tile.effect.textureId) : ''};
     background-size: cover;
     position: absolute;
     left: ${x * squareSize}px;

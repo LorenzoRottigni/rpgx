@@ -18,7 +18,7 @@ const style = computed(() => {
   const x = props.pawn.tile.pointer.x
   const y = props.pawn.tile.pointer.y
   return `
-    ${props.pawn.texture_id ? `background-image: ${getTexture(props.pawn.texture_id)};` : ''}
+    ${props.pawn.textureId ? `background-image: ${getTexture(props.pawn.textureId)};` : ''}
     position: absolute;
     left: ${x * squareSize}px;
     top: ${y * squareSize - squareSize}px;

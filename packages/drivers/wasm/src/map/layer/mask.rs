@@ -1,125 +1,76 @@
-use js_sys::Reflect;
+use crate::prelude::{WasmEffect, WasmSelector, WasmShape, WasmTile};
+use rpgx::prelude::{Coordinates, Effect, Mask, Selector, Shape, Tile};
 use wasm_bindgen::prelude::*;
 
-use crate::prelude::{WasmEffect, WasmSelector, WasmShape, WasmTile};
-
-/// Represents a mask that can be applied to a tile or an UI element.
 #[wasm_bindgen]
-#[derive(Clone, Debug)]
 pub struct WasmMask {
-    name: String,
-    effect: WasmEffect,
-    selector: WasmSelector,
-}
-
-impl WasmMask {
-    /// Creates a `WasmMask` from a native `rpgx::prelude::Mask`.
-    pub fn from_native(mask: rpgx::prelude::Mask) -> Self {
-        Self {
-            name: mask.name,
-            effect: WasmEffect::from_native(mask.effect),
-            selector: WasmSelector::from_native(mask.selector),
-        }
-    }
-
-    /// Converts the `WasmMask` instance to a native `rpgx::prelude::Mask`.
-    pub fn to_native(&self) -> rpgx::prelude::Mask {
-        rpgx::prelude::Mask {
-            name: self.name.clone(),
-            effect: self.effect.to_native(),
-            selector: self.selector.to_native(),
-        }
-    }
-    /// Creates a `WasmMask` from a JavaScript object.
-
-    pub fn from_js_value(value: &JsValue) -> Result<Self, JsValue> {
-        let name = Reflect::get(value, &JsValue::from_str("name"))?
-            .as_string()
-            .ok_or_else(|| JsValue::from_str("Mask.name must be a string"))?;
-        let effect_js = Reflect::get(value, &JsValue::from_str("effect"))?;
-        let effect = WasmEffect::from_js_value(&effect_js)?;
-        let selector_js = Reflect::get(value, &JsValue::from_str("selector"))?;
-        let selector = WasmSelector::from_js_value(&selector_js)?;
-
-        Ok(Self {
-            name,
-            effect,
-            selector,
-        })
-    }
-
-    /// Converts the `WasmMask` instance to a JavaScript object.
-    pub fn to_js_value(&self) -> JsValue {
-        let obj = js_sys::Object::new();
-        Reflect::set(
-            &obj,
-            &JsValue::from_str("name"),
-            &JsValue::from(self.name.clone()),
-        )
-        .unwrap();
-        Reflect::set(
-            &obj,
-            &JsValue::from_str("effect"),
-            &self.effect.to_js_value(),
-        )
-        .unwrap();
-        Reflect::set(
-            &obj,
-            &JsValue::from_str("selector"),
-            &self.selector.to_js_value(),
-        )
-        .unwrap();
-        obj.into()
-    }
+    inner: Mask,
 }
 
 #[wasm_bindgen]
 impl WasmMask {
     #[wasm_bindgen(constructor)]
-    pub fn new(name: String, effect: WasmEffect, selector: WasmSelector) -> Self {
-        Self {
-            name,
-            effect,
-            selector,
+    pub fn new(name: String, selector: WasmSelector, effect: WasmEffect) -> WasmMask {
+        WasmMask {
+            inner: Mask::new(name, selector.into_inner(), effect.into_inner()),
         }
     }
 
     #[wasm_bindgen(getter)]
     pub fn name(&self) -> String {
-        self.name.clone()
+        self.inner.name.clone()
     }
 
     #[wasm_bindgen(setter)]
     pub fn set_name(&mut self, name: String) {
-        self.name = name;
-    }
-
-    #[wasm_bindgen(getter)]
-    pub fn effect(&self) -> WasmEffect {
-        self.effect.clone()
-    }
-
-    #[wasm_bindgen(setter)]
-    pub fn set_effect(&mut self, effect: WasmEffect) {
-        self.effect = effect;
+        self.inner.name = name;
     }
 
     #[wasm_bindgen(getter)]
     pub fn selector(&self) -> WasmSelector {
-        self.selector.clone()
+        WasmSelector::from_inner(self.inner.selector)
     }
 
     #[wasm_bindgen(setter)]
     pub fn set_selector(&mut self, selector: WasmSelector) {
-        self.selector = selector;
+        self.inner.selector = selector.into_inner();
     }
 
+    #[wasm_bindgen(getter)]
+    pub fn effect(&self) -> WasmEffect {
+        WasmEffect::from_effect(self.inner.effect)
+    }
+
+    #[wasm_bindgen(setter)]
+    pub fn set_effect(&mut self, effect: WasmEffect) {
+        self.inner.effect = effect.into_inner();
+    }
+
+    /// Applies the mask to the given shape, returning an array of Tiles.
     #[wasm_bindgen]
-    pub fn apply(&self, shape: WasmShape) -> Vec<WasmTile> {
-        self.to_native()
-            .apply(shape.to_native())
-            .into_iter()
-            .map(|tile| WasmTile::from_native(tile))
-            .collect()
+    pub fn apply(&self, shape: &WasmShape) -> js_sys::Array {
+        let tiles = self.inner.apply(shape.into_inner());
+        let arr = js_sys::Array::new_with_length(tiles.len() as u32);
+
+        for (i, tile) in tiles.into_iter().enumerate() {
+            arr.set(i as u32, WasmTile::from_inner(tile).into());
+        }
+
+        arr
+    }
+}
+
+// Helper methods to convert between wasm wrappers and inner Rust structs
+impl WasmMask {
+    pub(crate) fn from_inner(inner: Mask) -> Self {
+        Self { inner }
+    }
+
+    pub(crate) fn into_inner(self) -> Mask {
+        self.inner
+    }
+
+    pub fn as_inner(&self) -> &Mask {
+        &self.inner
     }
 }

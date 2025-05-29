@@ -1,5 +1,5 @@
 // import * as wasm from '../wasm/rpgx_js';
-import { ResourceLibrary, WasmCoordinates, WasmEffect, WasmEngine, WasmLayer, WasmLayerType, WasmMap, WasmMask, WasmPawn, WasmSelector, WasmShape, WasmTile} from '@rpgx/js'
+import { ResourceLibrary, WasmBlockSelector, WasmCoordinates, WasmEffect, WasmEngine, WasmLayer, WasmLayerType, WasmMap, WasmMask, WasmPawn, WasmSelector, WasmShape, WasmSingleSelector, WasmTile} from '@rpgx/js'
 
 export function useLibrary(): ResourceLibrary {
     const library = new ResourceLibrary();
@@ -50,19 +50,18 @@ export function useEngine(library: ResourceLibrary): WasmEngine {
         [
             new WasmMask(
                 "default_floor",
-                new WasmEffect(library.get_key_id("floor_1"), undefined, false, false, null),
-                WasmSelector.new_block(
-                    new WasmCoordinates(0, 0),
-                    new WasmCoordinates(grid_size - 1, grid_size - 1),
+                
+                WasmSelector.block(
+                    new WasmBlockSelector(new WasmSingleSelector(0, 0), new WasmSingleSelector(grid_size - 1, grid_size - 1))
                 ),
+                new WasmEffect(library.get_key_id("floor_1"), undefined, false, false, null),
             ),
             new WasmMask(
                 "floor_alt",
-                new WasmEffect(library.get_key_id("floor_2"), undefined, false, false, null),
-                WasmSelector.new_block(
-                    new WasmCoordinates(0, 0),
-                    new WasmCoordinates(0, grid_size - 1),
+                WasmSelector.block(
+                    new WasmBlockSelector(new WasmSingleSelector(0, 0), new WasmSingleSelector(0, grid_size - 1)),
                 ),
+                new WasmEffect(library.get_key_id("floor_2"), undefined, false, false, null),
             )
         ],
         1
@@ -75,11 +74,10 @@ export function useEngine(library: ResourceLibrary): WasmEngine {
         [
             new WasmMask(
                 "default_building",
-                new WasmEffect(library.get_key_id("building_1"), undefined, true, true, null),
-                WasmSelector.new_block(
-                    new WasmCoordinates(1, 6),
-                    new WasmCoordinates(4, 11),
+                WasmSelector.block(
+                    new WasmBlockSelector(new WasmSingleSelector(1, 6), new WasmSingleSelector(4, 11)),
                 ),
+                new WasmEffect(library.get_key_id("building_1"), undefined, true, true, null),
             ),
         ],
         5
@@ -92,11 +90,10 @@ export function useEngine(library: ResourceLibrary): WasmEngine {
         [
             new WasmMask(
                 "logit",
-                new WasmEffect(library.get_key_id("floor_2"), library.get_key_id("logit"), false, false, null),
-                WasmSelector.new_block(
-                    new WasmCoordinates(10, 0),
-                    new WasmCoordinates(11, 0),
+                WasmSelector.block(
+                    new WasmBlockSelector(new WasmSingleSelector(10, 0), new WasmSingleSelector(11, 0)),
                 ),
+                new WasmEffect(library.get_key_id("floor_2"), library.get_key_id("logit"), false, false, null),
             )
         ],
         6

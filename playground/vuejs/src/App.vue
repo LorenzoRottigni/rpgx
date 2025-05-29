@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useEngine, useLibrary } from './composables/rpgx'
-import { WasmLayer as Layer, WasmLayerType as LayerType, WasmTile as Tile } from '@rpgx/js';
+import { WasmLayer as Layer, WasmLayerType as LayerType, WasmTile as Tile, WasmDirection } from '@rpgx/js';
 
 const library = useLibrary()
 const engine = ref(useEngine(library))
@@ -9,8 +9,10 @@ const engine = ref(useEngine(library))
 const updateFlag = ref(0)
 
 const map = engine.value.map
-const layers = map.layers
+const layers = map.getLayers()
 const squareSize = 15;
+
+console.dir(layers)
 
 function getTileStyle(tile: Tile, layer: Layer) {
   const x = tile.pointer.x;
@@ -18,8 +20,8 @@ function getTileStyle(tile: Tile, layer: Layer) {
   const width = (tile.effect.group ? tile.shape.width : 1) * squareSize;
   const height = (tile.effect.group ? tile.shape.height : 1) * squareSize;
 
-  const backgroundImage = tile.effect.texture_id
-    ? `background-image: ${getTexture(tile.effect.texture_id)};`
+  const backgroundImage = tile.effect.textureId
+    ? `background-image: ${getTexture(tile.effect.textureId)};`
     : ''
   const zIndex = 10 + layer.z;
   const pointerEvents = layer.kind === LayerType.Base ? 'auto' : 'none';
@@ -53,7 +55,7 @@ const pawnStyle = computed(() => {
   const y = engine.value.pawn.tile.pointer.y;
 
   return `
-    ${engine.value.pawn.texture_id ? `background-image: ${getTexture(engine.value.pawn.texture_id)};` : ''}
+    ${engine.value.pawn.textureId ? `background-image: ${getTexture(engine.value.pawn.textureId)};` : ''}
     position: absolute;
     left: ${x * squareSize}px;
     top: ${y * squareSize - squareSize}px;
@@ -67,7 +69,7 @@ const pawnStyle = computed(() => {
 });
 
 function manageActions(tile: Tile) {
-  const actions = map.get_actions_at(tile.pointer)
+  const actions = map.getActionsAt(tile.pointer)
   actions.forEach(a => {
     // const action = library.get_action_by_id(a);
     library.call_action_by_id(a)
@@ -78,11 +80,11 @@ function onClick(tile: Tile) {
   console.log('onclick')
   updateFlag.value++
   // engine.value.move_to(tile.pointer.x, tile.pointer.y);
-  const steps = engine.value.steps_to(tile.pointer);
+  const steps = engine.value.stepsTo(tile.pointer);
   for (let i = 0; i < steps.length; i++) {
     const step = steps[i];
     setTimeout(() => {
-      const tile = engine.value.move_to(step);
+      const tile = engine.value.moveTo(step);
       manageActions(tile)
       updateFlag.value++;
     }, i * 100);
@@ -93,13 +95,13 @@ function onKeyDown(event: KeyboardEvent) {
   console.log('keydown', event.key);
   let tile
   if (event.key === 'ArrowUp' || event.key.toLowerCase() === 'w') {
-    tile = engine.value.step_to("up");
+    tile = engine.value.stepTo(WasmDirection.Up);
   } else if (event.key === 'ArrowDown' || event.key.toLowerCase() === 's') {
-    tile = engine.value.step_to("down");
+    tile = engine.value.stepTo(WasmDirection.Down);
   } else if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'a') {
-    tile = engine.value.step_to("left");
+    tile = engine.value.stepTo(WasmDirection.Left);
   } else if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'd') {
-    tile = engine.value.step_to("right");
+    tile = engine.value.stepTo(WasmDirection.Right);
   }
   if (tile) {
     manageActions(tile)

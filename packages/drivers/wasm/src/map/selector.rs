@@ -1,93 +1,152 @@
-use js_sys::Reflect;
-use rpgx::prelude::Selector;
-use wasm_bindgen::prelude::*;
-
 use crate::prelude::WasmCoordinates;
-
-/// Represents a selector in the RPGX engine, which can be a single coordinate or a block of coordinates.
+use rpgx::prelude::{Coordinates, Selector};
+use wasm_bindgen::prelude::*;
+/// Wrapper for Coordinates used as a SingleSelector
 #[wasm_bindgen]
-#[derive(Clone, Debug)]
-pub struct WasmSelector {
-    start: WasmCoordinates,
-    end: WasmCoordinates,
-}
-
-impl WasmSelector {
-    /// Creates a new `WasmSelector` instance from the given start and end coordinates.
-    pub fn from_native(selector: Selector) -> Self {
-        match selector {
-            Selector::Single(coord) => Self {
-                start: WasmCoordinates::from_native(coord),
-                end: WasmCoordinates::from_native(coord),
-            },
-            Selector::Block((start, end)) => Self {
-                start: WasmCoordinates::from_native(start),
-                end: WasmCoordinates::from_native(end),
-            },
-            _ => panic!("Filter variant can't be constructed from JS currently"),
-        }
-    }
-
-    /// Converts the `WasmSelector` instance to a native RPGX selector.
-    pub fn to_native(&self) -> Selector {
-        if self.start == self.end {
-            Selector::Single(self.start.to_native())
-        } else {
-            Selector::Block((self.start.to_native(), self.end.to_native()))
-        }
-        // Filter variant can't be constructed from JS currently
-    }
-
-    /// Creates a new `WasmSelector` instance from a JavaScript object.
-    pub fn from_js_value(value: &JsValue) -> Result<Self, JsValue> {
-        let start_js = Reflect::get(value, &JsValue::from_str("start"))?;
-        let start = WasmCoordinates::from_js_value(&start_js)?;
-        let end_js = Reflect::get(value, &JsValue::from_str("end"))?;
-        let end = WasmCoordinates::from_js_value(&end_js)?;
-        Ok(Self { start, end })
-    }
-
-    /// Converts the `WasmSelector` instance to a JavaScript object.
-    pub fn to_js_value(&self) -> JsValue {
-        let obj = js_sys::Object::new();
-        Reflect::set(&obj, &JsValue::from_str("start"), &self.start.to_js_value()).unwrap();
-        Reflect::set(&obj, &JsValue::from_str("end"), &self.end.to_js_value()).unwrap();
-        obj.into()
-    }
+#[derive(Clone)]
+pub struct WasmSingleSelector {
+    inner: Coordinates,
 }
 
 #[wasm_bindgen]
-impl WasmSelector {
+impl WasmSingleSelector {
     #[wasm_bindgen(constructor)]
-    pub fn new_single(coord: WasmCoordinates) -> Self {
-        Self {
-            start: coord,
-            end: coord,
+    pub fn new(x: i32, y: i32) -> WasmSingleSelector {
+        WasmSingleSelector {
+            inner: Coordinates { x, y },
         }
     }
 
-    #[wasm_bindgen]
-    pub fn new_block(start: WasmCoordinates, end: WasmCoordinates) -> Self {
-        Self { start, end }
+    #[wasm_bindgen(getter)]
+    pub fn x(&self) -> i32 {
+        self.inner.x
     }
 
     #[wasm_bindgen(getter)]
-    pub fn start(&self) -> WasmCoordinates {
-        self.start
+    pub fn y(&self) -> i32 {
+        self.inner.y
+    }
+}
+
+impl WasmSingleSelector {
+    pub(crate) fn into_inner(self) -> Coordinates {
+        self.inner
     }
 
-    #[wasm_bindgen(setter)]
-    pub fn set_start(&mut self, start: WasmCoordinates) {
-        self.start = start;
+    /// Create WasmSingleSelector from Coordinates (Rust side)
+    pub fn from_inner(inner: Coordinates) -> Self {
+        WasmSingleSelector { inner }
+    }
+}
+
+/// Wrapper for BlockSelector (tuple of two Coordinates)
+#[wasm_bindgen]
+#[derive(Clone)]
+pub struct WasmBlockSelector {
+    start: Coordinates,
+    end: Coordinates,
+}
+
+#[wasm_bindgen]
+impl WasmBlockSelector {
+    #[wasm_bindgen(constructor)]
+    pub fn new(start: &WasmSingleSelector, end: &WasmSingleSelector) -> WasmBlockSelector {
+        WasmBlockSelector {
+            start: start.inner,
+            end: end.inner,
+        }
     }
 
     #[wasm_bindgen(getter)]
-    pub fn end(&self) -> WasmCoordinates {
-        self.end
+    pub fn start(&self) -> WasmSingleSelector {
+        WasmSingleSelector { inner: self.start }
     }
 
-    #[wasm_bindgen(setter)]
-    pub fn set_end(&mut self, end: WasmCoordinates) {
-        self.end = end;
+    #[wasm_bindgen(getter)]
+    pub fn end(&self) -> WasmSingleSelector {
+        WasmSingleSelector { inner: self.end }
+    }
+}
+
+impl WasmBlockSelector {
+    pub(crate) fn into_inner(self) -> (Coordinates, Coordinates) {
+        (self.start, self.end)
+    }
+
+    /// Create WasmBlockSelector from tuple of Coordinates (Rust side)
+    pub fn from_inner(inner: (Coordinates, Coordinates)) -> Self {
+        WasmBlockSelector {
+            start: inner.0,
+            end: inner.1,
+        }
+    }
+
+    pub fn as_inner(&self) -> (&Coordinates, &Coordinates) {
+        (&self.start, &self.end)
+    }
+}
+
+/// The main Selector wrapper exposed to JS
+#[wasm_bindgen]
+pub struct WasmSelector {
+    inner: Selector,
+}
+
+#[wasm_bindgen]
+impl WasmSelector {
+    /// Create a single tile selector
+    #[wasm_bindgen(js_name = single)]
+    pub fn new_single(coord: WasmSingleSelector) -> WasmSelector {
+        WasmSelector {
+            inner: Selector::Single(coord.inner),
+        }
+    }
+
+    /// Create a block selector (rectangle)
+    #[wasm_bindgen(js_name = block)]
+    pub fn new_block(block: WasmBlockSelector) -> WasmSelector {
+        WasmSelector {
+            inner: Selector::Block((block.start, block.end)),
+        }
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn is_single(&self) -> bool {
+        matches!(self.inner, Selector::Single(_))
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn is_block(&self) -> bool {
+        matches!(self.inner, Selector::Block(_))
+    }
+
+    /// Returns the SingleSelector if this is a Single selector, else null.
+    #[wasm_bindgen(js_name = asSingle)]
+    pub fn as_single(&self) -> Option<WasmSingleSelector> {
+        if let Selector::Single(coord) = self.inner {
+            Some(WasmSingleSelector::from_inner(coord))
+        } else {
+            None
+        }
+    }
+
+    /// Returns the BlockSelector if this is a Block selector, else null.
+    #[wasm_bindgen(js_name = asBlock)]
+    pub fn as_block(&self) -> Option<WasmBlockSelector> {
+        if let Selector::Block((start, end)) = self.inner {
+            Some(WasmBlockSelector::from_inner((start, end)))
+        } else {
+            None
+        }
+    }
+}
+
+impl WasmSelector {
+    pub(crate) fn into_inner(self) -> Selector {
+        self.inner
+    }
+
+    pub fn from_inner(inner: Selector) -> Self {
+        WasmSelector { inner }
     }
 }
