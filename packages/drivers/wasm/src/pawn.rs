@@ -1,5 +1,5 @@
 use crate::prelude::WasmTile; // Assuming you have a WasmTile wrapper
-use rpgx::prelude::{Pawn, Tile};
+use rpgx::prelude::Pawn;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]

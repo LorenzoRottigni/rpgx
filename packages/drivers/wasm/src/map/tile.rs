@@ -1,5 +1,5 @@
 use crate::prelude::{WasmCoordinates, WasmEffect, WasmShape};
-use rpgx::prelude::{Coordinates, Effect, Shape, Tile};
+use rpgx::prelude::Tile;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]

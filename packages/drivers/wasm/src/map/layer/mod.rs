@@ -1,13 +1,7 @@
-use js_sys::Array;
+use crate::prelude::{WasmBlockSelector, WasmCoordinates, WasmMask, WasmShape, WasmTile};
 use wasm_bindgen::prelude::*;
 
-// Import your wasm wrappers (not core structs) from their modules:
-use crate::prelude::{
-    WasmBlockSelector, WasmCoordinates, WasmMask, WasmSelector, WasmShape, WasmTile,
-};
-
-// Import core structs for conversions or internal use only:
-use rpgx::prelude::{Coordinates, Layer, LayerType, Mask, Shape, Tile};
+use rpgx::prelude::{Layer, LayerType, Mask};
 
 pub mod mask;
 
@@ -57,7 +51,6 @@ impl WasmLayer {
         masks: Box<[WasmMask]>,
         z: i32,
     ) -> WasmLayer {
-        // Use as_inner() to get a reference to Mask and then clone it
         let rust_masks: Vec<Mask> = masks.iter().map(|m| m.as_inner().clone()).collect();
         let inner = Layer::new(name, kind.into(), shape.inner.clone(), rust_masks, z);
         WasmLayer { inner }

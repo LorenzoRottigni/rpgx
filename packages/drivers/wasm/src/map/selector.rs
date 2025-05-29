@@ -1,4 +1,3 @@
-use crate::prelude::WasmCoordinates;
 use rpgx::prelude::{Coordinates, Selector};
 use wasm_bindgen::prelude::*;
 /// Wrapper for Coordinates used as a SingleSelector
@@ -29,10 +28,6 @@ impl WasmSingleSelector {
 }
 
 impl WasmSingleSelector {
-    pub(crate) fn into_inner(self) -> Coordinates {
-        self.inner
-    }
-
     /// Create WasmSingleSelector from Coordinates (Rust side)
     pub fn from_inner(inner: Coordinates) -> Self {
         WasmSingleSelector { inner }

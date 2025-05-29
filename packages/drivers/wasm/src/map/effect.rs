@@ -1,5 +1,5 @@
 use crate::prelude::WasmCoordinates;
-use rpgx::prelude::{Coordinates, Effect};
+use rpgx::prelude::Effect;
 use wasm_bindgen::prelude::*;
 
 /// A JS-friendly wrapper around the `Effect` struct.

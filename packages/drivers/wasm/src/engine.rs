@@ -1,6 +1,6 @@
 use crate::prelude::{WasmCoordinates, WasmDirection, WasmMap, WasmPawn, WasmTile};
 use js_sys::{Array, Promise};
-use rpgx::prelude::{Coordinates, Direction, Engine, MoveError};
+use rpgx::prelude::Engine;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::future_to_promise;
 

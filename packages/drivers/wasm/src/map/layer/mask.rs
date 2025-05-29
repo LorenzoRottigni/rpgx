@@ -1,5 +1,5 @@
 use crate::prelude::{WasmEffect, WasmSelector, WasmShape, WasmTile};
-use rpgx::prelude::{Coordinates, Effect, Mask, Selector, Shape, Tile};
+use rpgx::prelude::Mask;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -64,10 +64,6 @@ impl WasmMask {
 impl WasmMask {
     pub(crate) fn from_inner(inner: Mask) -> Self {
         Self { inner }
-    }
-
-    pub(crate) fn into_inner(self) -> Mask {
-        self.inner
     }
 
     pub fn as_inner(&self) -> &Mask {

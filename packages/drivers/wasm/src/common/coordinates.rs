@@ -1,4 +1,4 @@
-use rpgx::prelude::{Coordinates, Direction, Shape};
+use rpgx::prelude::Coordinates;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
