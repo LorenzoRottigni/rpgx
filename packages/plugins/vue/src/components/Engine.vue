@@ -12,7 +12,7 @@ const props = defineProps<{
 const updateFlag = ref(0)
 
 function manageActions(tile: WasmTile) {
-  const actions = props.engine.map().get_actions_at(tile.pointer)
+  const actions = props.engine.map.get_actions_at(tile.pointer)
   actions.forEach(a => props.library.call_action_by_id(a))
 }
 
@@ -53,7 +53,7 @@ onMounted(() => containerRef.value?.focus())
       style="position: relative;"
       @keydown="onKeyDown"
     >
-      <Grid :map="engine.map()" :library="library" @tileClick="onClick" />
+      <Grid :map="engine.map" :library="library" @tileClick="onClick" />
       <Pawn :pawn="engine.pawn" :library="library" />
     </div>
   </main>

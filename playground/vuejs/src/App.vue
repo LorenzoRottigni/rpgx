@@ -8,7 +8,7 @@ const engine = ref(useEngine(library))
 
 const updateFlag = ref(0)
 
-const map = engine.value.map()
+const map = engine.value.map
 const layers = map.layers
 const squareSize = 15;
 

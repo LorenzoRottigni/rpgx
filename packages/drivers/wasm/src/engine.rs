@@ -23,7 +23,7 @@ impl WasmEngine {
         }
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(getter)]
     pub fn map(&self) -> WasmMap {
         WasmMap::from_native(self.inner.borrow().map.clone())
     }
