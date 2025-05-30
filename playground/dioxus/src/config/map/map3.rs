@@ -27,10 +27,7 @@ pub fn use_map3(library: ResourceLibrary) -> Map {
                 name: "default_floor".to_string(),
                 effect: Effect {
                     texture_id: Some(library.get_key_id("floor_1")),
-                    action_id: None,
-                    block: false,
-                    group: false,
-                    shrink: None,
+                    ..Default::default()
                 },
                 selector: Selector::Block((
                     Coordinates { x: 0, y: 0 },
@@ -44,10 +41,7 @@ pub fn use_map3(library: ResourceLibrary) -> Map {
                 name: "floor_alt".to_string(),
                 effect: Effect {
                     texture_id: Some(library.get_key_id("floor_2")),
-                    action_id: None,
-                    block: false,
-                    group: false,
-                    shrink: None,
+                    ..Default::default()
                 },
                 selector: Selector::Filter(is_center_tile),
             },
@@ -66,10 +60,10 @@ pub fn use_map3(library: ResourceLibrary) -> Map {
             name: "logo".to_string(),
             effect: Effect {
                 texture_id: Some(library.get_key_id("building_1")),
-                action_id: None,
                 block: true,
                 group: true,
                 shrink: Some((Coordinates { x: 2, y: 7 }, Coordinates { x: 3, y: 10 })),
+                ..Default::default()
             },
             selector: Selector::Block((Coordinates { x: 1, y: 6 }, Coordinates { x: 4, y: 11 })),
         }],
@@ -88,9 +82,7 @@ pub fn use_map3(library: ResourceLibrary) -> Map {
             effect: Effect {
                 texture_id: Some(library.get_key_id("portal_1")),
                 action_id: Some(library.get_key_id("consolelog")),
-                block: false,
-                group: false,
-                shrink: None,
+                ..Default::default()
             },
             selector: Selector::Block((Coordinates { x: 2, y: 11 }, Coordinates { x: 3, y: 11 })),
         }],

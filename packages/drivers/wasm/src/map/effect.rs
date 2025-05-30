@@ -15,6 +15,7 @@ impl WasmEffect {
     pub fn new(
         texture_id: Option<i32>,
         action_id: Option<i32>,
+        render_id: Option<i32>,
         block: bool,
         group: bool,
         shrink_start: Option<WasmCoordinates>,
@@ -26,7 +27,14 @@ impl WasmEffect {
         };
 
         WasmEffect {
-            inner: Effect::new(action_id, texture_id, block, group, shrink),
+            inner: Effect {
+                action_id,
+                texture_id,
+                render_id,
+                block,
+                group,
+                shrink,
+            },
         }
     }
 

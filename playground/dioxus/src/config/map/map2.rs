@@ -87,11 +87,8 @@ pub fn use_map2(library: ResourceLibrary) -> Map {
                     || pointer.y == shape.height - 1
             }),
             Effect {
-                action_id: None,
                 texture_id: Some(library.get_key_id("floor_3")),
-                block: false,
-                group: false,
-                shrink: None,
+                ..Default::default()
             },
         )],
         1,

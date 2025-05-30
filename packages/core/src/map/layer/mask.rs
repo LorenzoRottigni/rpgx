@@ -16,7 +16,11 @@ pub struct Mask {
 
 impl Mask {
     pub fn new(name: String, selector: Selector, effect: Effect) -> Self {
-        Self { name, selector, effect }
+        Self {
+            name,
+            selector,
+            effect,
+        }
     }
 
     pub fn apply(&self, shape: Shape) -> Vec<Tile> {
@@ -90,10 +94,7 @@ pub mod tests {
             selector: Selector::Single(SingleSelector { x: 1, y: 1 }),
             effect: Effect {
                 action_id: Some(1),
-                texture_id: None,
-                block: false,
-                group: false,
-                shrink: None,
+                ..Default::default()
             },
         };
 
@@ -114,11 +115,9 @@ pub mod tests {
                 SingleSelector { x: 3, y: 3 },
             )),
             effect: Effect {
-                action_id: None,
                 texture_id: Some(2),
                 block: true,
-                group: false,
-                shrink: None,
+                ..Default::default()
             },
         };
 

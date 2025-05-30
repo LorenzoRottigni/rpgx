@@ -10,7 +10,6 @@ pub fn building_2x3(shape: Shape, texture_id: i32, action_id: i32) -> Map {
             name: "logo".to_string(),
             effect: Effect {
                 texture_id: Some(texture_id),
-                action_id: None,
                 block: true,
                 group: true,
                 shrink: Some((
@@ -20,6 +19,7 @@ pub fn building_2x3(shape: Shape, texture_id: i32, action_id: i32) -> Map {
                         y: shape.height - 2,
                     },
                 )),
+                ..Default::default()
             },
             selector: Selector::Block((
                 Coordinates { x: 0, y: 0 },
@@ -29,7 +29,7 @@ pub fn building_2x3(shape: Shape, texture_id: i32, action_id: i32) -> Map {
                 },
             )),
         }],
-        5
+        5,
     );
 
     let (start_x, end_x) = if shape.width % 2 == 0 {
@@ -49,11 +49,8 @@ pub fn building_2x3(shape: Shape, texture_id: i32, action_id: i32) -> Map {
         vec![Mask {
             name: "action_test".to_string(),
             effect: Effect {
-                texture_id: None,
                 action_id: Some(action_id),
-                block: false,
-                group: false,
-                shrink: None,
+                ..Default::default()
             },
             selector: Selector::Block((
                 Coordinates {
@@ -66,7 +63,7 @@ pub fn building_2x3(shape: Shape, texture_id: i32, action_id: i32) -> Map {
                 },
             )),
         }],
-        6
+        6,
     );
 
     Map::new(
@@ -89,7 +86,6 @@ pub fn building_1x1(shape: Shape, texture_id: i32, action_id: i32) -> Map {
             name: "logo".to_string(),
             effect: Effect {
                 texture_id: Some(texture_id),
-                action_id: None,
                 block: true,
                 group: true,
                 shrink: Some((
@@ -99,6 +95,7 @@ pub fn building_1x1(shape: Shape, texture_id: i32, action_id: i32) -> Map {
                         y: shape.height,
                     },
                 )),
+                ..Default::default()
             },
             selector: Selector::Block((
                 Coordinates { x: 0, y: 0 },
@@ -108,7 +105,7 @@ pub fn building_1x1(shape: Shape, texture_id: i32, action_id: i32) -> Map {
                 },
             )),
         }],
-        5
+        5,
     );
 
     let start_x = 0;
@@ -122,11 +119,8 @@ pub fn building_1x1(shape: Shape, texture_id: i32, action_id: i32) -> Map {
         vec![Mask {
             name: "action_test".to_string(),
             effect: Effect {
-                texture_id: None,
                 action_id: Some(action_id),
-                block: false,
-                group: false,
-                shrink: None,
+                ..Default::default()
             },
             selector: Selector::Block((
                 Coordinates {
@@ -139,13 +133,10 @@ pub fn building_1x1(shape: Shape, texture_id: i32, action_id: i32) -> Map {
                 },
             )),
         }],
-        6
+        6,
     );
 
-    Map::new(
-        "base".to_string(),
-        vec![building_layer, action_layer],
-    )
+    Map::new("base".to_string(), vec![building_layer, action_layer])
 }
 
 pub fn building_3x2(shape: Shape, texture_id: i32, action_id: i32) -> Map {
@@ -158,7 +149,6 @@ pub fn building_3x2(shape: Shape, texture_id: i32, action_id: i32) -> Map {
             name: "logo".to_string(),
             effect: Effect {
                 texture_id: Some(texture_id),
-                action_id: None,
                 block: true,
                 group: true,
                 shrink: Some((
@@ -168,6 +158,7 @@ pub fn building_3x2(shape: Shape, texture_id: i32, action_id: i32) -> Map {
                         y: shape.height - 1,
                     },
                 )),
+                ..Default::default()
             },
             selector: Selector::Block((
                 Coordinates { x: 0, y: 0 },
@@ -177,7 +168,7 @@ pub fn building_3x2(shape: Shape, texture_id: i32, action_id: i32) -> Map {
                 },
             )),
         }],
-        5
+        5,
     );
 
     let (start_x, end_x) = if shape.width % 2 == 0 {
@@ -197,11 +188,8 @@ pub fn building_3x2(shape: Shape, texture_id: i32, action_id: i32) -> Map {
         vec![Mask {
             name: "action_test".to_string(),
             effect: Effect {
-                texture_id: None,
                 action_id: Some(action_id),
-                block: false,
-                group: false,
-                shrink: None,
+                ..Default::default()
             },
             selector: Selector::Block((
                 Coordinates {
@@ -214,11 +202,8 @@ pub fn building_3x2(shape: Shape, texture_id: i32, action_id: i32) -> Map {
                 },
             )),
         }],
-        6
+        6,
     );
 
-    Map::new(
-        "base".to_string(),
-        vec![building_layer, action_layer],
-    )
+    Map::new("base".to_string(), vec![building_layer, action_layer])
 }

@@ -7,18 +7,14 @@ pub struct Effect {
     pub action_id: Option<i32>,
     /// attach a texture to a [`super::tile::Tile`]
     pub texture_id: Option<i32>,
+    /// Attach a rendering callback to a [`super::tile::Tile`]
+    pub render_id: Option<i32>,
     /// make a [`super::tile::Tile`] entity blocking
     pub block: bool,
     /// determine if [`super::tile::Tile`] belongs to a group spanning several contingent [`super::tile::Tile`]s
     pub group: bool,
     pub shrink: Option<BlockSelector>,
     // TODO: opaque
-}
-
-impl Effect {
-    pub fn new(action_id: Option<i32>, texture_id: Option<i32>, block: bool, group: bool, shrink: Option<BlockSelector>) -> Self {
-        Self { action_id, texture_id, block, group, shrink }
-    }
 }
 
 #[cfg(test)]

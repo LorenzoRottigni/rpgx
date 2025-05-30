@@ -11,13 +11,13 @@ pub fn street_layer_around(shape: Shape, texture_id: i32) -> Layer {
         name: "street_border".to_string(),
         effect: Effect {
             texture_id: Some(texture_id),
-            action_id: None,
-            block: false,
-            group: false,
-            shrink: None,
+            ..Default::default()
         },
         selector: Selector::Filter(move |coords: Coordinates, shape: Shape| {
-            coords.x == 0 || coords.y == 0 || coords.x == shape.width - 1 || coords.y == shape.height - 1
+            coords.x == 0
+                || coords.y == 0
+                || coords.x == shape.width - 1
+                || coords.y == shape.height - 1
         }),
     };
 
@@ -26,6 +26,6 @@ pub fn street_layer_around(shape: Shape, texture_id: i32) -> Layer {
         LayerType::Texture,
         outer_shape,
         vec![mask],
-        3
+        3,
     )
 }
