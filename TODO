@@ -6,3 +6,5 @@
     rpgx/playground-vue	Vue playground frontend
     rpgx/playground-node	Node playground
     rpgx/monorepo   Wrapper repo with Makefile package.json and cargo.json workspaces
+- Make entities ID unique and consistent, recompute them at each mutation
+- Make errors management consistent
