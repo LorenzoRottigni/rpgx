@@ -1,7 +1,9 @@
+use std::any::Any;
+
 use dioxus::prelude::*;
 use rpgx::{
     common::errors::MapError,
-    library::ResourceLibrary,
+    library::Library,
     prelude::{Direction, Tile},
 };
 
@@ -13,7 +15,7 @@ use crate::{
 #[derive(PartialEq, Props, Clone)]
 pub struct EngineProps {
     pub engine: Signal<rpgx::prelude::Engine>,
-    pub library: Signal<ResourceLibrary>,
+    pub library: Signal<Library<Box<dyn Any>>>,
     pub square_size: i32,
 }
 

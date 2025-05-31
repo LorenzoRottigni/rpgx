@@ -2,18 +2,18 @@
 import { onMounted, ref } from 'vue'
 import Grid from './Grid.vue'
 import Pawn from './Pawn.vue'
-import { WasmEngine, ResourceLibrary, WasmTile } from '@rpgx/js'
+import { WasmEngine, WasmLibrary, WasmTile } from '@rpgx/js'
 
 const props = defineProps<{
   engine: WasmEngine,
-  library: ResourceLibrary
+  library: WasmLibrary
 }>()
 
 const updateFlag = ref(0)
 
 function manageActions(tile: WasmTile) {
   const actions = props.engine.map.get_actions_at(tile.pointer)
-  actions.forEach(a => props.library.call_action_by_id(a))
+  actions.forEach(a => props.library.get_by_id(a)())
 }
 
 function onClick(tile: WasmTile) {

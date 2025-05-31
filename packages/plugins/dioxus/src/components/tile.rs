@@ -1,5 +1,7 @@
+use std::any::Any;
+
 use dioxus::prelude::*;
-use rpgx::{common::errors::MapError, library::ResourceLibrary, prelude::LayerType};
+use rpgx::{common::errors::MapError, library::Library, prelude::LayerType};
 
 #[derive(PartialEq, Props, Clone)]
 pub struct TileProps {
@@ -7,14 +9,19 @@ pub struct TileProps {
     layer_z: i32,
     layer_kind: LayerType,
     square_size: i32,
-    library: Signal<ResourceLibrary>,
+    library: Signal<Library<Box<dyn Any>>>,
     onclick: EventHandler<Result<rpgx::prelude::Tile, MapError>>,
 }
 
 #[allow(non_snake_case)]
 pub fn Tile(props: TileProps) -> Element {
     let background = if let Some(texture_id) = props.tile.effect.texture_id {
-        if let Some(asset) = props.library.read().get_texture_by_id(texture_id) {
+        if let Some(asset) = props
+            .library
+            .read()
+            .get_by_id(texture_id)
+            .and_then(|boxed| boxed.downcast_ref::<String>())
+        {
             format!("background-image: url({}); background-size: cover;", asset)
         } else {
             "background-size: cover;".to_string()

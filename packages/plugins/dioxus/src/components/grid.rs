@@ -1,14 +1,14 @@
+use std::any::Any;
+
 use dioxus::prelude::*;
-use rpgx::{
-    common::errors::MapError, engine::Engine, library::ResourceLibrary, prelude::LayerType,
-};
+use rpgx::{common::errors::MapError, engine::Engine, library::Library, prelude::LayerType};
 
 use crate::components::tile::Tile;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct GridProps {
     pub engine: Signal<Engine>,
-    pub library: Signal<ResourceLibrary>,
+    pub library: Signal<Library<Box<dyn Any>>>,
     pub square_size: i32,
     pub onclick: EventHandler<Result<rpgx::prelude::Tile, MapError>>,
 }

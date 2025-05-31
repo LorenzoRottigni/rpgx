@@ -1,5 +1,7 @@
+use std::any::Any;
+
 use rpgx::{
-    library::ResourceLibrary,
+    library::Library,
     map::Map,
     prelude::{Coordinates, Effect, Layer, LayerType, Mask, Selector, Shape},
 };
@@ -14,7 +16,7 @@ fn is_center_tile(pointer: Coordinates, _shape: Shape) -> bool {
     (x == center_x || x == center_x - 1) || (y == center_y || y == center_y - 1)
 }
 
-pub fn use_map3(library: ResourceLibrary) -> Map {
+pub fn use_map3(library: Library<Box<dyn Any>>) -> Map {
     let ground_layer = Layer::new(
         "ground".to_string(),
         LayerType::Texture,
@@ -26,7 +28,7 @@ pub fn use_map3(library: ResourceLibrary) -> Map {
             Mask {
                 name: "default_floor".to_string(),
                 effect: Effect {
-                    texture_id: Some(library.get_key_id("floor_1")),
+                    texture_id: Some(library.get_id("floor_1").unwrap()),
                     ..Default::default()
                 },
                 selector: Selector::Block((
@@ -40,7 +42,7 @@ pub fn use_map3(library: ResourceLibrary) -> Map {
             Mask {
                 name: "floor_alt".to_string(),
                 effect: Effect {
-                    texture_id: Some(library.get_key_id("floor_2")),
+                    texture_id: Some(library.get_id("floor_2").unwrap()),
                     ..Default::default()
                 },
                 selector: Selector::Filter(is_center_tile),
@@ -59,7 +61,7 @@ pub fn use_map3(library: ResourceLibrary) -> Map {
         vec![Mask {
             name: "logo".to_string(),
             effect: Effect {
-                texture_id: Some(library.get_key_id("building_1")),
+                texture_id: Some(library.get_id("building_1").unwrap()),
                 block: true,
                 group: true,
                 shrink: Some((Coordinates { x: 2, y: 7 }, Coordinates { x: 3, y: 10 })),
@@ -80,8 +82,8 @@ pub fn use_map3(library: ResourceLibrary) -> Map {
         vec![Mask {
             name: "action_test".to_string(),
             effect: Effect {
-                texture_id: Some(library.get_key_id("portal_1")),
-                action_id: Some(library.get_key_id("consolelog")),
+                texture_id: Some(library.get_id("portal_1").unwrap()),
+                action_id: Some(library.get_id("consolelog").unwrap()),
                 ..Default::default()
             },
             selector: Selector::Block((Coordinates { x: 2, y: 11 }, Coordinates { x: 3, y: 11 })),
