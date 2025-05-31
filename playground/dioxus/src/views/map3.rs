@@ -2,6 +2,7 @@ use dioxus::prelude::*;
 use rpgx::{
     common::coordinates::Coordinates,
     prelude::{Engine, Pawn},
+    scene::Scene,
 };
 
 use crate::config::{library::use_library, map::map3::use_map3};
@@ -19,7 +20,8 @@ pub fn Map3() -> Element {
                     tile,
                     texture_id: library.read().get_key_id("character_1"),
                 };
-                let engine = use_signal(|| Engine::new(map, pawn));
+                let scene = Scene::new("default".into(), map, pawn);
+                let engine = use_signal(|| Engine::new(scene));
                 rsx! {
                     div { class: "cluster",
                         rpgx_dioxus::components::engine::Engine {

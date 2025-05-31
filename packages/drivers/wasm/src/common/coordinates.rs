@@ -2,6 +2,7 @@ use rpgx::prelude::Coordinates;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
+#[derive(Clone, Copy)]
 pub struct WasmCoordinates {
     pub(crate) inner: Coordinates,
 }

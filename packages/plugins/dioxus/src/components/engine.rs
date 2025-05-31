@@ -20,10 +20,10 @@ pub struct EngineProps {
 #[allow(non_snake_case)]
 pub fn Engine(props: EngineProps) -> Element {
     let engine = props.engine.clone();
-    let movement = use_controller(engine.clone());
+    let controller = use_controller(engine.clone());
 
     let onclick = move |tile: Tile| -> Result<(), MapError> {
-        movement.send(Command::WalkTo(tile.pointer));
+        controller.send(Command::WalkTo(tile.pointer));
         Ok(())
     };
 
@@ -45,7 +45,7 @@ pub fn Engine(props: EngineProps) -> Element {
             };
 
             if let Some(d) = direction {
-                movement.send(Command::Step(d));
+                controller.send(Command::Step(d));
             }
         }
     };
@@ -62,7 +62,7 @@ pub fn Engine(props: EngineProps) -> Element {
                 square_size: props.square_size,
                 onclick: EventHandler::new(move |tile: Result<Tile, MapError>| {
                     if let Ok(tile) = tile {
-                        onclick(tile).unwrap_or(());
+                        let _ = onclick(tile);
                     }
                 }),
             }
