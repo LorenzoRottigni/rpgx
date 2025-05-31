@@ -17,37 +17,37 @@ impl WasmEngine {
         }
     }
 
-    #[wasm_bindgen(js_name = WasmGetActiveScene)]
+    #[wasm_bindgen(js_name = getActiveScene)]
     pub fn get_active_scene(&mut self) -> Option<WasmScene> {
         self.inner
-            .get_active_scene()
+            .get_active_scene_mut()
             .cloned()
             .map(WasmScene::from_inner)
     }
 
-    #[wasm_bindgen(js_name = WasmPushScene)]
+    #[wasm_bindgen(js_name = pushScene)]
     pub fn push_scene(&mut self, scene: WasmScene) {
         self.inner.push_scene(scene.into_inner());
     }
 
-    #[wasm_bindgen(js_name = WasmPopScene)]
+    #[wasm_bindgen(js_name = popScene)]
     pub fn pop_scene(&mut self) {
         self.inner.pop_scene();
     }
 
-    #[wasm_bindgen(js_name = WasmRollbackTo)]
+    #[wasm_bindgen(js_name = rollbackTo)]
     pub fn rollback_to(&mut self, index: usize) {
         self.inner.rollback_to(index);
     }
 
-    #[wasm_bindgen(js_name = WasmRewindTo)]
+    #[wasm_bindgen(js_name = rewindTo)]
     pub fn rewind_to(&mut self, index: usize) -> Result<(), JsValue> {
         self.inner
             .rewind_to(index)
             .map_err(|e| JsValue::from_str(e))
     }
 
-    #[wasm_bindgen(js_name = WasmGetSceneAt)]
+    #[wasm_bindgen(js_name = getSceneAt)]
     pub fn get_scene_at(&self, index: usize) -> Option<WasmScene> {
         self.inner
             .get_scene_at(index)

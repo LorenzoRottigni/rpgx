@@ -1,5 +1,5 @@
 // import * as wasm from '../wasm/rpgx_js';
-import { ResourceLibrary, WasmBlockSelector, WasmCoordinates, WasmEffect, WasmEngine, WasmLayer, WasmLayerType, WasmMap, WasmMask, WasmPawn, WasmSelector, WasmShape, WasmSingleSelector, WasmTile} from '@rpgx/js'
+import { ResourceLibrary, WasmBlockSelector, WasmCoordinates, WasmEffect, WasmEngine, WasmLayer, WasmLayerType, WasmMap, WasmMask, WasmPawn, WasmScene, WasmSelector, WasmShape, WasmSingleSelector, WasmTile} from '@rpgx/js'
 
 export function useLibrary(): ResourceLibrary {
     const library = new ResourceLibrary();
@@ -54,14 +54,14 @@ export function useEngine(library: ResourceLibrary): WasmEngine {
                 WasmSelector.block(
                     new WasmBlockSelector(new WasmSingleSelector(0, 0), new WasmSingleSelector(grid_size - 1, grid_size - 1))
                 ),
-                new WasmEffect(library.get_key_id("floor_1"), undefined, false, false, null),
+                new WasmEffect(library.get_key_id("floor_1"), undefined, undefined, false, false, null),
             ),
             new WasmMask(
                 "floor_alt",
                 WasmSelector.block(
                     new WasmBlockSelector(new WasmSingleSelector(0, 0), new WasmSingleSelector(0, grid_size - 1)),
                 ),
-                new WasmEffect(library.get_key_id("floor_2"), undefined, false, false, null),
+                new WasmEffect(library.get_key_id("floor_2"), undefined, undefined, false, false, null),
             )
         ],
         1
@@ -77,7 +77,7 @@ export function useEngine(library: ResourceLibrary): WasmEngine {
                 WasmSelector.block(
                     new WasmBlockSelector(new WasmSingleSelector(1, 6), new WasmSingleSelector(4, 11)),
                 ),
-                new WasmEffect(library.get_key_id("building_1"), undefined, true, true, null),
+                new WasmEffect(library.get_key_id("building_1"), undefined, undefined, true, true, null),
             ),
         ],
         5
@@ -93,7 +93,7 @@ export function useEngine(library: ResourceLibrary): WasmEngine {
                 WasmSelector.block(
                     new WasmBlockSelector(new WasmSingleSelector(10, 0), new WasmSingleSelector(11, 0)),
                 ),
-                new WasmEffect(library.get_key_id("floor_2"), library.get_key_id("logit"), false, false, null),
+                new WasmEffect(library.get_key_id("floor_2"), library.get_key_id("logit"), undefined, false, false, null),
             )
         ],
         6
@@ -111,14 +111,20 @@ export function useEngine(library: ResourceLibrary): WasmEngine {
     const pawn = new WasmPawn(
         new WasmTile(
             0,
-            new WasmEffect(undefined, undefined, false, false, null),
+            new WasmEffect(undefined, undefined, undefined, false, false, null),
             new WasmCoordinates(0, 0),
             new WasmShape(1, 1),
         ),
         library.get_key_id("character_1"),
     );
 
-    const engine = new WasmEngine(map, pawn)
+    const scene = new WasmScene(
+        "default",
+        map,
+        pawn
+    )
+
+    const engine = new WasmEngine(scene)
 
     return engine
 }
