@@ -12,3 +12,4 @@ pub use crate::map::selector::WasmSelector;
 pub use crate::map::selector::WasmSingleSelector;
 pub use crate::map::tile::WasmTile;
 pub use crate::pawn::WasmPawn;
+pub use crate::scene::WasmScene;

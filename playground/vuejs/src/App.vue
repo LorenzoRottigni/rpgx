@@ -8,8 +8,13 @@ const engine = ref(useEngine(library))
 
 const updateFlag = ref(0)
 
-const map = engine.value.map
-const layers = map.getLayers()
+const activeScene = computed(() => {
+  updateFlag;
+  return engine.value.getActiveScene()
+})
+
+const map = activeScene.value?.map
+const layers = map?.getLayers()
 const squareSize = 15;
 
 console.dir(layers)
@@ -51,11 +56,13 @@ function getTexture(key: number) {
 
 const pawnStyle = computed(() => {
   updateFlag.value;
-  const x = engine.value.pawn.tile.pointer.x;
-  const y = engine.value.pawn.tile.pointer.y;
+
+  const x = activeScene.value?.pawn.tile.pointer.x || 0;
+  const y = activeScene.value?.pawn.tile.pointer.y || 0;
+  const textureId = activeScene.value?.pawn.textureId
 
   return `
-    ${engine.value.pawn.textureId ? `background-image: ${getTexture(engine.value.pawn.textureId)};` : ''}
+    ${textureId ? `background-image: ${getTexture(textureId)};` : ''}
     position: absolute;
     left: ${x * squareSize}px;
     top: ${y * squareSize - squareSize}px;
@@ -69,23 +76,31 @@ const pawnStyle = computed(() => {
 });
 
 function manageActions(tile: Tile) {
-  const actions = map.getActionsAt(tile.pointer)
-  actions.forEach(a => {
+  const actions = map?.getActionsAt(tile.pointer)
+  actions?.forEach(a => {
     // const action = library.get_action_by_id(a);
     library.call_action_by_id(a)
   })
 }
 
+
+
 function onClick(tile: Tile) {
   console.log('onclick')
   updateFlag.value++
   // engine.value.move_to(tile.pointer.x, tile.pointer.y);
-  const steps = engine.value.stepsTo(tile.pointer);
+  const steps = activeScene.value?.stepsTo(tile.pointer);
+  console.log('steps')
+  console.dir(steps)
+  if (!steps?.length) return
   for (let i = 0; i < steps.length; i++) {
     const step = steps[i];
     setTimeout(() => {
-      const tile = engine.value.moveTo(step);
-      manageActions(tile)
+      const tile = activeScene.value?.moveTo(step);
+      console.log('after assign: ', tile?.pointer)
+      console.log(activeScene.value?.pawn.tile.pointer)
+      // perche pawn ha .free()?
+      if (tile) manageActions(tile)
       updateFlag.value++;
     }, i * 100);
   }
@@ -95,13 +110,13 @@ function onKeyDown(event: KeyboardEvent) {
   console.log('keydown', event.key);
   let tile
   if (event.key === 'ArrowUp' || event.key.toLowerCase() === 'w') {
-    tile = engine.value.stepTo(WasmDirection.Up);
+    tile = activeScene.value?.stepTo(WasmDirection.Up);
   } else if (event.key === 'ArrowDown' || event.key.toLowerCase() === 's') {
-    tile = engine.value.stepTo(WasmDirection.Down);
+    tile = activeScene.value?.stepTo(WasmDirection.Down);
   } else if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'a') {
-    tile = engine.value.stepTo(WasmDirection.Left);
+    tile = activeScene.value?.stepTo(WasmDirection.Left);
   } else if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'd') {
-    tile = engine.value.stepTo(WasmDirection.Right);
+    tile = activeScene.value?.stepTo(WasmDirection.Right);
   }
   if (tile) {
     manageActions(tile)

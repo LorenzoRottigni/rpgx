@@ -1,189 +1,64 @@
-use crate::prelude::{Coordinates, Direction, Map, MoveError, Pawn, Tile};
+use crate::prelude::Scene;
 
-/// RPG engine providing [`Pawn`] movement computation across the [`Map`].
 #[derive(Clone)]
 pub struct Engine {
-    pub map: Map,
-    pub pawn: Pawn,
+    /// Timeline of scene states over time.
+    pub timeline: Vec<Scene>,
+    /// Current index in the timeline (pointer to active scene).
+    pub timenow: usize,
 }
 
 impl Engine {
-    pub fn new(map: Map, pawn: Pawn) -> Self {
-        Self { map, pawn }
+    /// Create a new engine starting with an initial scene.
+    pub fn new(scene: Scene) -> Self {
+        Self {
+            timeline: vec![scene],
+            timenow: 0,
+        }
     }
 
-    /// Walk to the target [`Coordinates`] through the best path
-    pub async fn walk_to(&mut self, target_position: Coordinates) -> Result<Tile, MoveError> {
-        let start = self.pawn.tile.pointer;
-        let path = self
-            .map
-            .find_path(&start, &target_position)
-            .ok_or(MoveError::PathNotFound)?;
+    /// Get a mutable reference to the currently active scene.
+    pub fn get_active_scene(&self) -> Option<&Scene> {
+        self.timeline.get(self.timenow)
+    }
 
-        let mut tile = None;
-        for step_coords in path {
-            tile = Some(self.move_to(step_coords)?);
+    pub fn get_active_scene_mut(&mut self) -> Option<&mut Scene> {
+        self.timeline.get_mut(self.timenow)
+    }
+
+    /// Push a new scene to the timeline and move the pointer to it.
+    pub fn push_scene(&mut self, scene: Scene) {
+        self.timeline.push(scene);
+        self.timenow = self.timeline.len() - 1;
+    }
+
+    /// Pop the last scene from the timeline if there's more than one.
+    pub fn pop_scene(&mut self) {
+        if self.timeline.len() > 1 {
+            self.timeline.pop();
+            self.timenow = self.timeline.len() - 1;
         }
+    }
 
-        if let Some(tile) = tile {
-            Ok(tile)
+    /// Roll back to a specific timenow
+    pub fn rollback_to(&mut self, index: usize) {
+        if index < self.timeline.len() {
+            self.timeline.truncate(index + 1);
+            self.timenow = self.timeline.len() - 1;
+        }
+    }
+
+    /// Rewind to a specific point in the timeline without truncating it.
+    pub fn rewind_to(&mut self, index: usize) -> Result<(), &'static str> {
+        if index < self.timeline.len() {
+            self.timenow = index;
+            Ok(())
         } else {
-            Err(MoveError::TileNotFound)
+            Err("Index out of bounds")
         }
     }
 
-    /// Make a step into the provided [`Direction`]
-    pub fn step_to(&mut self, direction: Direction) -> Result<Tile, MoveError> {
-        let delta = direction.to_delta();
-        let target_position = self.pawn.tile.pointer + delta;
-        self.move_to(target_position)
-    }
-
-    /// Move to the provided [`Coordinates`] if allowed
-    pub fn move_to(&mut self, target_position: Coordinates) -> Result<Tile, MoveError> {
-        if self.map.is_blocking_at(target_position) {
-            return Err(MoveError::TileBlocked);
-        }
-
-        let base_layer = self.map.get_base_layer().ok_or(MoveError::TileNotFound)?;
-        let tile = base_layer
-            .get_tile_at(target_position)
-            .ok_or(MoveError::TileNotFound)?;
-
-        self.pawn.tile = tile;
-
-        // Trigger actions on all layers for the tile pointer
-        // self.map.trigger_actions_at(tile.pointer);
-
-        // return the tile to make the caller able to dispatch its actions itself using its library
-        // (allows the caller to use its context within the callback)
-        Ok(tile)
-    }
-
-    /// Get steps to reach the target [`Coordinates`] from the current position
-    pub fn steps_to(&self, target_position: Coordinates) -> Result<Vec<Coordinates>, MoveError> {
-        let start = self.pawn.tile.pointer;
-        let path = self
-            .map
-            .find_path(&start, &target_position)
-            .ok_or(MoveError::PathNotFound)?;
-        Ok(path)
-    }
-}
-
-#[cfg(test)]
-pub mod tests {
-    use super::*;
-    use crate::prelude::*;
-
-    fn default_tile(x: i32, y: i32) -> Tile {
-        Tile {
-            id: 0,
-            shape: Shape::from_square(1),
-            pointer: Coordinates { x, y },
-            effect: Effect::default(),
-        }
-    }
-
-    fn basic_test_map() -> Map {
-        let shape = Shape {
-            width: 3,
-            height: 3,
-        };
-        let masks = vec![];
-        let layer = Layer::new("ground".to_string(), LayerType::Texture, shape, masks, 1);
-        Map::new("test_map".to_string(), vec![layer])
-    }
-
-    fn pawn_at(x: i32, y: i32) -> Pawn {
-        Pawn {
-            tile: default_tile(x, y),
-            texture_id: 0,
-        }
-    }
-
-    #[test]
-    fn test_engine_move_to_success() {
-        let map = basic_test_map();
-        let mut engine = Engine::new(map, pawn_at(0, 0));
-        let tile = engine.move_to(Coordinates { x: 1, y: 0 }).unwrap();
-        assert_eq!(tile.pointer, Coordinates { x: 1, y: 0 });
-    }
-
-    #[test]
-    fn test_engine_move_to_blocked() {
-        let mut map = basic_test_map();
-
-        // Manually block tile at (1, 0)
-        let tile = Tile {
-            id: 0,
-            shape: Shape::from_square(1),
-            pointer: Coordinates { x: 1, y: 0 },
-            effect: Effect {
-                block: true,
-                ..Default::default()
-            },
-        };
-
-        map.layers[0].tiles.push(tile);
-
-        let mut engine = Engine::new(map, pawn_at(0, 0));
-        let result = engine.move_to(Coordinates { x: 1, y: 0 });
-        assert!(matches!(result, Err(MoveError::TileBlocked)));
-    }
-
-    #[test]
-    fn test_engine_step_to() {
-        let map = basic_test_map();
-        let mut engine = Engine::new(map, pawn_at(1, 1));
-        let tile = engine.step_to(Direction::Right).unwrap();
-        assert_eq!(tile.pointer, Coordinates { x: 2, y: 1 });
-    }
-
-    #[test]
-    fn test_engine_steps_to() {
-        let map = basic_test_map();
-        let engine = Engine::new(map, pawn_at(0, 0));
-        let steps = engine.steps_to(Coordinates { x: 2, y: 0 }).unwrap();
-        assert_eq!(
-            steps,
-            vec![
-                Coordinates { x: 0, y: 0 },
-                Coordinates { x: 1, y: 0 },
-                Coordinates { x: 2, y: 0 }
-            ]
-        );
-    }
-
-    #[test]
-    fn test_engine_walk_to_success() {
-        let map = basic_test_map();
-        let mut engine = Engine::new(map, pawn_at(0, 0));
-        let final_tile =
-            futures::executor::block_on(engine.walk_to(Coordinates { x: 2, y: 0 })).unwrap();
-        assert_eq!(final_tile.pointer, Coordinates { x: 2, y: 0 });
-    }
-
-    #[test]
-    fn test_engine_walk_to_fail_no_path() {
-        let mut map = basic_test_map();
-
-        // Block all possible routes
-        for x in 1..3 {
-            let tile = Tile {
-                id: 0,
-                shape: Shape::from_square(1),
-                pointer: Coordinates { x, y: 0 },
-                effect: Effect {
-                    block: true,
-                    ..Default::default()
-                },
-            };
-            map.layers[0].tiles.push(tile);
-        }
-
-        let mut engine = Engine::new(map, pawn_at(0, 0));
-        let result = futures::executor::block_on(engine.walk_to(Coordinates { x: 2, y: 0 }));
-        assert!(matches!(result, Err(MoveError::PathNotFound)));
+    pub fn get_scene_at(&self, index: usize) -> Option<&Scene> {
+        self.timeline.get(index)
     }
 }

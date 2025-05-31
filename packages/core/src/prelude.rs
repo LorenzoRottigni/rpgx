@@ -10,3 +10,4 @@ pub use crate::map::layer::{Layer, LayerType};
 pub use crate::map::selector::*;
 pub use crate::map::tile::Tile;
 pub use crate::pawn::Pawn;
+pub use crate::scene::Scene;
