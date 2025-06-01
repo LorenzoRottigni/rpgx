@@ -1,106 +1,108 @@
-use js_sys::Function;
-use std::collections::HashMap;
-use wasm_bindgen::JsCast;
+use std::{any::Any, collections::HashMap};
 use wasm_bindgen::prelude::*;
 
-enum Resource {
-    Texture(String),
-    Action(Closure<dyn Fn()>),
+#[wasm_bindgen]
+pub struct WasmLibrary {
+    inner: Library<Box<dyn Any>>,
 }
 
 #[wasm_bindgen]
-pub struct ResourceLibrary {
-    data: HashMap<String, Resource>,
-    key_ids: HashMap<String, i32>,
-    id_keys: HashMap<i32, String>,
+impl WasmLibrary {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> WasmLibrary {
+        WasmLibrary {
+            inner: Library::new(),
+        }
+    }
+
+    #[wasm_bindgen]
+    pub fn insert(&mut self, key: &str, value: JsValue) {
+        // Safety: converting &str to &'static str by leaking it.
+        // You should manage this carefully or use another approach for dynamic lifetimes.
+        let static_key: &'static str = Box::leak(key.to_string().into_boxed_str());
+        self.inner.insert(static_key, Box::new(value));
+    }
+
+    #[wasm_bindgen]
+    pub fn get_by_key(&self, key: &str) -> JsValue {
+        match self.inner.get_by_key(key) {
+            Some(boxed) => {
+                if let Some(s) = boxed.downcast_ref::<JsValue>() {
+                    s.clone()
+                } else {
+                    JsValue::NULL
+                }
+            }
+            None => JsValue::NULL,
+        }
+    }
+
+    #[wasm_bindgen]
+    pub fn get_by_id(&self, id: i32) -> JsValue {
+        match self.inner.get_by_id(id) {
+            Some(boxed) => {
+                if let Some(s) = boxed.downcast_ref::<JsValue>() {
+                    s.clone()
+                } else {
+                    JsValue::NULL
+                }
+            }
+            None => JsValue::NULL,
+        }
+    }
+
+    #[wasm_bindgen]
+    pub fn get_id(&self, key: &str) -> Option<i32> {
+        self.inner.get_id(key)
+    }
+
+    #[wasm_bindgen]
+    pub fn get_key(&self, id: i32) -> Option<String> {
+        self.inner.get_key(id).map(|s| s.to_string())
+    }
+}
+
+// Original Library type
+pub struct Library<V> {
+    data: HashMap<&'static str, V>,
+    key_to_id: HashMap<&'static str, i32>,
+    id_to_key: HashMap<i32, &'static str>,
     next_id: i32,
 }
 
-#[wasm_bindgen]
-impl ResourceLibrary {
-    #[wasm_bindgen(constructor)]
+impl<V> Library<V> {
     pub fn new() -> Self {
         Self {
             data: HashMap::new(),
-            key_ids: HashMap::new(),
-            id_keys: HashMap::new(),
+            key_to_id: HashMap::new(),
+            id_to_key: HashMap::new(),
             next_id: 1,
         }
     }
 
-    pub fn get_key_id(&mut self, key: String) -> i32 {
-        if let Some(id) = self.key_ids.get(&key) {
-            *id
-        } else {
+    pub fn insert(&mut self, key: &'static str, value: V) {
+        if !self.key_to_id.contains_key(&key) {
             let id = self.next_id;
-            self.key_ids.insert(key.clone(), id);
-            self.id_keys.insert(id, key);
+            self.key_to_id.insert(key, id);
+            self.id_to_key.insert(id, key);
             self.next_id += 1;
-            id
         }
+        self.data.insert(key, value);
     }
 
-    pub fn insert_texture(&mut self, key: String, texture: String) {
-        self.data.insert(key.clone(), Resource::Texture(texture));
-        self.get_key_id(key);
+    pub fn get_by_key(&self, key: &str) -> Option<&V> {
+        self.data.get(key)
     }
 
-    pub fn insert_action(&mut self, key: String, action: &Function) {
-        let action_cloned = action.clone();
-        let closure = Closure::wrap(Box::new(move || {
-            let _ = action_cloned.call0(&JsValue::NULL);
-        }) as Box<dyn Fn()>);
-
-        self.data.insert(key.clone(), Resource::Action(closure));
-        self.get_key_id(key);
+    pub fn get_by_id(&self, id: i32) -> Option<&V> {
+        self.id_to_key.get(&id).and_then(|key| self.data.get(key))
     }
 
-    pub fn get_texture(&self, key: String) -> Option<String> {
-        match self.data.get(&key) {
-            Some(Resource::Texture(s)) => Some(s.clone()),
-            _ => None,
-        }
+    pub fn get_id(&self, key: &str) -> Option<i32> {
+        self.key_to_id.get(key).copied()
     }
 
-    pub fn get_texture_by_id(&self, id: i32) -> Option<String> {
-        self.id_keys
-            .get(&id)
-            .and_then(|key| match self.data.get(key) {
-                Some(Resource::Texture(s)) => Some(s.clone()),
-                _ => None,
-            })
-    }
-
-    pub fn get_action_by_id(&self, id: i32) -> JsValue {
-        if let Some(key) = self.id_keys.get(&id) {
-            if let Some(Resource::Action(closure)) = self.data.get(key) {
-                return closure.as_ref().clone();
-            }
-        }
-        JsValue::UNDEFINED
-    }
-
-    pub fn call_action(&self, key: String) {
-        if let Some(Resource::Action(closure)) = self.data.get(&key) {
-            let _ = closure
-                .as_ref()
-                .unchecked_ref::<Function>()
-                .call0(&JsValue::NULL);
-        }
-    }
-
-    pub fn call_action_by_id(&self, id: i32) {
-        if let Some(key) = self.id_keys.get(&id) {
-            if let Some(Resource::Action(closure)) = self.data.get(key) {
-                let _ = closure
-                    .as_ref()
-                    .unchecked_ref::<Function>()
-                    .call0(&JsValue::NULL);
-            }
-        }
-    }
-
-    pub fn get_key_by_id(&self, id: i32) -> Option<String> {
-        self.id_keys.get(&id).cloned()
+    pub fn get_key(&self, id: i32) -> Option<&'static str> {
+        self.id_to_key.get(&id).copied()
     }
 }

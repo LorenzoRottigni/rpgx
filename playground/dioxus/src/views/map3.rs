@@ -11,14 +11,14 @@ use crate::config::{library::use_library, map::map3::use_map3};
 pub fn Map3() -> Element {
     let library = use_signal(|| use_library());
 
-    let map = use_map3(library.read().clone());
+    let map = use_map3(&library.read());
 
     match map.get_base_layer() {
         Some(layer) => {
             if let Some(tile) = layer.get_tile_at(Coordinates { x: 0, y: 0 }) {
                 let pawn = Pawn {
                     tile,
-                    texture_id: library.read().get_key_id("character_1"),
+                    texture_id: library.read().get_id("character_1").unwrap(),
                 };
                 let scene = Scene::new("default".into(), map, pawn);
                 let engine = use_signal(|| Engine::new(scene));

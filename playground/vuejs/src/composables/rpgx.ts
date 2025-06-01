@@ -1,38 +1,39 @@
 // import * as wasm from '../wasm/rpgx_js';
-import { ResourceLibrary, WasmBlockSelector, WasmCoordinates, WasmEffect, WasmEngine, WasmLayer, WasmLayerType, WasmMap, WasmMask, WasmPawn, WasmScene, WasmSelector, WasmShape, WasmSingleSelector, WasmTile} from '@rpgx/js'
+import { WasmLibrary, WasmBlockSelector, WasmCoordinates, WasmEffect, WasmEngine, WasmLayer, WasmLayerType, WasmMap, WasmMask, WasmPawn, WasmScene, WasmSelector, WasmShape, WasmSingleSelector, WasmTile} from '@rpgx/js'
 
-export function useLibrary(): ResourceLibrary {
-    const library = new ResourceLibrary();
-    library.insert_texture(
+export function useLibrary(): WasmLibrary {
+    const library = new WasmLibrary();
+    library.insert(
         "floor_1",
         "https://s3.rottigni.tech/rpgx/spaceship_floor_1.webp"
     )
-    library.insert_texture(
+    library.insert(
         "floor_2",
         "https://s3.rottigni.tech/rpgx/spaceship_floor_2.webp"
     )
-    library.insert_texture(
+    library.insert(
         "building_1",
         "https://s3.rottigni.tech/rpgx/processor_9.webp"
     )
-    library.insert_texture(
+    library.insert(
         "building_2",
         "https://s3.rottigni.tech/rpgx/processor_8.webp"
     )
-    library.insert_texture(
+    library.insert(
         "character_1",
         "https://s3.rottigni.tech/rpgx/character_1.webp"
     )
-    library.insert_action(
+    library.insert(
         "logit",
         () => {
             console.log("logit")
+            return ""
         }
     )
     return library
 }
 
-export function useEngine(library: ResourceLibrary): WasmEngine {
+export function useEngine(library: WasmLibrary): WasmEngine {
     const grid_size = 25;
 
     // const defaultLayer = new WasmLayer(
@@ -54,14 +55,14 @@ export function useEngine(library: ResourceLibrary): WasmEngine {
                 WasmSelector.block(
                     new WasmBlockSelector(new WasmSingleSelector(0, 0), new WasmSingleSelector(grid_size - 1, grid_size - 1))
                 ),
-                new WasmEffect(library.get_key_id("floor_1"), undefined, undefined, false, false, null),
+                new WasmEffect(library.get_id("floor_1"), undefined, undefined, false, false, null),
             ),
             new WasmMask(
                 "floor_alt",
                 WasmSelector.block(
                     new WasmBlockSelector(new WasmSingleSelector(0, 0), new WasmSingleSelector(0, grid_size - 1)),
                 ),
-                new WasmEffect(library.get_key_id("floor_2"), undefined, undefined, false, false, null),
+                new WasmEffect(library.get_id("floor_2"), undefined, undefined, false, false, null),
             )
         ],
         1
@@ -77,7 +78,7 @@ export function useEngine(library: ResourceLibrary): WasmEngine {
                 WasmSelector.block(
                     new WasmBlockSelector(new WasmSingleSelector(1, 6), new WasmSingleSelector(4, 11)),
                 ),
-                new WasmEffect(library.get_key_id("building_1"), undefined, undefined, true, true, null),
+                new WasmEffect(library.get_id("building_1"), undefined, undefined, true, true, null),
             ),
         ],
         5
@@ -93,7 +94,7 @@ export function useEngine(library: ResourceLibrary): WasmEngine {
                 WasmSelector.block(
                     new WasmBlockSelector(new WasmSingleSelector(10, 0), new WasmSingleSelector(11, 0)),
                 ),
-                new WasmEffect(library.get_key_id("floor_2"), library.get_key_id("logit"), undefined, false, false, null),
+                new WasmEffect(library.get_id("floor_2"), library.get_id("logit"), undefined, false, false, null),
             )
         ],
         6
@@ -115,7 +116,7 @@ export function useEngine(library: ResourceLibrary): WasmEngine {
             new WasmCoordinates(0, 0),
             new WasmShape(1, 1),
         ),
-        library.get_key_id("character_1"),
+        library.get_id("character_1") || NaN,
     );
 
     const scene = new WasmScene(

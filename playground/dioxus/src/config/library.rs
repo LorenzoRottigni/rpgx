@@ -1,7 +1,8 @@
-use rpgx::library::ResourceLibrary;
+use rpgx::library::Library;
+use std::any::Any;
 
-pub fn use_library() -> ResourceLibrary {
-    let mut w_library = ResourceLibrary::new();
+pub fn use_library() -> Library<Box<dyn Any>> {
+    let mut library: Library<Box<dyn Any>> = Library::new();
 
     // Platform-agnostic logger
     fn log_message(message: &str) {
@@ -12,39 +13,41 @@ pub fn use_library() -> ResourceLibrary {
         println!("{message}");
     }
 
-    w_library.insert_texture(
+    library.insert(
         "floor_1",
-        "https://s3.rottigni.tech/rpgx/spaceship_floor_1.webp".to_string(),
+        Box::new("https://s3.rottigni.tech/rpgx/spaceship_floor_1.webp".to_string()),
     );
-    w_library.insert_texture(
+    library.insert(
         "floor_2",
-        "https://s3.rottigni.tech/rpgx/spaceship_floor_2.webp".to_string(),
+        Box::new("https://s3.rottigni.tech/rpgx/spaceship_floor_2.webp".to_string()),
     );
-    w_library.insert_texture(
+    library.insert(
         "floor_3",
-        "https://s3.rottigni.tech/rpgx/spaceship_floor_3.webp".to_string(),
+        Box::new("https://s3.rottigni.tech/rpgx/spaceship_floor_3.webp".to_string()),
     );
-    w_library.insert_texture(
+    library.insert(
         "building_1",
-        "https://s3.rottigni.tech/rpgx/processor_8.webp".to_string(),
+        Box::new("https://s3.rottigni.tech/rpgx/processor_8.webp".to_string()),
     );
-    w_library.insert_texture(
+    library.insert(
         "building_2",
-        "https://s3.rottigni.tech/rpgx/processor_9.webp".to_string(),
+        Box::new("https://s3.rottigni.tech/rpgx/processor_9.webp".to_string()),
     );
-    w_library.insert_texture(
+    library.insert(
         "portal_1",
-        "https://s3.rottigni.tech/rpgx/portal_1.webp".to_string(),
+        Box::new("https://s3.rottigni.tech/rpgx/portal_1.webp".to_string()),
     );
-    w_library.insert_texture(
+    library.insert(
         "character_1",
-        "https://s3.rottigni.tech/rpgx/character_1.webp".to_string(),
+        Box::new("https://s3.rottigni.tech/rpgx/character_1.webp".to_string()),
     );
     // Platform-agnostic action
-    w_library.insert_action("consolelog", || {
-        log_message("Hello from Rust!");
-    });
-    w_library.insert_action("teleport", || {});
+    library.insert(
+        "consolelog",
+        Box::new(|| {
+            log_message("Hello from Rust!");
+        }),
+    );
 
-    w_library
+    library
 }

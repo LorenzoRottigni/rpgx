@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import Tile from './Tile.vue'
-import { WasmMap, ResourceLibrary } from '@rpgx/js'
+import { WasmMap, WasmLibrary } from '@rpgx/js'
 
 defineProps<{
   map: WasmMap,
-  library: ResourceLibrary
+  library: WasmLibrary
 }>()
 
 defineEmits<{
@@ -14,7 +14,7 @@ defineEmits<{
 
 <template>
   <div>
-    <div v-for="(layer, i) in map.layers" :key="'layer-' + i">
+    <div v-for="(layer, i) in map.getLayers()" :key="'layer-' + i">
       <Tile
         v-for="(tile, j) in layer.tiles"
         :key="`layer-${i}-${j}`"
