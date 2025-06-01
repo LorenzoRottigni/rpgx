@@ -86,10 +86,7 @@ pub fn Tile(props: TileProps) -> Element {
     let rendered_element: VNode = if let Some(render_fn) = render_fn_opt {
         render_fn().unwrap()
     } else {
-        rsx! {
-            div { "No render function available" }
-        }
-        .unwrap()
+        rsx! {}.unwrap()
     };
 
     rsx! {
