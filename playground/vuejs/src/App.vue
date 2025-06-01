@@ -46,8 +46,8 @@ function getTileStyle(tile: Tile, layer: Layer) {
   `;
 }
 
-function getTexture(key: number) {
-  const texture = library.get_texture_by_id(key);
+function getTexture(id: number) {
+  const texture = library.get_by_id(id);
   if (texture) {
     return `url(${texture})`;
   }
@@ -78,8 +78,8 @@ const pawnStyle = computed(() => {
 function manageActions(tile: Tile) {
   const actions = map?.getActionsAt(tile.pointer)
   actions?.forEach(a => {
-    // const action = library.get_action_by_id(a);
-    library.call_action_by_id(a)
+    const action = library.get_by_id(a);
+    action();
   })
 }
 

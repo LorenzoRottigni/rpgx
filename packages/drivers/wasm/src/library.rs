@@ -24,13 +24,31 @@ impl WasmLibrary {
     }
 
     #[wasm_bindgen]
-    pub fn get_by_key(&self, key: &str) -> Option<JsValue> {
-        JsValue::from_str(self.inner.get_by_key(key).cloned())
+    pub fn get_by_key(&self, key: &str) -> JsValue {
+        match self.inner.get_by_key(key) {
+            Some(boxed) => {
+                if let Some(s) = boxed.downcast_ref::<JsValue>() {
+                    s.clone()
+                } else {
+                    JsValue::NULL
+                }
+            }
+            None => JsValue::NULL,
+        }
     }
 
     #[wasm_bindgen]
-    pub fn get_by_id(&self, id: i32) -> Option<String> {
-        self.inner.get_by_id(id).cloned()
+    pub fn get_by_id(&self, id: i32) -> JsValue {
+        match self.inner.get_by_id(id) {
+            Some(boxed) => {
+                if let Some(s) = boxed.downcast_ref::<JsValue>() {
+                    s.clone()
+                } else {
+                    JsValue::NULL
+                }
+            }
+            None => JsValue::NULL,
+        }
     }
 
     #[wasm_bindgen]

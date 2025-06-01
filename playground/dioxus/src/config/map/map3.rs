@@ -16,7 +16,7 @@ fn is_center_tile(pointer: Coordinates, _shape: Shape) -> bool {
     (x == center_x || x == center_x - 1) || (y == center_y || y == center_y - 1)
 }
 
-pub fn use_map3(library: Library<Box<dyn Any>>) -> Map {
+pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
     let ground_layer = Layer::new(
         "ground".to_string(),
         LayerType::Texture,

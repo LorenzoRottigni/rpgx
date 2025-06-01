@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+#[derive(Clone, Debug)]
 pub struct Library<V> {
     data: HashMap<&'static str, V>,
     key_to_id: HashMap<&'static str, i32>,

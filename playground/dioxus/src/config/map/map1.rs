@@ -6,7 +6,7 @@ use rpgx::{
     prelude::{Coordinates, Shape},
 };
 
-pub fn use_map1(library: Library<Box<dyn Any>>) -> Map {
+pub fn use_map1(library: &Library<Box<dyn Any>>) -> Map {
     let mut single_map = rpgx::factory::map::presets::building::building_2x3(
         Shape {
             width: 4,
