@@ -1,7 +1,6 @@
-use std::any::Any;
-
 use dioxus::prelude::*;
 use rpgx::{common::errors::MapError, library::Library, prelude::LayerType};
+use std::any::Any;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct TileProps {
@@ -74,11 +73,32 @@ pub fn Tile(props: TileProps) -> Element {
         }
     };
 
+    let library = props.library.read();
+
+    let render_fn_opt: Option<&Box<dyn Fn() -> Result<VNode, RenderError>>> =
+        props.tile.effect.render_id.and_then(|render_id| {
+            library.get_by_id(render_id).and_then(|boxed| {
+                boxed.downcast_ref::<Box<dyn Fn() -> Result<VNode, RenderError>>>()
+            })
+        });
+
+    // Now run the render function, handling the Result<VNode, RenderError> properly:
+    let rendered_element: VNode = if let Some(render_fn) = render_fn_opt {
+        render_fn().unwrap()
+    } else {
+        rsx! {
+            div { "No render function available" }
+        }
+        .unwrap()
+    };
+
     rsx! {
         div {
             class: if props.layer_kind == LayerType::Base { "base-layer-tile" } else { "layer-tile" },
             style: "{base_style}",
             onclick: onclick_tile,
+
+            {rendered_element}
         }
     }
 }
