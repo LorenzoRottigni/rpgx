@@ -4,7 +4,6 @@ use log::error;
 use rpgx::common::coordinates::Coordinates;
 use rpgx::common::direction::Direction;
 use rpgx::prelude::Engine;
-use web_sys::console;
 
 #[derive(Clone, Debug)]
 pub enum Command {
@@ -15,7 +14,6 @@ pub enum Command {
 pub async fn sleep_ms(ms: u64) {
     #[cfg(feature = "web")]
     {
-        console::log_1(&"sleep ms web".into());
         gloo_timers::future::TimeoutFuture::new(ms as u32).await;
     }
 
@@ -30,7 +28,6 @@ pub fn use_controller(engine: Signal<Engine>) -> Coroutine<Command> {
         to_owned![engine];
         move |mut rx: UnboundedReceiver<Command>| async move {
             while let Some(command) = rx.next().await {
-                console::log_1(&format!("received command: {:?}", command).into());
                 let result: Result<(), Box<dyn std::error::Error>> = async {
                     match command {
                         Command::WalkTo(target) => {
