@@ -26,6 +26,7 @@ mod tests {
         let effect = Effect::default();
         assert_eq!(effect.action_id, None);
         assert_eq!(effect.texture_id, None);
+        assert_eq!(effect.render_id, None);
         assert!(!effect.block);
         assert!(!effect.group);
         assert_eq!(effect.shrink, None);

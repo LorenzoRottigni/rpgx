@@ -3,10 +3,11 @@ use std::any::Any;
 use rpgx::{
     library::Library,
     map::Map,
-    prelude::{Coordinates, Shape},
+    prelude::{Coordinates, Effect, Layer, LayerType, Mask, Selector, Shape},
 };
 
 pub fn use_map1(library: &Library<Box<dyn Any>>) -> Map {
+    println!("loading render id: {:?}", library.get_id("sign"));
     let mut single_map = rpgx::factory::map::presets::building::building_2x3(
         Shape {
             width: 4,
@@ -35,6 +36,24 @@ pub fn use_map1(library: &Library<Box<dyn Any>>) -> Map {
             height: 8,
         },
         library.get_id("floor_2").unwrap(),
+    ));
+    single_map.load_layer(Layer::new(
+        "sign".into(),
+        LayerType::Block,
+        Shape {
+            width: 6,
+            height: 8,
+        },
+        vec![Mask {
+            name: "sign".into(),
+            effect: Effect {
+                render_id: library.get_id("sign"),
+                group: true,
+                ..Default::default()
+            },
+            selector: Selector::Block((Coordinates { x: 0, y: 0 }, Coordinates { x: 2, y: 2 })),
+        }],
+        8,
     ));
 
     let mut map = single_map.clone();

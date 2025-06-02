@@ -5,7 +5,7 @@ pub use crate::prelude::{BlockSelector, Coordinates, Effect, Shape, SingleSelect
 pub mod mask;
 
 /// Represents the different roles a [`Layer`] can play in the [`Grid`] stack.
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum LayerType {
     /// The base of all layers, includes all tiles of a Shape which takes into account all layers shapes.
     Base,
@@ -22,7 +22,7 @@ pub enum LayerType {
 ///
 /// Layers simulate stacking behavior along the Z-axis and allow grouped or
 /// conditional tile modifications without altering the original base.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Layer {
     /// The name of the layer (e.g., `"collision"`, `"visuals"`)
     pub name: String,

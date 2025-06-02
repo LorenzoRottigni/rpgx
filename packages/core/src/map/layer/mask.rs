@@ -7,7 +7,7 @@ use crate::prelude::{Coordinates, Effect, Selector, Shape, Tile};
 /// batch application of effects such as collision blocks, visual overlays, triggers, or behaviors.
 /// They are commonly used during map construction or dynamic modification to efficiently define areas
 /// of interaction or decoration.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Mask {
     pub name: String,
     pub selector: Selector,

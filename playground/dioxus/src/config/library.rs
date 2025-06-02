@@ -1,3 +1,4 @@
+use dioxus::prelude::*;
 use rpgx::library::Library;
 use std::any::Any;
 
@@ -47,6 +48,21 @@ pub fn use_library() -> Library<Box<dyn Any>> {
         Box::new(|| {
             log_message("Hello from Rust!");
         }),
+    );
+
+    library.insert(
+        "sign",
+        Box::new(Box::new(|| {
+            println!("Invoked render closure for sign");
+            rsx! {
+                div {
+                    class: "sign",
+                    style: "width: 100%; height: 100%; background-color: red;",
+                    "this is sign"
+                }
+            }
+            .unwrap()
+        }) as Box<dyn Fn() -> VNode>) as Box<dyn Any>,
     );
 
     library
