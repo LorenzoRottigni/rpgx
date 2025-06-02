@@ -86,9 +86,11 @@ pub fn Tile(props: TileProps) -> Element {
                     .effect
                     .render_id
                     .and_then(|id| {
-                        let f = library.get_by_id(id)?.downcast_ref::<Box<dyn Fn() -> VNode>>()?;
+                        let f = library
+                            .get_by_id(id)?
+                            .downcast_ref::<Box<dyn Fn(&str) -> VNode>>()?;
                         println!("Rendering custom VNode from library");
-                        Some(f())
+                        Some(f("custom"))
                     })
                     .unwrap_or(rsx! {}.unwrap())
             }

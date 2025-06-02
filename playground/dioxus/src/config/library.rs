@@ -52,17 +52,17 @@ pub fn use_library() -> Library<Box<dyn Any>> {
 
     library.insert(
         "sign",
-        Box::new(Box::new(|| {
-            println!("Invoked render closure for sign");
+        Box::new(Box::new(|custom_text: &str| {
+            println!("Invoked render closure for sign with text: {}", custom_text);
             rsx! {
                 div {
                     class: "sign",
                     style: "width: 100%; height: 100%; background-color: red;",
-                    "this is sign"
+                    "{custom_text}"
                 }
             }
             .unwrap()
-        }) as Box<dyn Fn() -> VNode>) as Box<dyn Any>,
+        }) as Box<dyn Fn(&str) -> VNode>) as Box<dyn Any>,
     );
 
     library

@@ -8,3 +8,5 @@
     rpgx/monorepo   Wrapper repo with Makefile package.json and cargo.json workspaces
 - Make entities ID unique and consistent, recompute them at each mutation
 - Make errors management consistent
+- Manage traits to unify functionalities
+- Check all stacks datatypes i32,...
