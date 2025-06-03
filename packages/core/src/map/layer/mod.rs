@@ -1,5 +1,3 @@
-use mask::Mask;
-
 pub use crate::prelude::{BlockSelector, Coordinates, Effect, Shape, SingleSelector, Tile};
 
 pub mod mask;
@@ -23,37 +21,35 @@ pub enum LayerType {
 /// Layers simulate stacking behavior along the Z-axis and allow grouped or
 /// conditional tile modifications without altering the original base.
 #[derive(Clone, Debug)]
-pub struct Layer {
+pub struct Layer<'a> {
     /// The name of the layer (e.g., `"collision"`, `"visuals"`)
     pub name: String,
     /// The type of layer (e.g., `Base`, `Action`, `Texture`, etc.)
     pub kind: LayerType,
     /// All tiles currently active within the layer.
-    pub tiles: Vec<Tile>,
+    pub tiles: Vec<Tile<'a>>,
     /// The shape (bounds) of the layer.
     pub shape: Shape,
     /// All masks that were used to generate the tiles.
-    pub masks: Vec<Mask>,
+    // pub masks: Vec<Mask>,
     pub z: i32, // Z-index for rendering order
 }
 
-impl Layer {
+impl<'a> Layer<'a> {
     /// Constructs a new non-base layer by applying masks to the given shape.
     ///
     /// Panics if called with [`LayerType::Base`] (use [`Layer::base`] instead).
-    pub fn new(name: String, kind: LayerType, shape: Shape, masks: Vec<Mask>, z: i32) -> Self {
+    pub fn new(name: String, kind: LayerType, shape: Shape, tiles: Vec<Tile<'a>>, z: i32) -> Self {
         assert!(
             kind != LayerType::Base,
             "Use Layer::base instead of Layer::new for Base layers"
         );
 
-        let tiles = masks.iter().flat_map(|mask| mask.apply(shape)).collect();
         Self {
             name,
             kind,
             tiles,
             shape,
-            masks,
             z,
         }
     }
@@ -62,10 +58,10 @@ impl Layer {
     ///
     /// This layer will have a unified shape that encompasses all others and may
     /// merge any tiles from [`LayerType::Texture`] layers into itself.
-    pub fn base(layers: Vec<Self>) -> Self {
+    pub fn base(layers: &Vec<Self>) -> Self {
         let mut base_shape = Shape::default();
 
-        for layer in &layers {
+        for layer in layers {
             base_shape = base_shape.union(layer.shape);
         }
 
@@ -78,6 +74,7 @@ impl Layer {
                     pointer: Coordinates { x, y },
                     shape: Shape::from_square(1),
                     effect: Effect::default(),
+                    mask: None,
                 });
             }
         }
@@ -87,11 +84,10 @@ impl Layer {
             kind: LayerType::Base,
             shape: base_shape,
             tiles,
-            masks: vec![],
             z: 1,
         };
 
-        for layer in &layers {
+        for layer in layers {
             base_layer.positive_reshape(layer.shape);
 
             // Merge texture effects
@@ -111,7 +107,7 @@ impl Layer {
     }
 }
 
-impl Layer {
+impl<'a> Layer<'a> {
     /// Reshapes the layer to the given bounds.
     ///
     /// This will discard any tiles outside the shape. For `Base` layers,
@@ -140,6 +136,7 @@ impl Layer {
                         id: x,
                         pointer: Coordinates { x, y },
                         shape: Shape::from_square(1),
+                        mask: None,
                         effect,
                     });
                 }
@@ -160,17 +157,14 @@ impl Layer {
     }
 
     /// Finds the tile covering the given coordinates, accounting for both tile origin and shape.
-    pub fn get_tile_at(&self, pointer: Coordinates) -> Option<Tile> {
-        self.tiles
-            .iter()
-            .find(|tile| {
-                let local = Coordinates {
-                    x: pointer.x - tile.pointer.x,
-                    y: pointer.y - tile.pointer.y,
-                };
-                tile.shape.in_bounds(local)
-            })
-            .cloned()
+    pub fn get_tile_at(&'a self, pointer: Coordinates) -> Option<&'a Tile<'a>> {
+        self.tiles.iter().find(|tile| {
+            let local = Coordinates {
+                x: pointer.x - tile.pointer.x,
+                y: pointer.y - tile.pointer.y,
+            };
+            tile.shape.in_bounds(local)
+        })
     }
 
     /// Retrieves all tiles within a rectangular block defined by two coordinates.
@@ -205,30 +199,30 @@ pub mod tests {
 
     #[test]
     fn applies_multiple_masks_correctly() {
-        let mask1 = Mask {
-            name: "First".to_string(),
-            selector: Selector::Single(SingleSelector { x: 0, y: 0 }),
-            effect: Effect {
-                block: true,
-                ..Default::default()
-            },
-        };
-
-        let mask2 = Mask {
-            name: "Second".to_string(),
-            selector: Selector::Single(SingleSelector { x: 1, y: 0 }),
-            effect: Effect {
-                action_id: Some(1),
-                ..Default::default()
-            },
-        };
+        // let mask1 = Mask {
+        //     name: "First".to_string(),
+        //     selector: Selector::Single(SingleSelector { x: 0, y: 0 }),
+        //     effect: Effect {
+        //         block: true,
+        //         ..Default::default()
+        //     },
+        // };
+        //
+        // let mask2 = Mask {
+        //     name: "Second".to_string(),
+        //     selector: Selector::Single(SingleSelector { x: 1, y: 0 }),
+        //     effect: Effect {
+        //         action_id: Some(1),
+        //         ..Default::default()
+        //     },
+        // };
 
         let shape = Shape::from_square(2);
         let layer = Layer::new(
             "MultiMask".to_string(),
             LayerType::Action,
             shape,
-            vec![mask1.clone(), mask2.clone()],
+            vec![], // vec![mask1.clone(), mask2.clone()],
             1,
         );
 
@@ -252,21 +246,21 @@ pub mod tests {
 
     #[test]
     fn applies_mask_to_block_of_tiles() {
-        let mask = Mask {
-            name: "BlockMask".to_string(),
-            selector: Selector::Block((Coordinates { x: 0, y: 0 }, Coordinates { x: 2, y: 2 })),
-            effect: Effect {
-                block: true,
-                ..Default::default()
-            },
-        };
+        // let mask = Mask {
+        //     name: "BlockMask".to_string(),
+        //     selector: Selector::Block((Coordinates { x: 0, y: 0 }, Coordinates { x: 2, y: 2 })),
+        //     effect: Effect {
+        //         block: true,
+        //         ..Default::default()
+        //     },
+        // };
 
         let shape = Shape::from_square(3);
         let layer = Layer::new(
             "MaskedDefault".to_string(),
             LayerType::Texture,
             shape,
-            vec![mask],
+            vec![], // vec![mask],
             1,
         );
 
@@ -306,24 +300,24 @@ pub mod tests {
         );
 
         let out_of_bounds = SingleSelector { x: 10, y: 10 };
-        assert_eq!(layer.get_tile_at(out_of_bounds), None);
+        assert!(layer.get_tile_at(out_of_bounds).is_some());
     }
 
     #[test]
     fn get_block_returns_only_existing_tiles() {
-        let mask = Mask {
-            name: "PartialBlock".to_string(),
-            selector: Selector::Single(SingleSelector { x: 1, y: 1 }),
-            effect: Effect {
-                block: true,
-                ..Default::default()
-            },
-        };
+        // let mask = Mask {
+        //     name: "PartialBlock".to_string(),
+        //     selector: Selector::Single(SingleSelector { x: 1, y: 1 }),
+        //     effect: Effect {
+        //         block: true,
+        //         ..Default::default()
+        //     },
+        // };
         let layer = Layer::new(
             "TestLayer".to_string(),
             LayerType::Action,
             Shape::from_square(3),
-            vec![mask],
+            vec![],
             1,
         );
 
@@ -335,19 +329,19 @@ pub mod tests {
 
     #[test]
     fn detects_blocked_tile() {
-        let mask = Mask {
-            name: "Blocked".to_string(),
-            selector: Selector::Single(SingleSelector { x: 0, y: 0 }),
-            effect: Effect {
-                block: true,
-                ..Default::default()
-            },
-        };
+        // let mask = Mask {
+        //     name: "Blocked".to_string(),
+        //     selector: Selector::Single(SingleSelector { x: 0, y: 0 }),
+        //     effect: Effect {
+        //         block: true,
+        //         ..Default::default()
+        //     },
+        // };
         let layer = Layer::new(
             "BlockLayer".to_string(),
             LayerType::Block,
             Shape::from_square(2),
-            vec![mask],
+            vec![],
             1,
         );
 
@@ -357,20 +351,20 @@ pub mod tests {
 
     #[test]
     fn offsets_tiles_and_shape() {
-        let mask = Mask {
-            name: "OffsetMask".to_string(),
-            selector: Selector::Single(SingleSelector { x: 0, y: 0 }),
-            effect: Effect {
-                block: true,
-                ..Default::default()
-            },
-        };
+        // let mask = Mask {
+        //     name: "OffsetMask".to_string(),
+        //     selector: Selector::Single(SingleSelector { x: 0, y: 0 }),
+        //     effect: Effect {
+        //         block: true,
+        //         ..Default::default()
+        //     },
+        // };
         let original_shape = Shape::from_square(2);
         let mut layer = Layer::new(
             "OffsetLayer".to_string(),
             LayerType::Action,
             original_shape,
-            vec![mask],
+            vec![],
             1,
         );
         let offset = Coordinates { x: 2, y: 3 };

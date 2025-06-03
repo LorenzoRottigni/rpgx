@@ -1,33 +1,34 @@
 use crate::prelude::Scene;
 
 #[derive(Clone)]
-pub struct Engine {
+pub struct Engine<'a> {
     /// Timeline of scene states over time.
-    pub timeline: Vec<Scene>,
+    pub timeline: Vec<Scene<'a>>,
     /// Current index in the timeline (pointer to active scene).
     pub timenow: usize,
 }
 
-impl Engine {
+impl<'a> Engine<'a> {
     /// Create a new engine starting with an initial scene.
-    pub fn new(scene: Scene) -> Self {
+    pub fn new(scene: Scene<'a>) -> Self {
         Self {
             timeline: vec![scene],
             timenow: 0,
         }
     }
 
-    /// Get a mutable reference to the currently active scene.
-    pub fn get_active_scene(&self) -> Option<&Scene> {
+    /// Get a reference to the currently active scene.
+    pub fn get_active_scene(&self) -> Option<&Scene<'a>> {
         self.timeline.get(self.timenow)
     }
 
-    pub fn get_active_scene_mut(&mut self) -> Option<&mut Scene> {
+    /// Get a mutable reference to the currently active scene.
+    pub fn get_active_scene_mut(&mut self) -> Option<&mut Scene<'a>> {
         self.timeline.get_mut(self.timenow)
     }
 
     /// Push a new scene to the timeline and move the pointer to it.
-    pub fn push_scene(&mut self, scene: Scene) {
+    pub fn push_scene(&mut self, scene: Scene<'a>) {
         self.timeline.push(scene);
         self.timenow = self.timeline.len() - 1;
     }
@@ -40,7 +41,7 @@ impl Engine {
         }
     }
 
-    /// Roll back to a specific timenow
+    /// Roll back to a specific timenow.
     pub fn rollback_to(&mut self, index: usize) {
         if index < self.timeline.len() {
             self.timeline.truncate(index + 1);
@@ -58,7 +59,8 @@ impl Engine {
         }
     }
 
-    pub fn get_scene_at(&self, index: usize) -> Option<&Scene> {
+    /// Get a reference to the scene at a given index.
+    pub fn get_scene_at(&self, index: usize) -> Option<&Scene<'a>> {
         self.timeline.get(index)
     }
 }

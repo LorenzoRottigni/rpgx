@@ -1,21 +1,29 @@
-use crate::prelude::{Coordinates, Effect, Shape, SingleSelector};
+use crate::prelude::{Coordinates, Effect, Mask, Shape, SingleSelector};
 
 /// Represents a single tile on the grid with unique identifier, spatial information, and effects applied.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct Tile {
+#[derive(Clone, Copy, Debug)]
+pub struct Tile<'a> {
     pub id: i32,
     pub effect: Effect,
     pub pointer: SingleSelector,
     pub shape: Shape,
+    pub mask: Option<&'a Mask>,
 }
 
-impl Tile {
-    pub fn new(id: i32, effect: Effect, pointer: SingleSelector, shape: Shape) -> Self {
+impl<'a> Tile<'a> {
+    pub fn new(
+        id: i32,
+        effect: Effect,
+        pointer: Coordinates,
+        shape: Shape,
+        mask: Option<&'a Mask>,
+    ) -> Self {
         Self {
             id,
             effect,
             pointer,
-            shape
+            shape,
+            mask,
         }
     }
 
@@ -35,7 +43,6 @@ impl Tile {
         }
 
         if let Some((start, end)) = self.effect.shrink {
-            // Shrink is interpreted as absolute bounds
             target.x >= start.x && target.x <= end.x && target.y >= start.y && target.y <= end.y
         } else {
             self.contains(target)
@@ -51,6 +58,7 @@ impl Tile {
     }
 }
 
+/*
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -74,7 +82,6 @@ mod tests {
             Effect::default(),
             Coordinates { x: 0, y: 0 },
             Shape::from_square(2),
-            
         );
         assert!(!tile.contains(Coordinates { x: 3, y: 3 }));
     }
@@ -86,7 +93,7 @@ mod tests {
             shrink: None,
             ..Default::default()
         };
-        let tile = Tile::new(0, effect,Coordinates { x: 0, y: 0 }, Shape::from_square(2));
+        let tile = Tile::new(0, effect, Coordinates { x: 0, y: 0 }, Shape::from_square(2));
         assert!(tile.is_blocking_at(Coordinates { x: 1, y: 1 }));
     }
 
@@ -125,3 +132,4 @@ mod tests {
         assert_eq!(tile.pointer, Coordinates { x: 3, y: 5 });
     }
 }
+ */

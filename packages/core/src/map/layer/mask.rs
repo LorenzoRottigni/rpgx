@@ -32,6 +32,7 @@ impl Mask {
                         pointer,
                         shape: Shape::from_square(1),
                         effect: self.effect,
+                        mask: Some(self),
                     }]
                 } else {
                     vec![]
@@ -47,6 +48,7 @@ impl Mask {
                         pointer: coord,
                         shape: Shape::from_square(1),
                         effect: self.effect,
+                        mask: Some(self),
                     })
                     .collect();
 
@@ -60,6 +62,7 @@ impl Mask {
                                 pointer: top_left,
                                 shape: Shape::from_bounds(top_left, bottom_right),
                                 effect: self.effect,
+                                mask: Some(self),
                             }];
                         }
                     }
@@ -76,6 +79,7 @@ impl Mask {
                     pointer: coord,
                     shape: Shape::from_square(1),
                     effect: self.effect,
+                    mask: Some(self),
                 })
                 .collect(),
         }
@@ -182,11 +186,9 @@ pub mod tests {
             Shape::from_bounds(SingleSelector { x: 0, y: 0 }, SingleSelector { x: 3, y: 3 });
         let tiles = mask.apply(shape);
 
-        assert!(
-            tiles
-                .iter()
-                .all(|tile| tile.pointer.x % 2 == 0 && tile.pointer.y % 2 == 0)
-        );
+        assert!(tiles
+            .iter()
+            .all(|tile| tile.pointer.x % 2 == 0 && tile.pointer.y % 2 == 0));
         assert!(tiles.iter().all(|tile| tile.effect.block));
     }
 
