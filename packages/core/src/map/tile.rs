@@ -15,7 +15,7 @@ impl Tile {
             id,
             effect,
             pointer,
-            shape
+            shape,
         }
     }
 
@@ -74,7 +74,6 @@ mod tests {
             Effect::default(),
             Coordinates { x: 0, y: 0 },
             Shape::from_square(2),
-            
         );
         assert!(!tile.contains(Coordinates { x: 3, y: 3 }));
     }
@@ -86,7 +85,7 @@ mod tests {
             shrink: None,
             ..Default::default()
         };
-        let tile = Tile::new(0, effect,Coordinates { x: 0, y: 0 }, Shape::from_square(2));
+        let tile = Tile::new(0, effect, Coordinates { x: 0, y: 0 }, Shape::from_square(2));
         assert!(tile.is_blocking_at(Coordinates { x: 1, y: 1 }));
     }
 

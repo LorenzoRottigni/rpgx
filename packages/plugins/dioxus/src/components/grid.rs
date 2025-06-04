@@ -27,9 +27,6 @@ pub fn Grid(props: GridProps) -> Element {
                     .filter(|layer| layer.kind != LayerType::Texture)
                     .enumerate()
                     .flat_map(|(layer_index, layer)| {
-                        if layer.name == "sign" {
-                            println!("render layer {:?}", layer.tiles);
-                        }
                         layer
                             .tiles
                             .iter()
