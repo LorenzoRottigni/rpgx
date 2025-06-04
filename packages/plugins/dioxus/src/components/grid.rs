@@ -2,7 +2,6 @@ use std::any::Any;
 
 use dioxus::prelude::*;
 use rpgx::{common::errors::MapError, engine::Engine, library::Library, prelude::LayerType};
-use web_sys::console;
 
 use crate::components::tile::Tile;
 
