@@ -31,8 +31,8 @@ impl<V> Library<V> {
     }
 
     /// Get value by key
-    pub fn get_by_key(&self, key: &str) -> Option<&V> {
-        self.data.get(key)
+    pub fn get_by_key(&self, key: impl Into<String>) -> Option<&V> {
+        self.data.get(&key.into())
     }
 
     /// Get value by ID
@@ -41,12 +41,12 @@ impl<V> Library<V> {
     }
 
     /// Get ID by key
-    pub fn get_id(&self, key: &str) -> Option<i32> {
-        self.key_to_id.get(key).copied()
+    pub fn get_id(&self, key: impl Into<String>) -> Option<i32> {
+        self.key_to_id.get(&key.into()).copied()
     }
 
     /// Get key by ID
-    pub fn get_key(&self, id: i32) -> Option<&str> {
+    pub fn get_key(&self, id: i32) -> Option<impl Into<String>> {
         self.id_to_key.get(&id).map(|s| s.as_str())
     }
 }
