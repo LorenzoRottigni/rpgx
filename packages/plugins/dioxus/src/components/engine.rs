@@ -22,7 +22,7 @@ pub struct EngineProps {
 #[allow(non_snake_case)]
 pub fn Engine(props: EngineProps) -> Element {
     let engine = props.engine.clone();
-    let controller = use_controller(engine.clone());
+    let controller = use_controller(engine, props.library);
 
     let onclick = move |tile: Tile| -> Result<(), MapError> {
         controller.send(Command::WalkTo(tile.pointer));
