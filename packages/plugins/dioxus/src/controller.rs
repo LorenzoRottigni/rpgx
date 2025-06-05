@@ -79,10 +79,10 @@ pub fn use_controller(
                                     .for_each(|action_id| {
                                         if let Some(boxed) = library.read().get_by_id(action_id) {
                                             if let Some(unboxed) =
-                                                boxed.downcast_ref::<Box<dyn Fn()>>()
+                                                boxed.downcast_ref::<Box<dyn Fn(&mut Engine)>>()
                                             {
                                                 println!("calling unboxed action");
-                                                unboxed()
+                                                unboxed(&mut _engine)
                                             }
                                         }
                                     });
