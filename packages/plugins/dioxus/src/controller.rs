@@ -1,8 +1,11 @@
+use std::any::Any;
+
 use dioxus::prelude::*;
 use futures_util::stream::StreamExt;
 use log::error;
 use rpgx::common::coordinates::Coordinates;
 use rpgx::common::direction::Direction;
+use rpgx::library::Library;
 use rpgx::prelude::Engine;
 
 #[derive(Clone, Debug)]
@@ -23,7 +26,10 @@ pub async fn sleep_ms(ms: u64) {
     }
 }
 
-pub fn use_controller(engine: Signal<Engine>) -> Coroutine<Command> {
+pub fn use_controller(
+    engine: Signal<Engine>,
+    library: Signal<Library<Box<dyn Any>>>,
+) -> Coroutine<Command> {
     use_coroutine({
         to_owned![engine];
         move |mut rx: UnboundedReceiver<Command>| async move {
@@ -64,15 +70,26 @@ pub fn use_controller(engine: Signal<Engine>) -> Coroutine<Command> {
                             if let Ok(tile) =
                                 _engine.get_active_scene_mut().unwrap().step_to(direction)
                             {
-                                let action_ids = _engine
+                                _engine
                                     .get_active_scene()
                                     .unwrap()
                                     .map
-                                    .get_actions_at(tile.pointer);
-                                for action_id in action_ids {
-                                    // Keep this as log only or handle as needed
-                                    log::info!("Action triggered: {:?}", action_id);
-                                }
+                                    .get_actions_at(tile.pointer)
+                                    .into_iter()
+                                    .for_each(|action_id| {
+                                        if let Some(boxed) = library.read().get_by_id(action_id) {
+                                            if let Some(unboxed) =
+                                                boxed.downcast_ref::<Box<dyn Fn()>>()
+                                            {
+                                                println!("calling unboxed action");
+                                                unboxed()
+                                            }
+                                        }
+                                    });
+                                // for action_id in action_ids {
+                                //     // Keep this as log only or handle as needed
+                                //     log::info!("Action triggered: {:?}", action_id);
+                                // }
                             }
                             Ok(())
                         }
