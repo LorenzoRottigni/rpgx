@@ -40,7 +40,6 @@ pub fn Tile(props: TileProps) -> Element {
         width: {}px; \
         height: {}px; \
         border: solid 1px rgba(255,255,255,0.1); \
-        opacity: 0.7; \
         z-index: {}; \
         pointer-events: {}; \
         cursor: pointer;",
