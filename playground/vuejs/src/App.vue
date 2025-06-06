@@ -97,8 +97,6 @@ function onClick(tile: Tile) {
     const step = steps[i];
     setTimeout(() => {
       const tile = activeScene.value?.moveTo(step);
-      console.log('after assign: ', tile?.pointer)
-      console.log(activeScene.value?.pawn.tile.pointer)
       // perche pawn ha .free()?
       if (tile) manageActions(tile)
       updateFlag.value++;

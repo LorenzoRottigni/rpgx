@@ -1,4 +1,4 @@
-use crate::prelude::WasmTile; // Assuming you have a WasmTile wrapper
+use crate::prelude::{WasmCoordinates, WasmTile}; // Assuming you have a WasmTile wrapper
 use rpgx::prelude::Pawn;
 use wasm_bindgen::prelude::*;
 
@@ -10,23 +10,23 @@ pub struct WasmPawn {
 #[wasm_bindgen]
 impl WasmPawn {
     #[wasm_bindgen(constructor)]
-    pub fn new(tile: WasmTile, texture_id: i32) -> WasmPawn {
+    pub fn new(pointer: WasmCoordinates, texture_id: i32) -> WasmPawn {
         WasmPawn {
             inner: Pawn {
-                tile: tile.into_inner(),
+                pointer: pointer.into_inner(),
                 texture_id,
             },
         }
     }
 
     #[wasm_bindgen(getter)]
-    pub fn tile(&self) -> WasmTile {
-        WasmTile::from_inner(self.inner.tile.clone())
+    pub fn pointer(&self) -> WasmCoordinates {
+        WasmCoordinates::from_inner(self.inner.pointer.clone())
     }
 
     #[wasm_bindgen(setter)]
-    pub fn set_tile(&mut self, tile: WasmTile) {
-        self.inner.tile = tile.into_inner();
+    pub fn set_tile(&mut self, pointer: WasmCoordinates) {
+        self.inner.pointer = pointer.into_inner();
     }
 
     #[wasm_bindgen(getter, js_name = textureId)]
