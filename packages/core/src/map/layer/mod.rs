@@ -91,10 +91,12 @@ impl Layer {
             z: 1,
         };
 
-        for layer in &layers {
+        let mut layers_by_z = layers.clone();
+        layers_by_z.sort_by_key(|layer| layer.z);
+
+        for layer in &layers_by_z {
             base_layer.positive_reshape(layer.shape);
 
-            // Merge texture effects
             if layer.kind == LayerType::Texture {
                 'tileloop: for tile in &layer.tiles {
                     for base_tile in base_layer.tiles.iter_mut() {
