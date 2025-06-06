@@ -14,7 +14,7 @@ pub struct PawnProps {
 pub fn Pawn(props: PawnProps) -> Element {
     let engine = props.engine.read();
     if let Some(scene) = engine.get_active_scene() {
-        let pawn_pos = scene.pawn.tile.pointer;
+        let pawn_pos = scene.pawn.pointer;
         let library = props.library.read();
         let pawn_texture = library
             .get_by_id(scene.pawn.texture_id)
@@ -26,15 +26,15 @@ pub fn Pawn(props: PawnProps) -> Element {
                 class: "pawn",
                 style: format!(
                     "position: absolute; \
-                    left: {}px; \
-                    top: {}px; \
-                    background-image: url({}); \
-                    background-size: cover; \
-                    background-position: center center; \
-                    z-index: 100; \
-                    width: {}px; \
-                    height: {}px; \
-                    transition: all 0.1s;",
+                                left: {}px; \
+                                top: {}px; \
+                                background-image: url({}); \
+                                background-size: cover; \
+                                background-position: center center; \
+                                z-index: 100; \
+                                width: {}px; \
+                                height: {}px; \
+                                transition: all 0.1s;",
                     pawn_pos.x * props.square_size,
                     pawn_pos.y * props.square_size - props.square_size,
                     pawn_texture,

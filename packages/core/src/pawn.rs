@@ -1,4 +1,4 @@
-use crate::prelude::Tile;
+use crate::prelude::Coordinates;
 
 /// A [`Pawn`] represents an entity or character on the map, positioned on a specific [`Tile`].
 ///
@@ -6,7 +6,7 @@ use crate::prelude::Tile;
 /// to render its visual representation in the UI.
 #[derive(Clone)]
 pub struct Pawn {
-    pub tile: Tile,
+    pub pointer: Coordinates,
     pub texture_id: i32,
 }
 

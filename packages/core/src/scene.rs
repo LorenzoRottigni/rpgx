@@ -15,7 +15,7 @@ impl Scene {
 
     /// Walk to the target [`Coordinates`] through the best path
     pub async fn walk_to(&mut self, target_position: Coordinates) -> Result<Tile, MoveError> {
-        let start = self.pawn.tile.pointer;
+        let start = self.pawn.pointer;
         let path = self
             .map
             .find_path(&start, &target_position)
@@ -36,7 +36,7 @@ impl Scene {
     /// Make a step into the provided [`Direction`]
     pub fn step_to(&mut self, direction: Direction) -> Result<Tile, MoveError> {
         let delta = direction.to_delta();
-        let target_position = self.pawn.tile.pointer + delta;
+        let target_position = self.pawn.pointer + delta;
         self.move_to(target_position)
     }
 
@@ -51,7 +51,7 @@ impl Scene {
             .get_tile_at(target_position)
             .ok_or(MoveError::TileNotFound)?;
 
-        self.pawn.tile = tile;
+        self.pawn.pointer = tile.pointer;
 
         // Trigger actions on all layers for the tile pointer
         // self.map.trigger_actions_at(tile.pointer);
@@ -63,7 +63,7 @@ impl Scene {
 
     /// Get steps to reach the target [`Coordinates`] from the current position
     pub fn steps_to(&self, target_position: Coordinates) -> Result<Vec<Coordinates>, MoveError> {
-        let start = self.pawn.tile.pointer;
+        let start = self.pawn.pointer;
         let path = self
             .map
             .find_path(&start, &target_position)
@@ -98,7 +98,7 @@ pub mod tests {
 
     fn pawn_at(x: i32, y: i32) -> Pawn {
         Pawn {
-            tile: default_tile(x, y),
+            pointer: Coordinates { x: 0, y: 0 },
             texture_id: 0,
         }
     }

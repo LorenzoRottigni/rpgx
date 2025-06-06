@@ -38,7 +38,7 @@ pub fn use_controller(
                     match command {
                         Command::WalkTo(target) => {
                             let steps = engine.read().get_active_scene().unwrap().map.find_path(
-                                &engine.read().get_active_scene().unwrap().pawn.tile.pointer,
+                                &engine.read().get_active_scene().unwrap().pawn.pointer,
                                 &target,
                             );
                             match steps {

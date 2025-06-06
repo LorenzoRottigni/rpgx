@@ -15,8 +15,8 @@ function getTexture(id: number) {
 }
 
 const style = computed(() => {
-  const x = props.pawn.tile.pointer.x
-  const y = props.pawn.tile.pointer.y
+  const x = props.pawn.pointer.x
+  const y = props.pawn.pointer.y
   return `
     ${props.pawn.textureId ? `background-image: ${getTexture(props.pawn.textureId)};` : ''}
     position: absolute;

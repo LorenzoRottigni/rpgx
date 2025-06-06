@@ -57,8 +57,8 @@ function getTexture(id: number) {
 const pawnStyle = computed(() => {
   updateFlag.value;
 
-  const x = activeScene.value?.pawn.tile.pointer.x || 0;
-  const y = activeScene.value?.pawn.tile.pointer.y || 0;
+  const x = activeScene.value?.pawn.pointer.x || 0;
+  const y = activeScene.value?.pawn.pointer.y || 0;
   const textureId = activeScene.value?.pawn.textureId
 
   return `
