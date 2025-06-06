@@ -17,7 +17,7 @@ pub fn Map1() -> Element {
         Some(layer) => {
             if let Some(tile) = layer.get_tile_at(Coordinates { x: 0, y: 0 }) {
                 let pawn = Pawn {
-                    tile,
+                    pointer: tile.pointer,
                     texture_id: library.read().get_id("character_1").unwrap(),
                 };
                 let scene = Scene::new("default".into(), map, pawn);
