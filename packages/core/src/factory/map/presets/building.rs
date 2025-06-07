@@ -73,6 +73,7 @@ pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
             building_layer.clone(),
             action_layer.clone(),
         ],
+        Coordinates::default(),
     )
 }
 
@@ -136,7 +137,11 @@ pub fn building_1x1(shape: Shape, texture_id: u32, action_id: u32) -> Map {
         6,
     );
 
-    Map::new("base".to_string(), vec![building_layer, action_layer])
+    Map::new(
+        "base".to_string(),
+        vec![building_layer, action_layer],
+        Coordinates::default(),
+    )
 }
 
 pub fn building_3x2(shape: Shape, texture_id: u32, action_id: u32) -> Map {
@@ -205,5 +210,9 @@ pub fn building_3x2(shape: Shape, texture_id: u32, action_id: u32) -> Map {
         6,
     );
 
-    Map::new("base".to_string(), vec![building_layer, action_layer])
+    Map::new(
+        "base".to_string(),
+        vec![building_layer, action_layer],
+        Coordinates::default(),
+    )
 }

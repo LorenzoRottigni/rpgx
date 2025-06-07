@@ -13,20 +13,30 @@ pub mod tile;
 pub struct Map {
     pub name: String,
     pub layers: Vec<Layer>,
+    pub spawn: Coordinates,
 }
 
 impl Map {
     /// Creates a new map, adding a base layer if none exists.
-    pub fn new(name: String, mut layers: Vec<Layer>) -> Self {
+    pub fn new(name: String, mut layers: Vec<Layer>, spawn: Coordinates) -> Self {
         if !layers.iter().any(|layer| layer.kind == LayerType::Base) {
             layers.push(Layer::base(layers.clone()));
         }
-        Self { name, layers }
+        Self {
+            name,
+            layers,
+            spawn,
+        }
     }
 
     /// Composes a map from multiple maps and layers.
-    pub fn compose(name: String, maps: Vec<(Map, SingleSelector)>, layers: Vec<Layer>) -> Self {
-        let mut map = Map::new(name, layers);
+    pub fn compose(
+        name: String,
+        maps: Vec<(Map, SingleSelector)>,
+        layers: Vec<Layer>,
+        spawn: Coordinates,
+    ) -> Self {
+        let mut map = Map::new(name, layers, spawn);
         for (other_map, top_left) in maps.iter() {
             map.merge_at(other_map, *top_left);
         }
@@ -212,7 +222,11 @@ pub mod tests {
     fn creates_map_with_layers() {
         let tile = dummy_tile(0, 0);
         let layer = dummy_layer("base", LayerType::Base, vec![tile], Shape::from_square(1));
-        let map = Map::new("TestMap".to_string(), vec![layer.clone()]);
+        let map = Map::new(
+            "TestMap".to_string(),
+            vec![layer.clone()],
+            Coordinates::default(),
+        );
 
         assert_eq!(map.name, "TestMap");
         assert_eq!(map.layers.len(), 1);
@@ -223,7 +237,7 @@ pub mod tests {
     fn gets_tile_from_base_layer() {
         let tile = dummy_tile(1, 2);
         let layer = dummy_layer("base", LayerType::Base, vec![tile], Shape::from_square(3));
-        let map = Map::new("TileMap".to_string(), vec![layer]);
+        let map = Map::new("TileMap".to_string(), vec![layer], Coordinates::default());
 
         let result = map.get_base_tile(Coordinates { x: 1, y: 2 });
         assert!(result.is_some());
@@ -247,7 +261,11 @@ pub mod tests {
             vec![blocked_tile],
             Shape::from_square(1),
         );
-        let map = Map::new("BlockMap".to_string(), vec![blocking_layer]);
+        let map = Map::new(
+            "BlockMap".to_string(),
+            vec![blocking_layer],
+            Coordinates::default(),
+        );
 
         assert!(map.is_blocking_at(Coordinates { x: 0, y: 0 }));
         assert!(!map.is_blocking_at(Coordinates { x: 1, y: 1 }));
@@ -260,6 +278,7 @@ pub mod tests {
         let mut base_map = Map::new(
             "Base".to_string(),
             vec![dummy_layer("base", LayerType::Base, vec![tile], shape)],
+            Coordinates::default(),
         );
 
         let offset_tile = Tile {
@@ -273,7 +292,11 @@ pub mod tests {
         };
         let offset_layer = dummy_layer("base", LayerType::Base, vec![offset_tile], shape);
 
-        let overlay_map = Map::new("Overlay".to_string(), vec![offset_layer]);
+        let overlay_map = Map::new(
+            "Overlay".to_string(),
+            vec![offset_layer],
+            Coordinates::default(),
+        );
 
         base_map.merge_at(&overlay_map, Coordinates { x: 2, y: 3 });
 
@@ -299,7 +322,11 @@ pub mod tests {
             vec![tile],
             Shape::from_square(2),
         );
-        let map = Map::new("ActionMap".to_string(), vec![action_layer]);
+        let map = Map::new(
+            "ActionMap".to_string(),
+            vec![action_layer],
+            Coordinates::default(),
+        );
 
         let actions = map.get_actions_at(Coordinates { x: 1, y: 1 });
         assert_eq!(actions.len(), 1);

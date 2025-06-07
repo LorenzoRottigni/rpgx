@@ -87,7 +87,7 @@ pub mod tests {
         };
         let masks = vec![];
         let layer = Layer::new("ground".to_string(), LayerType::Texture, shape, masks, 1);
-        Map::new("test_map".to_string(), vec![layer])
+        Map::new("test_map".to_string(), vec![layer], Coordinates::default())
     }
 
     fn pawn_at(x: u32, y: u32) -> Pawn {
