@@ -40,18 +40,19 @@ pub fn Pawn(props: PawnProps) -> Element {
 
         rsx! {
             div {
+                id: "pawn",
                 class: "pawn",
                 style: format!(
                     "position: absolute; \
-                                                                                 left: {}px; \
-                                                                                 top: {}px; \
-                                                                                 background-image: url({}); \
-                                                                                 background-size: cover; \
-                                                                                 background-position: center center; \
-                                                                                 z-index: 100; \
-                                                                                 width: {}px; \
-                                                                                 height: {}px; \
-                                                                                 transition: all 0.1s;",
+                                                                                                         left: {}px; \
+                                                                                                         top: {}px; \
+                                                                                                         background-image: url({}); \
+                                                                                                         background-size: cover; \
+                                                                                                         background-position: center center; \
+                                                                                                         z-index: 100; \
+                                                                                                         width: {}px; \
+                                                                                                         height: {}px; \
+                                                                                                         transition: all 0.1s;",
                     left,
                     top,
                     pawn_texture,

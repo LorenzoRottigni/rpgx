@@ -9,20 +9,26 @@ use rpgx::{
 
 use crate::{
     components::{grid::Grid, pawn::Pawn},
-    controller::{use_controller, Command},
+    controller::{Command, use_controller},
 };
+
+#[cfg(feature = "web")]
+use js_sys::eval as js_eval;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct EngineProps {
     pub engine: Signal<rpgx::prelude::Engine>,
     pub library: Signal<Library<Box<dyn Any>>>,
     pub square_size: u32,
+
+    #[cfg(feature = "desktop")]
+    pub window: tauri::Window,
 }
 
 #[allow(non_snake_case)]
 pub fn Engine(props: EngineProps) -> Element {
     let engine = props.engine.clone();
-    let controller = use_controller(engine, props.library);
+    let controller = use_controller(engine.clone(), props.library.clone());
 
     let onclick = move |tile: Tile| -> Result<(), MapError> {
         controller.send(Command::WalkTo(tile.pointer));
@@ -52,12 +58,47 @@ pub fn Engine(props: EngineProps) -> Element {
         }
     };
 
+    use_effect(move || {
+        // Read the engine state to cause effect re-run on changes
+        let _engine_snapshot = engine();
+
+        let js_code = r#"
+            (() => {
+                console.log('trigger update');
+                const container = document.querySelector('#scroll-container');
+                const pawn = document.querySelector('#pawn');
+                if (!container || !pawn) return;
+                const scrollX = pawn.offsetLeft + pawn.offsetWidth / 2 - container.clientWidth / 2;
+                const scrollY = pawn.offsetTop + pawn.offsetHeight / 2 - container.clientHeight / 2;
+                container.scrollTo({
+                    left: scrollX,
+                    top: scrollY,
+                    behavior: 'smooth'
+                });
+            })();
+        "#;
+
+        #[cfg(feature = "desktop")]
+        {
+            let _ = props.window.eval(js_code);
+        }
+
+        #[cfg(feature = "web")]
+        {
+            let _ = js_eval(js_code);
+        }
+
+        // no cleanup necessary
+    });
+
     rsx! {
         div {
+            id: "scroll-container",
             class: "container",
             tabindex: "0",
             onkeydown,
-            style: "position: relative;",
+            style: "position: relative; overflow: auto; width: 100vw; height: 100vh;",
+
             Grid {
                 engine: engine.clone(),
                 library: props.library.clone(),
@@ -68,6 +109,7 @@ pub fn Engine(props: EngineProps) -> Element {
                     }
                 }),
             }
+
             Pawn {
                 engine: engine.clone(),
                 library: props.library.clone(),
