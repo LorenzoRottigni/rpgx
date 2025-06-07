@@ -29,9 +29,9 @@ impl PartialOrd for Node {
 
 impl Map {
     pub fn find_path(&self, start: &Coordinates, goal: &Coordinates) -> Option<Vec<Coordinates>> {
-        // Heuristic function (Manhattan distance)
+        // Manhattan distance using abs_diff to prevent underflow
         fn heuristic(a: Coordinates, b: Coordinates) -> u32 {
-            (a.x - b.x) + (a.y - b.y)
+            a.x.abs_diff(b.x) + a.y.abs_diff(b.y)
         }
 
         let mut open_set = BinaryHeap::new();
@@ -60,41 +60,36 @@ impl Map {
                 return Some(path);
             }
 
-            // Neighbors: up, down, left, right
-            let neighbors = [
-                Coordinates {
-                    x: current.x + 1,
-                    y: current.y,
-                },
-                Coordinates {
+            // Safely create valid neighbors (avoid underflow)
+            let mut neighbors = vec![];
+            neighbors.push(Coordinates {
+                x: current.x + 1,
+                y: current.y,
+            });
+            neighbors.push(Coordinates {
+                x: current.x,
+                y: current.y + 1,
+            });
+            if current.x > 0 {
+                neighbors.push(Coordinates {
                     x: current.x - 1,
                     y: current.y,
-                },
-                Coordinates {
-                    x: current.x,
-                    y: current.y + 1,
-                },
-                Coordinates {
+                });
+            }
+            if current.y > 0 {
+                neighbors.push(Coordinates {
                     x: current.x,
                     y: current.y - 1,
-                },
-            ];
+                });
+            }
 
             for neighbor in neighbors {
-                if neighbor.x < 0 || neighbor.y < 0 {
-                    continue; // Ignore negative coords
-                }
-
-                if self.get_base_tile(neighbor).is_none() {
+                if self.get_base_tile(neighbor).is_none() || self.is_blocking_at(neighbor) {
                     continue;
                 }
 
-                // Check if blocked in any layer
-                if self.is_blocking_at(neighbor) {
-                    continue;
-                }
-
-                let tentative_g_score = g_score.get(&current).unwrap_or(&i32::MAX) + 1;
+                let tentative_g_score =
+                    g_score.get(&current).unwrap_or(&i32::MAX).saturating_add(1);
 
                 if tentative_g_score < *g_score.get(&neighbor).unwrap_or(&i32::MAX) {
                     came_from.insert(neighbor, current);
@@ -103,13 +98,14 @@ impl Map {
                     open_set.push(Node {
                         position: neighbor,
                         cost: tentative_g_score,
-                        estimate: tentative_g_score + heuristic(neighbor, *goal) as i32,
+                        estimate: tentative_g_score
+                            .saturating_add(heuristic(neighbor, *goal) as i32),
                     });
                 }
             }
         }
 
-        None // No path found
+        None
     }
 }
 

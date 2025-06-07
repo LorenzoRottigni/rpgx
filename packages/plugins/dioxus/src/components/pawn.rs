@@ -17,10 +17,11 @@ pub fn Pawn(props: PawnProps) -> Element {
     if let Some(scene) = engine.get_active_scene() {
         let pawn_pos = scene.pawn.pointer;
         let library = props.library.read();
+        let default_texture = String::new();
         let pawn_texture = library
             .get_by_id(scene.pawn.texture_id)
             .and_then(|boxed| boxed.downcast_ref::<String>())
-            .unwrap_or(&"".to_string());
+            .unwrap_or(&default_texture);
 
         // Safely calculate pixel position
         let left = pawn_pos
