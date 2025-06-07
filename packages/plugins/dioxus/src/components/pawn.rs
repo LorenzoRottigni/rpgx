@@ -15,11 +15,12 @@ pub fn Pawn(props: PawnProps) -> Element {
     let engine = props.engine.read();
 
     if let Some(scene) = engine.get_active_scene() {
-        let pawn_pos = scene.pawn.pointer;
+        let pawn = scene.pawn.as_ref().unwrap();
+        let pawn_pos = pawn.pointer;
         let library = props.library.read();
         let default_texture = String::new();
         let pawn_texture = library
-            .get_by_id(scene.pawn.texture_id)
+            .get_by_id(pawn.texture_id)
             .and_then(|boxed| boxed.downcast_ref::<String>())
             .unwrap_or(&default_texture);
 
@@ -42,15 +43,15 @@ pub fn Pawn(props: PawnProps) -> Element {
                 class: "pawn",
                 style: format!(
                     "position: absolute; \
-                     left: {}px; \
-                     top: {}px; \
-                     background-image: url({}); \
-                     background-size: cover; \
-                     background-position: center center; \
-                     z-index: 100; \
-                     width: {}px; \
-                     height: {}px; \
-                     transition: all 0.1s;",
+                                                                                 left: {}px; \
+                                                                                 top: {}px; \
+                                                                                 background-image: url({}); \
+                                                                                 background-size: cover; \
+                                                                                 background-position: center center; \
+                                                                                 z-index: 100; \
+                                                                                 width: {}px; \
+                                                                                 height: {}px; \
+                                                                                 transition: all 0.1s;",
                     left,
                     top,
                     pawn_texture,

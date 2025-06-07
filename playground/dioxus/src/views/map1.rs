@@ -20,7 +20,8 @@ pub fn Map1() -> Element {
                     pointer: tile.pointer,
                     texture_id: library.read().get_id("character_1").unwrap(),
                 };
-                let scene = Scene::new("default".into(), map, pawn);
+                let mut scene = Scene::new("default".into(), map, None);
+                scene.load_pawn_at(pawn);
                 let engine = use_signal(|| Engine::new(scene));
                 rsx! {
                     div { class: "cluster",

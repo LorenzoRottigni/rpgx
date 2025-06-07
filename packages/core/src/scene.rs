@@ -5,17 +5,35 @@ use crate::prelude::{Coordinates, Direction, Map, MoveError, Pawn, Tile};
 pub struct Scene {
     pub name: String,
     pub map: Map,
-    pub pawn: Pawn,
+    pub pawn: Option<Pawn>,
 }
 
 impl Scene {
-    pub fn new(name: String, map: Map, pawn: Pawn) -> Self {
+    pub fn new(name: String, map: Map, pawn: Option<Pawn>) -> Self {
         Self { map, pawn, name }
+    }
+
+    /// Load a [`Pawn`] in the [`Scene`] using default [`Map`] spawn location
+    pub fn load_pawn(&mut self, texture_id: u32) {
+        self.pawn = Some(Pawn {
+            texture_id,
+            pointer: self.map.spawn,
+        })
+    }
+
+    /// Load a [`Pawn`] in the [`Scene`] overriding default [`Map`] spawn location
+    pub fn load_pawn_at(&mut self, pawn: Pawn) {
+        self.pawn = Some(pawn);
     }
 
     /// Walk to the target [`Coordinates`] through the best path
     pub async fn walk_to(&mut self, target_position: Coordinates) -> Result<Tile, MoveError> {
-        let start = self.pawn.pointer;
+        let start = self
+            .pawn
+            .as_ref()
+            .map(|p| p.pointer)
+            .ok_or(MoveError::TileNotFound)?;
+
         let path = self
             .map
             .find_path(&start, &target_position)
@@ -26,17 +44,19 @@ impl Scene {
             tile = Some(self.move_to(step_coords)?);
         }
 
-        if let Some(tile) = tile {
-            Ok(tile)
-        } else {
-            Err(MoveError::TileNotFound)
-        }
+        tile.ok_or(MoveError::TileNotFound)
     }
 
     /// Make a step into the provided [`Direction`]
     pub fn step_to(&mut self, direction: Direction) -> Result<Tile, MoveError> {
         let delta = direction.to_delta();
-        if let Some(target_position) = self.pawn.pointer + delta {
+        let current = self
+            .pawn
+            .as_ref()
+            .map(|p| p.pointer)
+            .ok_or(MoveError::TileNotFound)?;
+
+        if let Some(target_position) = current + delta {
             self.move_to(target_position)
         } else {
             Err(MoveError::TileNotFound)
@@ -54,23 +74,28 @@ impl Scene {
             .get_tile_at(target_position)
             .ok_or(MoveError::TileNotFound)?;
 
-        self.pawn.pointer = tile.pointer;
+        if let Some(pawn) = self.pawn.as_mut() {
+            pawn.pointer = tile.pointer;
+        } else {
+            return Err(MoveError::TileNotFound);
+        }
 
-        // Trigger actions on all layers for the tile pointer
-        // self.map.trigger_actions_at(tile.pointer);
-
-        // return the tile to make the caller able to dispatch its actions itself using its library
-        // (allows the caller to use its context within the callback)
         Ok(tile)
     }
 
     /// Get steps to reach the target [`Coordinates`] from the current position
     pub fn steps_to(&self, target_position: Coordinates) -> Result<Vec<Coordinates>, MoveError> {
-        let start = self.pawn.pointer;
+        let start = self
+            .pawn
+            .as_ref()
+            .map(|p| p.pointer)
+            .ok_or(MoveError::TileNotFound)?;
+
         let path = self
             .map
             .find_path(&start, &target_position)
             .ok_or(MoveError::PathNotFound)?;
+
         Ok(path)
     }
 }
@@ -100,7 +125,7 @@ pub mod tests {
     #[test]
     fn test_scene_move_to_success() {
         let map = basic_test_map();
-        let mut scene = Scene::new("test".into(), map, pawn_at(0, 0));
+        let mut scene = Scene::new("test".into(), map, Some(pawn_at(0, 0)));
         let tile = scene.move_to(Coordinates { x: 1, y: 0 }).unwrap();
         assert_eq!(tile.pointer, Coordinates { x: 1, y: 0 });
     }
@@ -122,7 +147,7 @@ pub mod tests {
 
         map.layers[0].tiles.push(tile);
 
-        let mut scene = Scene::new("test".into(), map, pawn_at(0, 0));
+        let mut scene = Scene::new("test".into(), map, Some(pawn_at(0, 0)));
         let result = scene.move_to(Coordinates { x: 1, y: 0 });
         assert!(matches!(result, Err(MoveError::TileBlocked)));
     }
@@ -130,7 +155,7 @@ pub mod tests {
     #[test]
     fn test_scene_step_to() {
         let map = basic_test_map();
-        let mut scene = Scene::new("test".into(), map, pawn_at(1, 1));
+        let mut scene = Scene::new("test".into(), map, Some(pawn_at(1, 1)));
         let tile = scene.step_to(Direction::Right).unwrap();
         assert_eq!(tile.pointer, Coordinates { x: 2, y: 1 });
     }
@@ -138,7 +163,7 @@ pub mod tests {
     #[test]
     fn test_scene_steps_to() {
         let map = basic_test_map();
-        let scene = Scene::new("test".into(), map, pawn_at(0, 0));
+        let scene = Scene::new("test".into(), map, Some(pawn_at(0, 0)));
         let steps = scene.steps_to(Coordinates { x: 2, y: 0 }).unwrap();
         assert_eq!(
             steps,
@@ -153,7 +178,7 @@ pub mod tests {
     #[test]
     fn test_scene_walk_to_success() {
         let map = basic_test_map();
-        let mut scene = Scene::new("test".into(), map, pawn_at(0, 0));
+        let mut scene = Scene::new("test".into(), map, Some(pawn_at(0, 0)));
         let final_tile =
             futures::executor::block_on(scene.walk_to(Coordinates { x: 2, y: 0 })).unwrap();
         assert_eq!(final_tile.pointer, Coordinates { x: 2, y: 0 });
@@ -177,8 +202,16 @@ pub mod tests {
             map.layers[0].tiles.push(tile);
         }
 
-        let mut scene = Scene::new("test".into(), map, pawn_at(0, 0));
+        let mut scene = Scene::new("test".into(), map, Some(pawn_at(0, 0)));
         let result = futures::executor::block_on(scene.walk_to(Coordinates { x: 2, y: 0 }));
         assert!(matches!(result, Err(MoveError::PathNotFound)));
+    }
+
+    #[test]
+    fn test_scene_no_pawn_error() {
+        let map = basic_test_map();
+        let mut scene = Scene::new("no_pawn".into(), map, None);
+        let result = scene.move_to(Coordinates { x: 1, y: 0 });
+        assert!(matches!(result, Err(MoveError::TileNotFound)));
     }
 }

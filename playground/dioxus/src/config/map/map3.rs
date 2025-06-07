@@ -98,6 +98,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
             building_layer.clone(),
             action_layer.clone(),
         ],
+        Coordinates { x: 0, y: 0 },
     );
 
     map.merge_at(
@@ -108,6 +109,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
                 building_layer.clone(),
                 action_layer.clone(),
             ],
+            Coordinates { x: 0, y: 0 },
         ),
         Coordinates {
             x: GRID_SIZE as u32,
@@ -123,6 +125,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
                 building_layer.clone(),
                 action_layer.clone(),
             ],
+            Coordinates { x: 0, y: 0 },
         ),
         Coordinates {
             x: 0,
@@ -138,6 +141,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
                 building_layer.clone(),
                 action_layer.clone(),
             ],
+            Coordinates { x: 0, y: 0 },
         ),
         Coordinates {
             x: 0,
@@ -153,6 +157,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
                 building_layer.clone(),
                 action_layer.clone(),
             ],
+            Coordinates { x: 0, y: 0 },
         ),
         Coordinates {
             x: GRID_SIZE as u32,

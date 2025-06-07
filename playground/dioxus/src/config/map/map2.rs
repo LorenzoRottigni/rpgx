@@ -74,6 +74,7 @@ pub fn use_map2(library: &Library<Box<dyn Any>>) -> Map {
             (building_2, Coordinates { x: 8, y: 0 }),
         ],
         vec![],
+        Coordinates { x: 0, y: 0 },
     );
 
     map.load_layer(Layer::new(

@@ -140,7 +140,11 @@ pub mod tests {
         };
 
         // Construct via Map::new to trigger base layer creation automatically
-        Map::new("test_map".into(), vec![block_layer])
+        Map::new(
+            "test_map".into(),
+            vec![block_layer],
+            Coordinates { x: 0, y: 0 },
+        )
     }
 
     #[test]
