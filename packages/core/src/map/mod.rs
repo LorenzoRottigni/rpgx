@@ -41,7 +41,7 @@ impl Map {
     ) -> Self {
         let mut map = Map::new(name, layers, spawn);
         for (other_map, top_left) in maps.iter() {
-            map.merge_at(other_map, *top_left);
+            map.merge_at(other_map, *top_left, None);
         }
         map
     }
@@ -94,7 +94,7 @@ impl Map {
     }
 
     /// Merges another map into this one at the specified top-left coordinates.
-    pub fn merge_at(&mut self, other: &Map, top_left: Coordinates) {
+    pub fn merge_at(&mut self, other: &Map, top_left: Coordinates, spawn: Option<Coordinates>) {
         let mut layers_by_name = self.layers_by_name();
 
         for layer in &other.layers {
@@ -111,10 +111,12 @@ impl Map {
         }
 
         self.layers = layers_by_name.into_values().collect();
+
+        self.spawn = spawn.unwrap_or(self.spawn);
     }
 
     /// Duplicates the map in the specified direction, expanding it.
-    pub fn duplicate_to_the(&mut self, direction: Direction) {
+    pub fn duplicate_to_the(&mut self, direction: Direction, spawn: Option<Coordinates>) {
         let shape = self.get_shape();
         let top_left = match direction {
             Direction::Up | Direction::Down => Coordinates {
@@ -126,7 +128,7 @@ impl Map {
                 y: 0,
             },
         };
-        self.merge_at(&self.clone(), top_left);
+        self.merge_at(&self.clone(), top_left, spawn);
     }
 
     /// Returns `true` if any layer blocks the tile at `target`.
@@ -301,7 +303,7 @@ pub mod tests {
             Coordinates::default(),
         );
 
-        base_map.merge_at(&overlay_map, Coordinates { x: 2, y: 3 });
+        base_map.merge_at(&overlay_map, Coordinates { x: 2, y: 3 }, None);
 
         let tile = base_map.get_base_tile(Coordinates { x: 2, y: 3 });
         assert!(tile.is_some());

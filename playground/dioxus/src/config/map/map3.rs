@@ -115,6 +115,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
             x: GRID_SIZE as u32,
             y: 0,
         },
+        None,
     );
 
     map.merge_at(
@@ -131,6 +132,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
             x: 0,
             y: GRID_SIZE as u32,
         },
+        None,
     );
 
     map.merge_at(
@@ -147,6 +149,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
             x: 0,
             y: GRID_SIZE as u32 * 2,
         },
+        None,
     );
 
     map.merge_at(
@@ -163,6 +166,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
             x: GRID_SIZE as u32,
             y: GRID_SIZE as u32 * 2,
         },
+        None,
     );
 
     map

@@ -97,8 +97,8 @@ pub fn use_map2(library: &Library<Box<dyn Any>>) -> Map {
         1,
     ));
 
-    map.duplicate_to_the(Direction::Right);
-    map.duplicate_to_the(Direction::Down);
+    map.duplicate_to_the(Direction::Right, None);
+    map.duplicate_to_the(Direction::Down, None);
 
     map
 }
