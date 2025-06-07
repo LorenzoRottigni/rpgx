@@ -30,15 +30,15 @@ impl PartialOrd for Node {
 impl Map {
     pub fn find_path(&self, start: &Coordinates, goal: &Coordinates) -> Option<Vec<Coordinates>> {
         // Heuristic function (Manhattan distance)
-        fn heuristic(a: Coordinates, b: Coordinates) -> i32 {
-            (a.x - b.x).abs() + (a.y - b.y).abs()
+        fn heuristic(a: Coordinates, b: Coordinates) -> u32 {
+            (a.x - b.x) + (a.y - b.y)
         }
 
         let mut open_set = BinaryHeap::new();
         open_set.push(Node {
             position: *start,
             cost: 0,
-            estimate: heuristic(*start, *goal),
+            estimate: heuristic(*start, *goal) as i32,
         });
 
         let mut came_from: HashMap<Coordinates, Coordinates> = HashMap::new();
@@ -103,7 +103,7 @@ impl Map {
                     open_set.push(Node {
                         position: neighbor,
                         cost: tentative_g_score,
-                        estimate: tentative_g_score + heuristic(neighbor, *goal),
+                        estimate: tentative_g_score + heuristic(neighbor, *goal) as i32,
                     });
                 }
             }
@@ -130,7 +130,7 @@ pub mod tests {
         }
     }
 
-    fn map_with_layer(blocks: Vec<Coordinates>, width: i32, height: i32) -> Map {
+    fn map_with_layer(blocks: Vec<Coordinates>, width: u32, height: u32) -> Map {
         let shape = Shape { width, height };
 
         let block_tiles = blocks.into_iter().map(blocking_tile_at).collect::<Vec<_>>();
@@ -140,7 +140,7 @@ pub mod tests {
             shape,
             tiles: block_tiles,
             masks: vec![],
-            z: 1
+            z: 1,
         };
 
         // Construct via Map::new to trigger base layer creation automatically

@@ -188,7 +188,7 @@ pub mod tests {
     use super::*;
     use crate::prelude::{Effect, Shape};
 
-    fn dummy_tile(x: i32, y: i32) -> Tile {
+    fn dummy_tile(x: u32, y: u32) -> Tile {
         Tile {
             id: 1,
             pointer: Coordinates { x, y },

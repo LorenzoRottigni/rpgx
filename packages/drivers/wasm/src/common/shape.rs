@@ -11,24 +11,24 @@ pub struct WasmShape {
 #[wasm_bindgen]
 impl WasmShape {
     #[wasm_bindgen(constructor)]
-    pub fn new(width: i32, height: i32) -> WasmShape {
+    pub fn new(width: u32, height: u32) -> WasmShape {
         WasmShape {
             inner: Shape { width, height },
         }
     }
 
     #[wasm_bindgen(getter)]
-    pub fn width(&self) -> i32 {
+    pub fn width(&self) -> u32 {
         self.inner.width
     }
 
     #[wasm_bindgen(getter)]
-    pub fn height(&self) -> i32 {
+    pub fn height(&self) -> u32 {
         self.inner.height
     }
 
     #[wasm_bindgen(js_name = fromSquare)]
-    pub fn from_square(side: i32) -> WasmShape {
+    pub fn from_square(side: u32) -> WasmShape {
         WasmShape {
             inner: Shape::from_square(side),
         }

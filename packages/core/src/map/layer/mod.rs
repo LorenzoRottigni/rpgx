@@ -166,11 +166,16 @@ impl Layer {
         self.tiles
             .iter()
             .find(|tile| {
-                let local = Coordinates {
-                    x: pointer.x - tile.pointer.x,
-                    y: pointer.y - tile.pointer.y,
-                };
-                tile.shape.in_bounds(local)
+                // Ensure pointer is not less than tile.pointer to avoid underflow
+                if pointer.x >= tile.pointer.x && pointer.y >= tile.pointer.y {
+                    let local = Coordinates {
+                        x: pointer.x - tile.pointer.x,
+                        y: pointer.y - tile.pointer.y,
+                    };
+                    tile.shape.in_bounds(local)
+                } else {
+                    false
+                }
             })
             .cloned()
     }

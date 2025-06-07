@@ -1,4 +1,4 @@
-use crate::prelude::Coordinates;
+use crate::{common::delta::Delta, prelude::Coordinates};
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]
 pub enum Direction {
@@ -9,26 +9,26 @@ pub enum Direction {
 }
 
 impl Direction {
-    pub fn from_delta(delta: &Coordinates) -> Option<Self> {
-        if delta.x == 0 && delta.y == -1 {
+    pub fn from_delta(delta: &Delta) -> Option<Self> {
+        if delta.dx == 0 && delta.dy == -1 {
             Some(Direction::Up)
-        } else if delta.x == 0 && delta.y == 1 {
+        } else if delta.dx == 0 && delta.dy == 1 {
             Some(Direction::Down)
-        } else if delta.x == -1 && delta.y == 0 {
+        } else if delta.dx == -1 && delta.dy == 0 {
             Some(Direction::Left)
-        } else if delta.x == 1 && delta.y == 0 {
+        } else if delta.dx == 1 && delta.dy == 0 {
             Some(Direction::Right)
         } else {
             None
         }
     }
 
-    pub fn to_delta(&self) -> Coordinates {
+    pub fn to_delta(&self) -> Delta {
         match self {
-            Direction::Up => Coordinates { x: 0, y: -1 },
-            Direction::Down => Coordinates { x: 0, y: 1 },
-            Direction::Left => Coordinates { x: -1, y: 0 },
-            Direction::Right => Coordinates { x: 1, y: 0 },
+            Direction::Up => Delta { dx: 0, dy: -1 },
+            Direction::Down => Delta { dx: 0, dy: 1 },
+            Direction::Left => Delta { dx: -1, dy: 0 },
+            Direction::Right => Delta { dx: 1, dy: 0 },
         }
     }
 }
@@ -41,36 +41,36 @@ pub mod tests {
     #[test]
     fn from_delta_returns_correct_direction() {
         assert_eq!(
-            Direction::from_delta(&Coordinates { x: 0, y: -1 }),
+            Direction::from_delta(&Delta { dx: 0, dy: -1 }),
             Some(Direction::Up)
         );
         assert_eq!(
-            Direction::from_delta(&Coordinates { x: 0, y: 1 }),
+            Direction::from_delta(&Delta { dx: 0, dy: 1 }),
             Some(Direction::Down)
         );
         assert_eq!(
-            Direction::from_delta(&Coordinates { x: -1, y: 0 }),
+            Direction::from_delta(&Delta { dx: -1, dy: 0 }),
             Some(Direction::Left)
         );
         assert_eq!(
-            Direction::from_delta(&Coordinates { x: 1, y: 0 }),
+            Direction::from_delta(&Delta { dx: 1, dy: 0 }),
             Some(Direction::Right)
         );
     }
 
     #[test]
     fn from_delta_returns_none_for_invalid_delta() {
-        assert_eq!(Direction::from_delta(&Coordinates { x: 0, y: 0 }), None);
-        assert_eq!(Direction::from_delta(&Coordinates { x: 1, y: 1 }), None);
-        assert_eq!(Direction::from_delta(&Coordinates { x: -1, y: -1 }), None);
-        assert_eq!(Direction::from_delta(&Coordinates { x: 2, y: 0 }), None);
+        assert_eq!(Direction::from_delta(&Delta { dx: 0, dy: 0 }), None);
+        assert_eq!(Direction::from_delta(&Delta { dx: 1, dy: 1 }), None);
+        assert_eq!(Direction::from_delta(&Delta { dx: -1, dy: -1 }), None);
+        assert_eq!(Direction::from_delta(&Delta { dx: 2, dy: 0 }), None);
     }
 
     #[test]
     fn to_delta_returns_correct_coordinates() {
-        assert_eq!(Direction::Up.to_delta(), Coordinates { x: 0, y: -1 });
-        assert_eq!(Direction::Down.to_delta(), Coordinates { x: 0, y: 1 });
-        assert_eq!(Direction::Left.to_delta(), Coordinates { x: -1, y: 0 });
-        assert_eq!(Direction::Right.to_delta(), Coordinates { x: 1, y: 0 });
+        assert_eq!(Direction::Up.to_delta(), Delta { dx: 0, dy: -1 });
+        assert_eq!(Direction::Down.to_delta(), Delta { dx: 0, dy: 1 });
+        assert_eq!(Direction::Left.to_delta(), Delta { dx: -1, dy: 0 });
+        assert_eq!(Direction::Right.to_delta(), Delta { dx: 1, dy: 0 });
     }
 }

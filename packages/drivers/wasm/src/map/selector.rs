@@ -10,19 +10,19 @@ pub struct WasmSingleSelector {
 #[wasm_bindgen]
 impl WasmSingleSelector {
     #[wasm_bindgen(constructor)]
-    pub fn new(x: i32, y: i32) -> WasmSingleSelector {
+    pub fn new(x: u32, y: u32) -> WasmSingleSelector {
         WasmSingleSelector {
             inner: Coordinates { x, y },
         }
     }
 
     #[wasm_bindgen(getter)]
-    pub fn x(&self) -> i32 {
+    pub fn x(&self) -> u32 {
         self.inner.x
     }
 
     #[wasm_bindgen(getter)]
-    pub fn y(&self) -> i32 {
+    pub fn y(&self) -> u32 {
         self.inner.y
     }
 }

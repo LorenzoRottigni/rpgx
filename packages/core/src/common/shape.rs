@@ -2,25 +2,25 @@ use crate::prelude::Coordinates;
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug, Default)]
 pub struct Shape {
-    pub width: i32,
-    pub height: i32,
+    pub width: u32,
+    pub height: u32,
 }
 
 impl Shape {
-    pub fn from_square(side: i32) -> Self {
+    pub fn from_square(side: u32) -> Self {
         Self {
             width: side,
             height: side,
         }
     }
 
-    pub fn from_rectangle(width: i32, height: i32) -> Self {
+    pub fn from_rectangle(width: u32, height: u32) -> Self {
         Self { width, height }
     }
 
     pub fn from_bounds(start: Coordinates, end: Coordinates) -> Self {
-        let width = (start.x.max(end.x) - start.x.min(end.x) + 1).abs();
-        let height = (start.y.max(end.y) - start.y.min(end.y) + 1).abs();
+        let width = (start.x.max(end.x) - start.x.min(end.x) + 1);
+        let height = (start.y.max(end.y) - start.y.min(end.y) + 1);
 
         Self { width, height }
     }
@@ -120,7 +120,6 @@ pub mod tests {
         assert!(shape.in_bounds(Coordinates { x: 1, y: 1 }));
         assert!(shape.in_bounds(Coordinates { x: 2, y: 2 }));
         assert!(!shape.in_bounds(Coordinates { x: 3, y: 3 }));
-        assert!(!shape.in_bounds(Coordinates { x: -1, y: 0 }));
     }
 
     #[test]
@@ -165,18 +164,5 @@ pub mod tests {
 
         assert_eq!(shape.width, 4); // max of 2 and 1+3 = 4
         assert_eq!(shape.height, 4); // max of 2 and 1+3 = 4
-    }
-
-    #[test]
-    fn coordinates_in_range_clamped_by_shape_bounds() {
-        let shape = Shape::from_rectangle(3, 3);
-        let coords =
-            shape.coordinates_in_range(Coordinates { x: -2, y: -2 }, Coordinates { x: 4, y: 4 });
-
-        let expected: Vec<Coordinates> = (0..=2)
-            .flat_map(|y| (0..=2).map(move |x| Coordinates { x, y }))
-            .collect();
-
-        assert_eq!(coords, expected);
     }
 }

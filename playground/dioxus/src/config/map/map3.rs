@@ -21,8 +21,8 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
         "ground".to_string(),
         LayerType::Texture,
         Shape {
-            width: GRID_SIZE as i32,
-            height: GRID_SIZE as i32,
+            width: GRID_SIZE as u32,
+            height: GRID_SIZE as u32,
         },
         vec![
             Mask {
@@ -34,8 +34,8 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
                 selector: Selector::Block((
                     Coordinates { x: 0, y: 0 },
                     Coordinates {
-                        x: (GRID_SIZE - 1) as i32,
-                        y: (GRID_SIZE - 1) as i32,
+                        x: (GRID_SIZE - 1) as u32,
+                        y: (GRID_SIZE - 1) as u32,
                     },
                 )),
             },
@@ -55,8 +55,8 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
         "buildings".to_string(),
         LayerType::Block,
         Shape {
-            width: GRID_SIZE as i32,
-            height: GRID_SIZE as i32,
+            width: GRID_SIZE as u32,
+            height: GRID_SIZE as u32,
         },
         vec![Mask {
             name: "logo".to_string(),
@@ -76,8 +76,8 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
         "actions".to_string(),
         LayerType::Action,
         Shape {
-            width: GRID_SIZE as i32,
-            height: GRID_SIZE as i32,
+            width: GRID_SIZE as u32,
+            height: GRID_SIZE as u32,
         },
         vec![Mask {
             name: "action_test".to_string(),
@@ -110,7 +110,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
             ],
         ),
         Coordinates {
-            x: GRID_SIZE as i32,
+            x: GRID_SIZE as u32,
             y: 0,
         },
     );
@@ -126,7 +126,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
         ),
         Coordinates {
             x: 0,
-            y: GRID_SIZE as i32,
+            y: GRID_SIZE as u32,
         },
     );
 
@@ -141,7 +141,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
         ),
         Coordinates {
             x: 0,
-            y: GRID_SIZE as i32 * 2,
+            y: GRID_SIZE as u32 * 2,
         },
     );
 
@@ -155,8 +155,8 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
             ],
         ),
         Coordinates {
-            x: GRID_SIZE as i32,
-            y: GRID_SIZE as i32 * 2,
+            x: GRID_SIZE as u32,
+            y: GRID_SIZE as u32 * 2,
         },
     );
 

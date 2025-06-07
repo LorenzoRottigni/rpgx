@@ -36,8 +36,11 @@ impl Scene {
     /// Make a step into the provided [`Direction`]
     pub fn step_to(&mut self, direction: Direction) -> Result<Tile, MoveError> {
         let delta = direction.to_delta();
-        let target_position = self.pawn.pointer + delta;
-        self.move_to(target_position)
+        if let Some(target_position) = self.pawn.pointer + delta {
+            self.move_to(target_position)
+        } else {
+            Err(MoveError::TileNotFound)
+        }
     }
 
     /// Move to the provided [`Coordinates`] if allowed
@@ -87,9 +90,9 @@ pub mod tests {
         Map::new("test_map".to_string(), vec![layer])
     }
 
-    fn pawn_at(x: i32, y: i32) -> Pawn {
+    fn pawn_at(x: u32, y: u32) -> Pawn {
         Pawn {
-            pointer: Coordinates { x: 0, y: 0 },
+            pointer: Coordinates { x, y },
             texture_id: 0,
         }
     }
