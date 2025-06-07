@@ -9,14 +9,14 @@ use rpgx::{
 
 use crate::{
     components::{grid::Grid, pawn::Pawn},
-    controller::{Command, use_controller},
+    controller::{use_controller, Command},
 };
 
 #[derive(PartialEq, Props, Clone)]
 pub struct EngineProps {
     pub engine: Signal<rpgx::prelude::Engine>,
     pub library: Signal<Library<Box<dyn Any>>>,
-    pub square_size: i32,
+    pub square_size: u32,
 }
 
 #[allow(non_snake_case)]

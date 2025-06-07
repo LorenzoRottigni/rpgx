@@ -10,7 +10,7 @@ pub struct WasmPawn {
 #[wasm_bindgen]
 impl WasmPawn {
     #[wasm_bindgen(constructor)]
-    pub fn new(pointer: WasmCoordinates, texture_id: i32) -> WasmPawn {
+    pub fn new(pointer: WasmCoordinates, texture_id: u32) -> WasmPawn {
         WasmPawn {
             inner: Pawn {
                 pointer: pointer.into_inner(),
@@ -30,12 +30,12 @@ impl WasmPawn {
     }
 
     #[wasm_bindgen(getter, js_name = textureId)]
-    pub fn texture_id(&self) -> i32 {
+    pub fn texture_id(&self) -> u32 {
         self.inner.texture_id
     }
 
     #[wasm_bindgen(setter, js_name = textureId)]
-    pub fn set_texture_id(&mut self, texture_id: i32) {
+    pub fn set_texture_id(&mut self, texture_id: u32) {
         self.inner.texture_id = texture_id;
     }
 }

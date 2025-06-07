@@ -38,7 +38,7 @@ impl WasmLibrary {
     }
 
     #[wasm_bindgen]
-    pub fn get_by_id(&self, id: i32) -> JsValue {
+    pub fn get_by_id(&self, id: u32) -> JsValue {
         match self.inner.get_by_id(id) {
             Some(boxed) => {
                 if let Some(s) = boxed.downcast_ref::<JsValue>() {
@@ -52,12 +52,12 @@ impl WasmLibrary {
     }
 
     #[wasm_bindgen]
-    pub fn get_id(&self, key: &str) -> Option<i32> {
+    pub fn get_id(&self, key: &str) -> Option<u32> {
         self.inner.get_id(key)
     }
 
     #[wasm_bindgen]
-    pub fn get_key(&self, id: i32) -> Option<String> {
+    pub fn get_key(&self, id: u32) -> Option<String> {
         self.inner.get_key(id).map(|s| s.to_string())
     }
 }
@@ -65,9 +65,9 @@ impl WasmLibrary {
 // Original Library type
 pub struct Library<V> {
     data: HashMap<&'static str, V>,
-    key_to_id: HashMap<&'static str, i32>,
-    id_to_key: HashMap<i32, &'static str>,
-    next_id: i32,
+    key_to_id: HashMap<&'static str, u32>,
+    id_to_key: HashMap<u32, &'static str>,
+    next_id: u32,
 }
 
 impl<V> Library<V> {
@@ -94,15 +94,15 @@ impl<V> Library<V> {
         self.data.get(key)
     }
 
-    pub fn get_by_id(&self, id: i32) -> Option<&V> {
+    pub fn get_by_id(&self, id: u32) -> Option<&V> {
         self.id_to_key.get(&id).and_then(|key| self.data.get(key))
     }
 
-    pub fn get_id(&self, key: &str) -> Option<i32> {
+    pub fn get_id(&self, key: &str) -> Option<u32> {
         self.key_to_id.get(key).copied()
     }
 
-    pub fn get_key(&self, id: i32) -> Option<&'static str> {
+    pub fn get_key(&self, id: u32) -> Option<&'static str> {
         self.id_to_key.get(&id).copied()
     }
 }

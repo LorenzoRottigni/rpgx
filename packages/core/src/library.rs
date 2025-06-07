@@ -3,9 +3,9 @@ use std::collections::HashMap;
 #[derive(Clone, Debug)]
 pub struct Library<V> {
     data: HashMap<String, V>,
-    key_to_id: HashMap<String, i32>,
-    id_to_key: HashMap<i32, String>,
-    next_id: i32,
+    key_to_id: HashMap<String, u32>,
+    id_to_key: HashMap<u32, String>,
+    next_id: u32,
 }
 
 impl<V> Library<V> {
@@ -36,17 +36,17 @@ impl<V> Library<V> {
     }
 
     /// Get value by ID
-    pub fn get_by_id(&self, id: i32) -> Option<&V> {
+    pub fn get_by_id(&self, id: u32) -> Option<&V> {
         self.id_to_key.get(&id).and_then(|key| self.data.get(key))
     }
 
     /// Get ID by key
-    pub fn get_id(&self, key: impl Into<String>) -> Option<i32> {
+    pub fn get_id(&self, key: impl Into<String>) -> Option<u32> {
         self.key_to_id.get(&key.into()).copied()
     }
 
     /// Get key by ID
-    pub fn get_key(&self, id: i32) -> Option<impl Into<String>> {
+    pub fn get_key(&self, id: u32) -> Option<impl Into<String>> {
         self.id_to_key.get(&id).map(|s| s.as_str())
     }
 }

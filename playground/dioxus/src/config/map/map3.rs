@@ -6,11 +6,11 @@ use rpgx::{
     prelude::{Coordinates, Effect, Layer, LayerType, Mask, Selector, Shape},
 };
 
-const GRID_SIZE: i32 = 12;
+const GRID_SIZE: u32 = 12;
 
 fn is_center_tile(pointer: Coordinates, _shape: Shape) -> bool {
-    let x = pointer.x;
-    let y = pointer.y;
+    let x = pointer.x as u32;
+    let y = pointer.y as u32;
     let center_x = GRID_SIZE / 2;
     let center_y = GRID_SIZE / 2;
     (x == center_x || x == center_x - 1) || (y == center_y || y == center_y - 1)
@@ -21,8 +21,8 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
         "ground".to_string(),
         LayerType::Texture,
         Shape {
-            width: GRID_SIZE,
-            height: GRID_SIZE,
+            width: GRID_SIZE as i32,
+            height: GRID_SIZE as i32,
         },
         vec![
             Mask {
@@ -34,8 +34,8 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
                 selector: Selector::Block((
                     Coordinates { x: 0, y: 0 },
                     Coordinates {
-                        x: GRID_SIZE - 1,
-                        y: GRID_SIZE - 1,
+                        x: (GRID_SIZE - 1) as i32,
+                        y: (GRID_SIZE - 1) as i32,
                     },
                 )),
             },
@@ -55,8 +55,8 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
         "buildings".to_string(),
         LayerType::Block,
         Shape {
-            width: GRID_SIZE,
-            height: GRID_SIZE,
+            width: GRID_SIZE as i32,
+            height: GRID_SIZE as i32,
         },
         vec![Mask {
             name: "logo".to_string(),
@@ -76,8 +76,8 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
         "actions".to_string(),
         LayerType::Action,
         Shape {
-            width: GRID_SIZE,
-            height: GRID_SIZE,
+            width: GRID_SIZE as i32,
+            height: GRID_SIZE as i32,
         },
         vec![Mask {
             name: "action_test".to_string(),
@@ -109,33 +109,9 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
                 action_layer.clone(),
             ],
         ),
-        Coordinates { x: GRID_SIZE, y: 0 },
-    );
-
-    map.merge_at(
-        &Map::new(
-            "home".to_string(),
-            vec![
-                ground_layer.clone(),
-                building_layer.clone(),
-                action_layer.clone(),
-            ],
-        ),
-        Coordinates { x: 0, y: GRID_SIZE },
-    );
-
-    map.merge_at(
-        &Map::new(
-            "home".to_string(),
-            vec![
-                ground_layer.clone(),
-                building_layer.clone(),
-                action_layer.clone(),
-            ],
-        ),
         Coordinates {
-            x: 0,
-            y: GRID_SIZE * 2,
+            x: GRID_SIZE as i32,
+            y: 0,
         },
     );
 
@@ -149,8 +125,38 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
             ],
         ),
         Coordinates {
-            x: GRID_SIZE,
-            y: GRID_SIZE * 2,
+            x: 0,
+            y: GRID_SIZE as i32,
+        },
+    );
+
+    map.merge_at(
+        &Map::new(
+            "home".to_string(),
+            vec![
+                ground_layer.clone(),
+                building_layer.clone(),
+                action_layer.clone(),
+            ],
+        ),
+        Coordinates {
+            x: 0,
+            y: GRID_SIZE as i32 * 2,
+        },
+    );
+
+    map.merge_at(
+        &Map::new(
+            "home".to_string(),
+            vec![
+                ground_layer.clone(),
+                building_layer.clone(),
+                action_layer.clone(),
+            ],
+        ),
+        Coordinates {
+            x: GRID_SIZE as i32,
+            y: GRID_SIZE as i32 * 2,
         },
     );
 

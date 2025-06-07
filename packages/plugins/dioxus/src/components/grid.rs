@@ -9,7 +9,7 @@ use crate::components::tile::Tile;
 pub struct GridProps {
     pub engine: Signal<Engine>,
     pub library: Signal<Library<Box<dyn Any>>>,
-    pub square_size: i32,
+    pub square_size: u32,
     pub onclick: EventHandler<Result<rpgx::prelude::Tile, MapError>>,
 }
 

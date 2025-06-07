@@ -13,9 +13,9 @@ impl WasmEffect {
     /// Create a new `Effect`.
     #[wasm_bindgen(constructor)]
     pub fn new(
-        texture_id: Option<i32>,
-        action_id: Option<i32>,
-        render_id: Option<i32>,
+        texture_id: Option<u32>,
+        action_id: Option<u32>,
+        render_id: Option<u32>,
         block: bool,
         group: bool,
         shrink_start: Option<WasmCoordinates>,
@@ -40,12 +40,12 @@ impl WasmEffect {
 
     /// Getters
     #[wasm_bindgen(getter, js_name = actionId)]
-    pub fn action_id(&self) -> Option<i32> {
+    pub fn action_id(&self) -> Option<u32> {
         self.inner.action_id
     }
 
     #[wasm_bindgen(getter, js_name = textureId)]
-    pub fn texture_id(&self) -> Option<i32> {
+    pub fn texture_id(&self) -> Option<u32> {
         self.inner.texture_id
     }
 

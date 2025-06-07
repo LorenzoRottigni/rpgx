@@ -1,6 +1,6 @@
 use crate::prelude::{Coordinates, Effect, Layer, LayerType, Map, Mask, Selector, Shape};
 
-pub fn building_2x3(shape: Shape, texture_id: i32, action_id: i32) -> Map {
+pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
     // let base_layer = Layer::base("base".to_string(), shape, vec![]);
     let building_layer = Layer::new(
         "buildings".to_string(),
@@ -76,7 +76,7 @@ pub fn building_2x3(shape: Shape, texture_id: i32, action_id: i32) -> Map {
     )
 }
 
-pub fn building_1x1(shape: Shape, texture_id: i32, action_id: i32) -> Map {
+pub fn building_1x1(shape: Shape, texture_id: u32, action_id: u32) -> Map {
     // let base_layer = Layer::base("base".to_string(), shape, vec![]);
     let building_layer = Layer::new(
         "buildings".to_string(),
@@ -139,7 +139,7 @@ pub fn building_1x1(shape: Shape, texture_id: i32, action_id: i32) -> Map {
     Map::new("base".to_string(), vec![building_layer, action_layer])
 }
 
-pub fn building_3x2(shape: Shape, texture_id: i32, action_id: i32) -> Map {
+pub fn building_3x2(shape: Shape, texture_id: u32, action_id: u32) -> Map {
     // let base_layer = Layer::base("base".to_string(), shape, vec![]);
     let building_layer = Layer::new(
         "buildings".to_string(),

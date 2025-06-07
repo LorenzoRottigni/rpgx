@@ -171,7 +171,7 @@ impl Map {
     }
 
     /// Returns all action IDs present at `pointer` across action layers.
-    pub fn get_actions_at(&self, pointer: Coordinates) -> Vec<i32> {
+    pub fn get_actions_at(&self, pointer: Coordinates) -> Vec<u32> {
         self.get_layers_of_type(LayerType::Action)
             .into_iter()
             .flat_map(|layer| {

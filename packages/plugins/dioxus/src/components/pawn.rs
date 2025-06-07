@@ -7,7 +7,7 @@ use rpgx::{engine::Engine, library::Library};
 pub struct PawnProps {
     pub engine: Signal<Engine>,
     pub library: Signal<Library<Box<dyn Any>>>,
-    pub square_size: i32,
+    pub square_size: u32,
 }
 
 #[allow(non_snake_case)]
@@ -35,8 +35,8 @@ pub fn Pawn(props: PawnProps) -> Element {
                                 width: {}px; \
                                 height: {}px; \
                                 transition: all 0.1s;",
-                    pawn_pos.x * props.square_size,
-                    pawn_pos.y * props.square_size - props.square_size,
+                    pawn_pos.x * props.square_size as i32,
+                    pawn_pos.y * props.square_size as i32 - props.square_size as i32,
                     pawn_texture,
                     props.square_size,
                     props.square_size * 2,

@@ -34,14 +34,14 @@ pub struct Layer {
     pub shape: Shape,
     /// All masks that were used to generate the tiles.
     pub masks: Vec<Mask>,
-    pub z: i32, // Z-index for rendering order
+    pub z: u32, // Z-index for rendering order
 }
 
 impl Layer {
     /// Constructs a new non-base layer by applying masks to the given shape.
     ///
     /// Panics if called with [`LayerType::Base`] (use [`Layer::base`] instead).
-    pub fn new(name: String, kind: LayerType, shape: Shape, masks: Vec<Mask>, z: i32) -> Self {
+    pub fn new(name: String, kind: LayerType, shape: Shape, masks: Vec<Mask>, z: u32) -> Self {
         assert!(
             kind != LayerType::Base,
             "Use Layer::base instead of Layer::new for Base layers"
@@ -74,7 +74,7 @@ impl Layer {
         for y in 0..base_shape.height {
             for x in 0..base_shape.width {
                 tiles.push(Tile {
-                    id: x,
+                    id: x as u32,
                     pointer: Coordinates { x, y },
                     shape: Shape::from_square(1),
                     effect: Effect::default(),
@@ -139,7 +139,7 @@ impl Layer {
                         Effect::default()
                     };
                     base_tiles.push(Tile {
-                        id: x,
+                        id: x as u32,
                         pointer: Coordinates { x, y },
                         shape: Shape::from_square(1),
                         effect,

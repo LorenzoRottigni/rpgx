@@ -11,7 +11,7 @@ pub struct WasmTile {
 impl WasmTile {
     #[wasm_bindgen(constructor)]
     pub fn new(
-        id: i32,
+        id: u32,
         effect: &WasmEffect,
         pointer: &WasmCoordinates,
         shape: &WasmShape,
@@ -22,7 +22,7 @@ impl WasmTile {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn id(&self) -> i32 {
+    pub fn id(&self) -> u32 {
         self.inner.id
     }
 

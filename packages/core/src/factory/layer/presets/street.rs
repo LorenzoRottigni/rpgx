@@ -1,7 +1,7 @@
 use crate::prelude::{Coordinates, Effect, Layer, LayerType, Mask, Selector, Shape};
 
 /// Generates a street `Layer` that surrounds the area defined by `shape`.
-pub fn street_layer_around(shape: Shape, texture_id: i32) -> Layer {
+pub fn street_layer_around(shape: Shape, texture_id: u32) -> Layer {
     let outer_shape = Shape {
         width: shape.width + 2,
         height: shape.height + 2,

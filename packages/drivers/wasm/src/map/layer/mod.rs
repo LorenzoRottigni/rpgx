@@ -49,7 +49,7 @@ impl WasmLayer {
         kind: WasmLayerType,
         shape: &WasmShape,
         masks: Box<[WasmMask]>,
-        z: i32,
+        z: u32,
     ) -> WasmLayer {
         let rust_masks: Vec<Mask> = masks.iter().map(|m| m.as_inner().clone()).collect();
         let inner = Layer::new(name, kind.into(), shape.inner.clone(), rust_masks, z);
@@ -100,7 +100,7 @@ impl WasmLayer {
     }
 
     #[wasm_bindgen(getter)]
-    pub fn z(&self) -> i32 {
+    pub fn z(&self) -> u32 {
         self.inner.z
     }
 

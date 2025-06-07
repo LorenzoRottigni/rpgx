@@ -77,15 +77,6 @@ pub mod tests {
     use super::*;
     use crate::prelude::*;
 
-    fn default_tile(x: i32, y: i32) -> Tile {
-        Tile {
-            id: 0,
-            shape: Shape::from_square(1),
-            pointer: Coordinates { x, y },
-            effect: Effect::default(),
-        }
-    }
-
     fn basic_test_map() -> Map {
         let shape = Shape {
             width: 3,

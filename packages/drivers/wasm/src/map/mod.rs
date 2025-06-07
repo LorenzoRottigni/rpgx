@@ -151,7 +151,7 @@ impl WasmMap {
 
     /// Returns all action IDs present at pointer
     #[wasm_bindgen(js_name = getActionsAt)]
-    pub fn get_actions_at(&self, pointer: &WasmCoordinates) -> Box<[i32]> {
+    pub fn get_actions_at(&self, pointer: &WasmCoordinates) -> Box<[u32]> {
         self.inner.get_actions_at(pointer.inner).into_boxed_slice()
     }
 }

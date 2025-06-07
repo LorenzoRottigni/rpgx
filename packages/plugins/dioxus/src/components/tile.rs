@@ -5,9 +5,9 @@ use std::any::Any;
 #[derive(PartialEq, Props, Clone)]
 pub struct TileProps {
     tile: rpgx::prelude::Tile,
-    layer_z: i32,
+    layer_z: u32,
     layer_kind: LayerType,
-    square_size: i32,
+    square_size: u32,
     library: Signal<Library<Box<dyn Any>>>,
     onclick: EventHandler<Result<rpgx::prelude::Tile, MapError>>,
 }
@@ -43,17 +43,17 @@ pub fn Tile(props: TileProps) -> Element {
         z-index: {}; \
         pointer-events: {}; \
         cursor: pointer;",
-        x * props.square_size,
-        y * props.square_size,
+        x as u32 * props.square_size,
+        y as u32 * props.square_size,
         if props.tile.effect.group {
-            props.tile.shape.width
+            props.tile.shape.width as u32
         } else {
-            1
+            1 as u32
         } * props.square_size,
         if props.tile.effect.group {
-            props.tile.shape.height
+            props.tile.shape.height as u32
         } else {
-            1
+            1 as u32
         } * props.square_size,
         props.layer_z,
         if props.layer_kind == LayerType::Base {

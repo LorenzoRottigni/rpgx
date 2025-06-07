@@ -3,14 +3,14 @@ use crate::prelude::{Coordinates, Effect, Shape, SingleSelector};
 /// Represents a single tile on the grid with unique identifier, spatial information, and effects applied.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Tile {
-    pub id: i32,
+    pub id: u32,
     pub effect: Effect,
     pub pointer: SingleSelector,
     pub shape: Shape,
 }
 
 impl Tile {
-    pub fn new(id: i32, effect: Effect, pointer: SingleSelector, shape: Shape) -> Self {
+    pub fn new(id: u32, effect: Effect, pointer: SingleSelector, shape: Shape) -> Self {
         Self {
             id,
             effect,

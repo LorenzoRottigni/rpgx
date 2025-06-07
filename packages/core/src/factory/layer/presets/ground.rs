@@ -1,7 +1,7 @@
 use crate::prelude::{Coordinates, Effect, Layer, LayerType, Mask, Selector, Shape};
 
 /// Generates a street `Layer` that surrounds the area defined by `shape`.
-pub fn ground_layer(shape: Shape, texture_id: i32) -> Layer {
+pub fn ground_layer(shape: Shape, texture_id: u32) -> Layer {
     let mask = Mask {
         name: "street_border".to_string(),
         effect: Effect {

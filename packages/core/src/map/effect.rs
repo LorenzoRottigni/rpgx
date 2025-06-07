@@ -4,11 +4,11 @@ use crate::prelude::BlockSelector;
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct Effect {
     /// attach an action to a [`super::tile::Tile`]
-    pub action_id: Option<i32>,
+    pub action_id: Option<u32>,
     /// attach a texture to a [`super::tile::Tile`]
-    pub texture_id: Option<i32>,
+    pub texture_id: Option<u32>,
     /// Attach a rendering callback to a [`super::tile::Tile`]
-    pub render_id: Option<i32>,
+    pub render_id: Option<u32>,
     /// make a [`super::tile::Tile`] entity blocking
     pub block: bool,
     /// determine if [`super::tile::Tile`] belongs to a group spanning several contingent [`super::tile::Tile`]s

@@ -7,7 +7,7 @@ use crate::prelude::Coordinates;
 #[derive(Clone)]
 pub struct Pawn {
     pub pointer: Coordinates,
-    pub texture_id: i32,
+    pub texture_id: u32,
 }
 
 #[cfg(test)]
