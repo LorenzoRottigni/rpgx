@@ -19,8 +19,8 @@ impl Shape {
     }
 
     pub fn from_bounds(start: Coordinates, end: Coordinates) -> Self {
-        let width = (start.x.max(end.x) - start.x.min(end.x) + 1);
-        let height = (start.y.max(end.y) - start.y.min(end.y) + 1);
+        let width = start.x.max(end.x) - start.x.min(end.x) + 1;
+        let height = start.y.max(end.y) - start.y.min(end.y) + 1;
 
         Self { width, height }
     }
@@ -33,10 +33,7 @@ impl Shape {
     }
 
     pub fn in_bounds(&self, coordinates: Coordinates) -> bool {
-        coordinates.x >= 0
-            && coordinates.x < self.width
-            && coordinates.y >= 0
-            && coordinates.y < self.height
+        coordinates.x < self.width && coordinates.y < self.height
     }
 
     pub fn offset_by(&self, offset: Coordinates) -> Self {
