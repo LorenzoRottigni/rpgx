@@ -1,9 +1,66 @@
-use crate::prelude::Coordinates;
+use std::ops::{Add, Sub};
+
+use crate::{common::delta::Delta, prelude::Coordinates};
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug, Default)]
 pub struct Shape {
     pub width: u32,
     pub height: u32,
+}
+
+impl Add for Shape {
+    type Output = Shape;
+
+    fn add(self, other: Shape) -> Shape {
+        Shape {
+            width: self.width + other.width,
+            height: self.height + other.height,
+        }
+    }
+}
+
+impl Sub<u32> for Shape {
+    type Output = Shape;
+
+    fn sub(self, value: u32) -> Shape {
+        Shape {
+            width: self.width - value,
+            height: self.height - value,
+        }
+    }
+}
+
+impl Add<Coordinates> for Shape {
+    type Output = Shape;
+
+    fn add(self, coordinates: Coordinates) -> Shape {
+        Shape {
+            width: self.width + coordinates.x,
+            height: self.height + coordinates.y,
+        }
+    }
+}
+
+impl Sub for Shape {
+    type Output = Shape;
+
+    fn sub(self, other: Shape) -> Shape {
+        Shape {
+            width: self.width - other.width,
+            height: self.height - other.height,
+        }
+    }
+}
+
+impl Sub<Coordinates> for Shape {
+    type Output = Shape;
+
+    fn sub(self, coordinates: Coordinates) -> Shape {
+        Shape {
+            width: self.width - coordinates.x,
+            height: self.height - coordinates.y,
+        }
+    }
 }
 
 impl Shape {
@@ -34,6 +91,10 @@ impl Shape {
 
     pub fn in_bounds(&self, coordinates: Coordinates) -> bool {
         coordinates.x < self.width && coordinates.y < self.height
+    }
+
+    pub fn delta_in_bounds(&self, delta: Delta) -> bool {
+        delta.dx < self.width as i32 && delta.dy < self.height as i32
     }
 
     pub fn offset_by(&self, offset: Coordinates) -> Self {

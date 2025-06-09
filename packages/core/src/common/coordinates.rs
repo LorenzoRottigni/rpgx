@@ -1,3 +1,7 @@
+use crate::common::delta::Delta;
+use crate::prelude::Shape;
+use std::ops::{Add, AddAssign, Sub};
+
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug, Default)]
 pub struct Coordinates {
     pub x: u32,
@@ -17,11 +21,23 @@ impl Coordinates {
 
         Some((Self { x: min_x, y: min_y }, Self { x: max_x, y: max_y }))
     }
+
+    pub fn is_within(&self, origin: Coordinates, shape: Shape) -> bool {
+        let end = origin + shape - 1;
+        self.x >= origin.x && self.x <= end.x && self.y >= origin.y && self.y <= end.y
+    }
 }
 
-use std::ops::Add;
+impl Sub<u32> for Coordinates {
+    type Output = Coordinates;
 
-use crate::common::delta::Delta;
+    fn sub(self, value: u32) -> Coordinates {
+        Coordinates {
+            x: self.x.saturating_sub(value),
+            y: self.y.saturating_sub(value),
+        }
+    }
+}
 
 impl Add for Coordinates {
     type Output = Coordinates;
@@ -30,6 +46,46 @@ impl Add for Coordinates {
         Coordinates {
             x: self.x + other.x,
             y: self.y + other.y,
+        }
+    }
+}
+
+impl AddAssign for Coordinates {
+    fn add_assign(&mut self, other: Coordinates) {
+        self.x += other.x;
+        self.y += other.y;
+    }
+}
+
+impl Add<Shape> for Coordinates {
+    type Output = Coordinates;
+
+    fn add(self, shape: Shape) -> Coordinates {
+        Coordinates {
+            x: self.x + shape.width,
+            y: self.y + shape.height,
+        }
+    }
+}
+
+impl Sub for Coordinates {
+    type Output = Coordinates;
+
+    fn sub(self, rhs: Coordinates) -> Coordinates {
+        Coordinates {
+            x: self.x.saturating_sub(rhs.x),
+            y: self.y.saturating_sub(rhs.y),
+        }
+    }
+}
+
+impl Sub<Shape> for Coordinates {
+    type Output = Coordinates;
+
+    fn sub(self, shape: Shape) -> Coordinates {
+        Coordinates {
+            x: self.x - shape.width,
+            y: self.y - shape.height,
         }
     }
 }

@@ -1,15 +1,33 @@
-use crate::prelude::{Coordinates, Effect, Shape, SingleSelector};
+use crate::{
+    common::delta::Delta,
+    prelude::{Coordinates, Effect, Shape, SingleSelector},
+};
 
+#[doc = include_str!("../../docs/tile.md")]
 /// Represents a single tile on the grid with unique identifier, spatial information, and effects applied.
+///
+/// See also:
+/// - [`Effect`](crate::prelude::Effect)
+/// - [`Coordinates`](crate::prelude::Coordinates)
+/// - [`Shape`](crate::prelude::Shape)
+/// - [`SingleSelector`](crate::prelude::SingleSelector)
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Tile {
+    /// Unique ID for the tile.
     pub id: u32,
+
+    /// Effect applied to this tile (e.g., blocking, status changes).
     pub effect: Effect,
+
+    /// Top-left coordinate where the tile begins.
     pub pointer: SingleSelector,
+
+    /// Shape of the tile (its size on the grid).
     pub shape: Shape,
 }
 
 impl Tile {
+    /// Creates a new tile from the given ID, effect, pointer, and shape.
     pub fn new(id: u32, effect: Effect, pointer: SingleSelector, shape: Shape) -> Self {
         Self {
             id,
@@ -19,32 +37,38 @@ impl Tile {
         }
     }
 
+    /// Returns true if the given point lies within the tile's shape.
+    ///
+    /// Uses [`Shape`] and [`pointer`](Self::pointer) to compute bounds.
     pub fn contains(&self, point: Coordinates) -> bool {
-        let start = self.pointer;
-        let end = Coordinates {
-            x: start.x + self.shape.width - 1,
-            y: start.y + self.shape.height - 1,
+        if point.x < self.pointer.x || point.y < self.pointer.y {
+            return false;
+        }
+        let relative_point = Delta {
+            dx: point.x as i32 - self.pointer.x as i32,
+            dy: point.y as i32 - self.pointer.y as i32,
         };
-
-        point.x >= start.x && point.x <= end.x && point.y >= start.y && point.y <= end.y
+        self.shape.delta_in_bounds(relative_point)
     }
 
+    /// Returns true if the tile blocks at a specific coordinate.
+    ///
+    /// Blocking is defined by [`Effect::block`] and optional [`Effect::shrink`] region.
     pub fn is_blocking_at(&self, target: Coordinates) -> bool {
         if !self.effect.block {
             return false;
         }
 
-        if let Some((start, end)) = self.effect.shrink {
-            // Shrink is interpreted as absolute bounds
-            target.x >= start.x && target.x <= end.x && target.y >= start.y && target.y <= end.y
-        } else {
-            self.contains(target)
-        }
+        self.effect.shrink_contains(target) && self.contains(target)
     }
 
+    /// Offsets the tile and any effect shrink bounds by the given delta.
+    ///
+    /// # Parameters
+    ///
+    /// * `delta` - The coordinate offset to apply to the tile's pointer and effect bounds.
     pub fn offset(&mut self, delta: Coordinates) {
-        self.pointer.x += delta.x;
-        self.pointer.y += delta.y;
+        self.pointer += delta;
         if let Some((start, end)) = self.effect.shrink {
             self.effect.shrink = Some((start + delta, end + delta));
         }
@@ -54,73 +78,106 @@ impl Tile {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::prelude::{Coordinates, Effect, Shape, SingleSelector};
 
-    #[test]
-    fn contains_its_coordinates() {
-        let tile = Tile::new(
-            0,
-            Effect::default(),
-            Coordinates { x: 0, y: 0 },
-            Shape::from_square(3),
-        );
-
-        assert!(tile.contains(Coordinates { x: 1, y: 1 }));
+    fn basic_effect(block: bool, shrink: Option<(Coordinates, Coordinates)>) -> Effect {
+        Effect {
+            block,
+            shrink,
+            ..Default::default()
+        }
     }
 
     #[test]
-    fn doesnt_contain_out_of_bounds_coordinates() {
+    fn test_contains_inside_and_outside() {
         let tile = Tile::new(
-            0,
-            Effect::default(),
-            Coordinates { x: 0, y: 0 },
+            1,
+            basic_effect(false, None),
+            SingleSelector { x: 10, y: 20 },
+            Shape::from_rectangle(3, 3),
+        );
+
+        // Inside tile bounds
+        assert!(tile.contains(Coordinates { x: 10, y: 20 }));
+        assert!(tile.contains(Coordinates { x: 12, y: 22 }));
+
+        // Outside tile bounds
+        assert!(!tile.contains(Coordinates { x: 9, y: 20 }));
+        assert!(!tile.contains(Coordinates { x: 13, y: 23 }));
+    }
+
+    #[test]
+    fn test_is_blocking_at_without_block() {
+        let tile = Tile::new(
+            1,
+            basic_effect(false, None),
+            SingleSelector { x: 0, y: 0 },
             Shape::from_square(2),
         );
-        assert!(!tile.contains(Coordinates { x: 3, y: 3 }));
-    }
-
-    #[test]
-    fn is_blocking_when_required() {
-        let effect = Effect {
-            block: true,
-            shrink: None,
-            ..Default::default()
-        };
-        let tile = Tile::new(0, effect, Coordinates { x: 0, y: 0 }, Shape::from_square(2));
-        assert!(tile.is_blocking_at(Coordinates { x: 1, y: 1 }));
-    }
-
-    #[test]
-    fn is_not_blocking_by_default() {
-        let effect = Effect {
-            block: false,
-            shrink: None,
-            ..Default::default()
-        };
-        let tile = Tile::new(0, effect, Coordinates { x: 0, y: 0 }, Shape::from_square(2));
         assert!(!tile.is_blocking_at(Coordinates { x: 1, y: 1 }));
     }
 
     #[test]
-    fn is_blocking_when_within_shrink_bounds() {
-        let effect = Effect {
-            block: true,
-            shrink: Some((Coordinates { x: 1, y: 1 }, Coordinates { x: 2, y: 2 })),
-            ..Default::default()
-        };
-        let tile = Tile::new(0, effect, Coordinates { x: 0, y: 0 }, Shape::from_square(4));
-        assert!(tile.is_blocking_at(Coordinates { x: 2, y: 2 }));
-        assert!(!tile.is_blocking_at(Coordinates { x: 0, y: 0 }));
+    fn test_is_blocking_at_with_block_no_shrink() {
+        let tile = Tile::new(
+            1,
+            basic_effect(true, None),
+            SingleSelector { x: 5, y: 5 },
+            Shape::from_square(2),
+        );
+
+        // Inside tile and block enabled
+        assert!(tile.is_blocking_at(Coordinates { x: 5, y: 5 }));
+        assert!(tile.is_blocking_at(Coordinates { x: 6, y: 6 }));
+
+        // Outside tile bounds
+        assert!(!tile.is_blocking_at(Coordinates { x: 7, y: 7 }));
     }
 
     #[test]
-    fn offset_modifies_pointer() {
-        let mut tile = Tile::new(
-            0,
-            Effect::default(),
-            Coordinates { x: 2, y: 3 },
-            Shape::from_square(1),
+    fn test_is_blocking_at_with_shrink() {
+        // Effect shrink region from (6,6) to (7,7)
+        let shrink_start = Coordinates { x: 6, y: 6 };
+        let shrink_end = Coordinates { x: 7, y: 7 };
+
+        let tile = Tile::new(
+            1,
+            basic_effect(true, Some((shrink_start, shrink_end))),
+            SingleSelector { x: 5, y: 5 },
+            Shape::from_square(3),
         );
-        tile.offset(Coordinates { x: 1, y: 2 });
-        assert_eq!(tile.pointer, Coordinates { x: 3, y: 5 });
+
+        // Inside shrink region and tile bounds
+        assert!(tile.is_blocking_at(Coordinates { x: 6, y: 6 }));
+        assert!(tile.is_blocking_at(Coordinates { x: 7, y: 7 }));
+
+        // Inside tile but outside shrink region
+        assert!(!tile.is_blocking_at(Coordinates { x: 5, y: 5 }));
+
+        // Outside tile
+        assert!(!tile.is_blocking_at(Coordinates { x: 8, y: 8 }));
+    }
+
+    #[test]
+    fn test_offset_moves_tile_and_shrink() {
+        let shrink_start = Coordinates { x: 1, y: 1 };
+        let shrink_end = Coordinates { x: 2, y: 2 };
+        let mut tile = Tile::new(
+            1,
+            basic_effect(true, Some((shrink_start, shrink_end))),
+            SingleSelector { x: 0, y: 0 },
+            Shape::from_square(3),
+        );
+
+        tile.offset(Coordinates { x: 5, y: 5 });
+
+        // Tile pointer updated
+        assert_eq!(tile.pointer.x, 5);
+        assert_eq!(tile.pointer.y, 5);
+
+        // Shrink region updated by offset
+        let (new_start, new_end) = tile.effect.shrink.expect("Shrink should be Some");
+        assert_eq!(new_start, Coordinates { x: 6, y: 6 });
+        assert_eq!(new_end, Coordinates { x: 7, y: 7 });
     }
 }

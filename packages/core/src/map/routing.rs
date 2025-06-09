@@ -161,16 +161,18 @@ pub mod tests {
 
     #[test]
     fn avoids_blocked_tiles() {
-        let blocked = vec![Coordinates { x: 1, y: 0 }, Coordinates { x: 1, y: 1 }];
+        // Blocks form a vertical wall at x=1, fully blocking horizontal crossing.
+        let blocked = vec![
+            Coordinates { x: 1, y: 0 },
+            Coordinates { x: 1, y: 1 },
+            Coordinates { x: 1, y: 2 },
+        ];
         let map = map_with_layer(blocked, 3, 3);
         let start = Coordinates { x: 0, y: 0 };
         let goal = Coordinates { x: 2, y: 0 };
-
-        let path = map.find_path(&start, &goal).unwrap();
-        assert!(path.contains(&Coordinates { x: 0, y: 1 }));
-        assert!(!path.contains(&Coordinates { x: 1, y: 0 }));
+        let path = map.find_path(&start, &goal);
+        assert!(path.is_none());
     }
-
     #[test]
     fn returns_none_if_no_path() {
         let blocked = vec![

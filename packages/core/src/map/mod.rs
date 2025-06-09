@@ -1,7 +1,4 @@
-use crate::{
-    pawn::Pawn,
-    prelude::{Coordinates, Direction, Layer, LayerType, Tile},
-};
+use crate::prelude::{Coordinates, Direction, Layer, LayerType, Tile};
 use indexmap::IndexMap;
 use layer::{Effect, Shape, SingleSelector};
 

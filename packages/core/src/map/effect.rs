@@ -1,4 +1,4 @@
-use crate::prelude::BlockSelector;
+use crate::prelude::{BlockSelector, Coordinates, Shape};
 
 /// Visual and interactive properties applied to a [`super::tile::Tile`] or an UI element
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -14,7 +14,24 @@ pub struct Effect {
     /// determine if [`super::tile::Tile`] belongs to a group spanning several contingent [`super::tile::Tile`]s
     pub group: bool,
     pub shrink: Option<BlockSelector>,
-    // TODO: opaque
+}
+
+impl Effect {
+    pub fn shrink_contains(&self, point: Coordinates) -> bool {
+        if let Some((start, end)) = self.shrink {
+            if let (Some(rel_x), Some(rel_y)) =
+                (point.x.checked_sub(start.x), point.y.checked_sub(start.y))
+            {
+                let relative_point = Coordinates { x: rel_x, y: rel_y };
+                let shrink_shape = Shape::from_bounds(start, end);
+                shrink_shape.in_bounds(relative_point)
+            } else {
+                false
+            }
+        } else {
+            true
+        }
+    }
 }
 
 #[cfg(test)]
