@@ -29,9 +29,14 @@ impl WasmScene {
 #[wasm_bindgen]
 impl WasmScene {
     #[wasm_bindgen(constructor)]
-    pub fn new(name: String, map: WasmMap, pawn: WasmPawn) -> WasmScene {
+    pub fn new(name: String, map: WasmMap, pawn: Option<WasmPawn>) -> WasmScene {
+        let inner_pawn = if let Some(pawn) = pawn {
+            Some(pawn.into_inner())
+        } else {
+            None
+        };
         WasmScene {
-            inner: Scene::new(name, map.into_inner(), pawn.into_inner()),
+            inner: Scene::new(name, map.into_inner(), inner_pawn),
         }
     }
 
@@ -46,8 +51,12 @@ impl WasmScene {
     }
 
     #[wasm_bindgen(getter, js_name = pawn)]
-    pub fn pawn(&self) -> WasmPawn {
-        WasmPawn::from_inner(self.inner.pawn.clone())
+    pub fn pawn(&self) -> Option<WasmPawn> {
+        if let Some(pawn) = &self.inner.pawn {
+            Some(WasmPawn::from_inner(pawn.clone()))
+        } else {
+            None
+        }
     }
 
     #[wasm_bindgen(js_name = moveTo)]

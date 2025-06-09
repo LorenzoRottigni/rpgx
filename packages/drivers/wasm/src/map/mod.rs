@@ -18,7 +18,7 @@ pub struct WasmMap {
 impl WasmMap {
     /// Creates a new map with a name and optional array of WasmLayer
     #[wasm_bindgen(constructor)]
-    pub fn new(name: String, layers: Option<Box<[WasmLayer]>>) -> WasmMap {
+    pub fn new(name: String, layers: Option<Box<[WasmLayer]>>, spawn: WasmCoordinates) -> WasmMap {
         let layers_vec = layers
             .map(|layers_box| {
                 layers_box
@@ -29,7 +29,7 @@ impl WasmMap {
             })
             .unwrap_or_else(Vec::new);
 
-        let map = Map::new(name, layers_vec);
+        let map = Map::new(name, layers_vec, spawn.into_inner());
 
         WasmMap { inner: map }
     }
@@ -109,14 +109,21 @@ impl WasmMap {
 
     /// Merges another map into this one at top_left coordinates
     #[wasm_bindgen(js_name = mergeAt)]
-    pub fn merge_at(&mut self, other: &WasmMap, top_left: &WasmCoordinates) {
-        self.inner.merge_at(&other.inner, top_left.inner);
+    pub fn merge_at(
+        &mut self,
+        other: &WasmMap,
+        top_left: &WasmCoordinates,
+        spawn: WasmCoordinates,
+    ) {
+        self.inner
+            .merge_at(&other.inner, top_left.inner, Some(spawn.into_inner()));
     }
 
     /// Duplicates the map in the given direction, expanding it
     #[wasm_bindgen(js_name = duplicateToThe)]
-    pub fn duplicate_to_the(&mut self, direction: WasmDirection) {
-        self.inner.duplicate_to_the(direction.into_inner());
+    pub fn duplicate_to_the(&mut self, direction: WasmDirection, spawn: WasmCoordinates) {
+        self.inner
+            .duplicate_to_the(direction.into_inner(), Some(spawn.into_inner()));
     }
 
     /// Returns tile at pointer from base layer if any
