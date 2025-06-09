@@ -12,9 +12,6 @@ use crate::{
     controller::{Command, use_controller},
 };
 
-#[cfg(feature = "web")]
-use js_sys::eval as js_eval;
-
 #[derive(PartialEq, Props, Clone)]
 pub struct EngineProps {
     pub engine: Signal<rpgx::prelude::Engine>,
@@ -56,8 +53,7 @@ pub fn Engine(props: EngineProps) -> Element {
     };
 
     use_effect(move || {
-        // Read the engine state to cause effect re-run on changes
-        let _engine_snapshot = engine();
+        let _ = engine(); // cause the effect to re-run when engine changes
 
         let js_code = r#"
             (() => {
@@ -77,7 +73,7 @@ pub fn Engine(props: EngineProps) -> Element {
 
         #[cfg(feature = "web")]
         {
-            let _ = js_eval(js_code);
+            let _ = js_sys::eval(js_code);
         }
 
         #[cfg(feature = "desktop")]
