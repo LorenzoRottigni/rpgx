@@ -12,17 +12,24 @@ use crate::{
     controller::{Command, use_controller},
 };
 
-#[cfg(feature = "web")]
-use js_sys::eval as js_eval;
-
 #[derive(PartialEq, Props, Clone)]
 pub struct EngineProps {
     pub engine: Signal<rpgx::prelude::Engine>,
     pub library: Signal<Library<Box<dyn Any>>>,
     pub square_size: u32,
+}
 
-    #[cfg(feature = "desktop")]
-    pub window: tauri::Window,
+fn scroll_script() -> &'static str {
+    r#"
+        (() => {
+            const container = document.querySelector('#scroll-container');
+            const pawn = document.querySelector('#pawn');
+            if (!container || !pawn) return;
+            const scrollX = pawn.offsetLeft + pawn.offsetWidth / 2 - container.clientWidth / 2;
+            const scrollY = pawn.offsetTop + pawn.offsetHeight / 2 - container.clientHeight / 2;
+            container.scrollTo({ left: scrollX, top: scrollY, behavior: 'smooth' });
+        })();
+    "#
 }
 
 #[allow(non_snake_case)]
@@ -59,36 +66,36 @@ pub fn Engine(props: EngineProps) -> Element {
     };
 
     use_effect(move || {
-        // Read the engine state to cause effect re-run on changes
-        let _engine_snapshot = engine();
+        let _ = engine(); // cause the effect to re-run when engine changes
 
         let js_code = r#"
-            (() => {
-                console.log('trigger update');
-                const container = document.querySelector('#scroll-container');
-                const pawn = document.querySelector('#pawn');
-                if (!container || !pawn) return;
-                const scrollX = pawn.offsetLeft + pawn.offsetWidth / 2 - container.clientWidth / 2;
-                const scrollY = pawn.offsetTop + pawn.offsetHeight / 2 - container.clientHeight / 2;
-                container.scrollTo({
-                    left: scrollX,
-                    top: scrollY,
-                    behavior: 'smooth'
-                });
-            })();
-        "#;
-
-        #[cfg(feature = "desktop")]
-        {
-            let _ = props.window.eval(js_code);
-        }
+        (() => {
+            const container = document.querySelector('#scroll-container');
+            const pawn = document.querySelector('#pawn');
+            if (!container || !pawn) return;
+            const scrollX = pawn.offsetLeft + pawn.offsetWidth / 2 - container.clientWidth / 2;
+            const scrollY = pawn.offsetTop + pawn.offsetHeight / 2 - container.clientHeight / 2;
+            container.scrollTo({
+                left: scrollX,
+                top: scrollY,
+                behavior: 'smooth'
+            });
+        })();
+    "#;
 
         #[cfg(feature = "web")]
         {
-            let _ = js_eval(js_code);
+            let _ = js_sys::eval(js_code);
         }
 
-        // no cleanup necessary
+        #[cfg(feature = "desktop")]
+        {
+            document::eval(js_code);
+            // let eval = use_eval();
+            // spawn(async move {
+            //     eval(js_code.to_string());
+            // });
+        }
     });
 
     rsx! {
