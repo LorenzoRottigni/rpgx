@@ -1,8 +1,6 @@
 use rpgx::prelude::Direction;
 use wasm_bindgen::prelude::*;
 
-use crate::prelude::WasmCoordinates;
-
 #[wasm_bindgen(js_name = "WasmDirection")]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum WasmDirection {

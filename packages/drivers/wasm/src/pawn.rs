@@ -1,4 +1,4 @@
-use crate::prelude::{WasmCoordinates, WasmTile}; // Assuming you have a WasmTile wrapper
+use crate::prelude::WasmCoordinates; // Assuming you have a WasmTile wrapper
 use rpgx::prelude::Pawn;
 use wasm_bindgen::prelude::*;
 

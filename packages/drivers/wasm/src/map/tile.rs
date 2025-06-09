@@ -66,7 +66,7 @@ impl WasmTile {
         WasmTile { inner }
     }
 
-    pub(crate) fn into_inner(self) -> Tile {
+    pub(crate) fn _into_inner(self) -> Tile {
         self.inner
     }
 }

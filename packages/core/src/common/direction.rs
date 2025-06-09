@@ -1,4 +1,4 @@
-use crate::{common::delta::Delta, prelude::Coordinates};
+use crate::common::delta::Delta;
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]
 pub enum Direction {
@@ -36,7 +36,6 @@ impl Direction {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::prelude::Coordinates;
 
     #[test]
     fn from_delta_returns_correct_direction() {
