@@ -20,9 +20,6 @@ pub struct EngineProps {
     pub engine: Signal<rpgx::prelude::Engine>,
     pub library: Signal<Library<Box<dyn Any>>>,
     pub square_size: u32,
-
-    #[cfg(feature = "desktop")]
-    pub window: tauri::Window,
 }
 
 #[allow(non_snake_case)]
@@ -78,17 +75,19 @@ pub fn Engine(props: EngineProps) -> Element {
             })();
         "#;
 
-        #[cfg(feature = "desktop")]
-        {
-            let _ = props.window.eval(js_code);
-        }
-
         #[cfg(feature = "web")]
         {
             let _ = js_eval(js_code);
         }
 
-        // no cleanup necessary
+        #[cfg(feature = "desktop")]
+        {
+            use dioxus_desktop::use_webview;
+
+            if let Some(webview) = use_webview() {
+                let _ = webview.eval(js_code);
+            }
+        }
     });
 
     rsx! {
