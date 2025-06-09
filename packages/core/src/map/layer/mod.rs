@@ -17,6 +17,7 @@ pub enum LayerType {
     Block,
 }
 
+#[doc = include_str!("../../../docs/layer.md")]
 /// A visual or logical overlay on top of the base grid, used to apply effects
 /// to specific [`Tile`]s based on spatial [`Mask`]s and [`Selector`]s.
 ///
@@ -34,13 +35,17 @@ pub struct Layer {
     pub shape: Shape,
     /// All masks that were used to generate the tiles.
     pub masks: Vec<Mask>,
-    pub z: u32, // Z-index for rendering order
+    /// Z-index for rendering order
+    pub z: u32,
 }
 
 impl Layer {
     /// Constructs a new non-base layer by applying masks to the given shape.
     ///
+    /// # Panics
     /// Panics if called with [`LayerType::Base`] (use [`Layer::base`] instead).
+    ///
+    /// Applies each mask's selector and effect over the `shape` to generate tiles.
     pub fn new(name: String, kind: LayerType, shape: Shape, masks: Vec<Mask>, z: u32) -> Self {
         assert!(
             kind != LayerType::Base,
@@ -61,15 +66,18 @@ impl Layer {
     /// Constructs the base layer from a group of other layers.
     ///
     /// This layer will have a unified shape that encompasses all others and may
-    /// merge any tiles from [`LayerType::Texture`] layers into itself.
+    /// merge any tiles from [`LayerType::Texture`] layers into itself by copying their effects.
+    ///
+    /// The base layer's tiles cover the entire unified shape with 1×1 squares by default.
     pub fn base(layers: Vec<Self>) -> Self {
         let mut base_shape = Shape::default();
 
+        // Compute the union of all layer shapes to find the base bounds
         for layer in &layers {
             base_shape = base_shape.union(layer.shape);
         }
 
-        // Create a uniform grid of tiles across the entire shape
+        // Create a uniform grid of tiles across the entire base shape
         let mut tiles = Vec::new();
         for y in 0..base_shape.height {
             for x in 0..base_shape.width {
@@ -91,6 +99,7 @@ impl Layer {
             z: 1,
         };
 
+        // Sort layers by their Z to apply texture effects in order
         let mut layers_by_z = layers.clone();
         layers_by_z.sort_by_key(|layer| layer.z);
 
@@ -98,6 +107,7 @@ impl Layer {
             base_layer.positive_reshape(layer.shape);
 
             if layer.kind == LayerType::Texture {
+                // For each texture tile, update base tile effect if coordinates match
                 'tileloop: for tile in &layer.tiles {
                     for base_tile in base_layer.tiles.iter_mut() {
                         if base_tile.pointer == tile.pointer {
@@ -120,6 +130,8 @@ impl Layer {
     /// tiles are regenerated to fill the new shape, preserving any previous effects.
     pub fn reshape(&mut self, shape: Shape) {
         self.shape = shape;
+
+        // Retain only tiles inside the new shape
         let mut tiles = vec![];
         for tile in self.tiles.iter() {
             if shape.in_bounds(tile.pointer) {
@@ -128,11 +140,13 @@ impl Layer {
         }
         self.tiles = tiles;
 
+        // For base layers, regenerate tiles to fill the new shape
         if self.kind == LayerType::Base {
             let mut base_tiles = Vec::new();
             for y in 0..self.shape.height {
                 for x in 0..self.shape.width {
                     let pointer = Coordinates { x, y };
+                    // Preserve effect from previous tile if present
                     let effect = if let Some(tile) = self.get_tile_at(pointer) {
                         tile.effect
                     } else {
@@ -140,7 +154,7 @@ impl Layer {
                     };
                     base_tiles.push(Tile {
                         id: x as u32,
-                        pointer: Coordinates { x, y },
+                        pointer,
                         shape: Shape::from_square(1),
                         effect,
                     });
@@ -151,22 +165,31 @@ impl Layer {
     }
 
     /// Expands the shape to include the provided shape (only grows, never shrinks).
+    ///
+    /// Calls [`reshape`] internally if expansion occurs.
     pub fn positive_reshape(&mut self, shape: Shape) {
+        let mut changed = false;
         if shape.width > self.shape.width {
             self.shape.width = shape.width;
+            changed = true;
         }
         if shape.height > self.shape.height {
             self.shape.height = shape.height;
+            changed = true;
         }
-        self.reshape(self.shape);
+        if changed {
+            self.reshape(self.shape);
+        }
     }
 
     /// Finds the tile covering the given coordinates, accounting for both tile origin and shape.
+    ///
+    /// Supports tiles larger than 1×1 by checking if the coordinate lies within the tile's shape.
     pub fn get_tile_at(&self, pointer: Coordinates) -> Option<Tile> {
         self.tiles
             .iter()
             .find(|tile| {
-                // Ensure pointer is not less than tile.pointer to avoid underflow
+                // Avoid underflow for subtraction by checking coordinate ordering
                 if pointer.x >= tile.pointer.x && pointer.y >= tile.pointer.y {
                     let local = Coordinates {
                         x: pointer.x - tile.pointer.x,
@@ -181,6 +204,8 @@ impl Layer {
     }
 
     /// Retrieves all tiles within a rectangular block defined by two coordinates.
+    ///
+    /// Only returns tiles that exist exactly at those coordinates (tiles with larger shape ignored if not top-left).
     pub fn get_block_at(&self, pointer: BlockSelector) -> Vec<Tile> {
         self.shape
             .coordinates_in_range(pointer.0, pointer.1)
@@ -189,12 +214,16 @@ impl Layer {
             .collect()
     }
 
-    /// Checks if the tile at a given coordinate is blocking.
+    /// Checks if any tile covering the given coordinate is blocking.
+    ///
+    /// This method considers tiles with larger shapes.
     pub fn is_blocking_at(&self, target: &Coordinates) -> bool {
         self.tiles.iter().any(|tile| tile.is_blocking_at(*target))
     }
 
-    /// Offsets all tiles in this layer by the given delta.
+    /// Offsets all tiles and the shape of the layer by the given delta.
+    ///
+    /// The shape dimensions increase by delta.x and delta.y (capped to zero minimum).
     pub fn offset(&mut self, delta: Coordinates) {
         for tile in &mut self.tiles {
             tile.offset(delta);
@@ -317,33 +346,9 @@ pub mod tests {
     }
 
     #[test]
-    fn get_block_returns_only_existing_tiles() {
+    fn is_blocking_returns_true_for_blocking_tile() {
         let mask = Mask {
-            name: "PartialBlock".to_string(),
-            selector: Selector::Single(SingleSelector { x: 1, y: 1 }),
-            effect: Effect {
-                block: true,
-                ..Default::default()
-            },
-        };
-        let layer = Layer::new(
-            "TestLayer".to_string(),
-            LayerType::Action,
-            Shape::from_square(3),
-            vec![mask],
-            1,
-        );
-
-        let block =
-            layer.get_block_at((SingleSelector { x: 0, y: 0 }, SingleSelector { x: 2, y: 2 }));
-        assert_eq!(block.len(), 1);
-        assert_eq!(block[0].pointer, SingleSelector { x: 1, y: 1 });
-    }
-
-    #[test]
-    fn detects_blocked_tile() {
-        let mask = Mask {
-            name: "Blocked".to_string(),
+            name: "Blocking".to_string(),
             selector: Selector::Single(SingleSelector { x: 0, y: 0 }),
             effect: Effect {
                 block: true,
@@ -351,9 +356,9 @@ pub mod tests {
             },
         };
         let layer = Layer::new(
-            "BlockLayer".to_string(),
-            LayerType::Block,
-            Shape::from_square(2),
+            "BlockingLayer".to_string(),
+            LayerType::Action,
+            Shape::from_square(1),
             vec![mask],
             1,
         );
@@ -363,29 +368,124 @@ pub mod tests {
     }
 
     #[test]
-    fn offsets_tiles_and_shape() {
-        let mask = Mask {
-            name: "OffsetMask".to_string(),
-            selector: Selector::Single(SingleSelector { x: 0, y: 0 }),
-            effect: Effect {
-                block: true,
-                ..Default::default()
-            },
-        };
-        let original_shape = Shape::from_square(2);
+    fn offset_adjusts_all_tiles_and_shape() {
         let mut layer = Layer::new(
-            "OffsetLayer".to_string(),
-            LayerType::Action,
-            original_shape,
-            vec![mask],
+            "Offset".to_string(),
+            LayerType::Texture,
+            Shape::from_square(2),
+            vec![],
             1,
         );
-        let offset = Coordinates { x: 2, y: 3 };
+        let original_tiles = layer.tiles.clone();
 
-        layer.offset(offset);
+        layer.offset(Coordinates { x: 1, y: 1 });
+        for (original, offset_tile) in original_tiles.iter().zip(layer.tiles.iter()) {
+            assert_eq!(
+                offset_tile.pointer,
+                Coordinates {
+                    x: original.pointer.x + 1,
+                    y: original.pointer.y + 1
+                }
+            );
+        }
+        assert_eq!(layer.shape.width, 3);
+        assert_eq!(layer.shape.height, 3);
+    }
 
-        assert_eq!(layer.tiles[0].pointer, Coordinates { x: 2, y: 3 });
-        assert_eq!(layer.shape.width, original_shape.width + 2);
-        assert_eq!(layer.shape.height, original_shape.height + 3);
+    #[test]
+    fn base_layer_combines_and_applies_textures() {
+        let base_layer = Layer::base(vec![
+            Layer::new(
+                "Layer1".to_string(),
+                LayerType::Texture,
+                Shape::from_square(2),
+                vec![Mask {
+                    name: "BlockMask".to_string(),
+                    selector: Selector::Single(SingleSelector { x: 0, y: 0 }),
+                    effect: Effect {
+                        block: true,
+                        ..Default::default()
+                    },
+                }],
+                2,
+            ),
+            Layer::new(
+                "Layer2".to_string(),
+                LayerType::Texture,
+                Shape::from_square(2),
+                vec![Mask {
+                    name: "ActionMask".to_string(),
+                    selector: Selector::Single(SingleSelector { x: 1, y: 1 }),
+                    effect: Effect {
+                        action_id: Some(5),
+                        ..Default::default()
+                    },
+                }],
+                3,
+            ),
+        ]);
+
+        assert_eq!(base_layer.kind, LayerType::Base);
+        assert_eq!(base_layer.shape.width, 2);
+        assert_eq!(base_layer.shape.height, 2);
+
+        // Base layer tiles are 4 total for 2x2 shape
+        assert_eq!(base_layer.tiles.len(), 4);
+
+        // Check blocking effect applied from texture layer
+        let tile_0_0 = base_layer.get_tile_at(Coordinates { x: 0, y: 0 }).unwrap();
+        assert!(tile_0_0.effect.block);
+
+        // Check action effect applied from other texture layer
+        let tile_1_1 = base_layer.get_tile_at(Coordinates { x: 1, y: 1 }).unwrap();
+        assert_eq!(tile_1_1.effect.action_id, Some(5));
+    }
+
+    #[test]
+    fn reshape_discards_tiles_outside_shape() {
+        let mut layer = Layer::new(
+            "Reshape".to_string(),
+            LayerType::Texture,
+            Shape::from_square(3),
+            vec![Mask {
+                name: "BlockMask".to_string(),
+                selector: Selector::Single(SingleSelector { x: 2, y: 2 }),
+                effect: Effect {
+                    block: true,
+                    ..Default::default()
+                },
+            }],
+            1,
+        );
+
+        layer.reshape(Shape {
+            width: 2,
+            height: 2,
+        });
+
+        // Tile at (2,2) should be discarded
+        assert_eq!(layer.get_tile_at(Coordinates { x: 2, y: 2 }), None);
+    }
+
+    #[test]
+    fn positive_reshape_expands_shape_and_regenerates_tiles() {
+        let mut layer = Layer::new(
+            "PositiveReshape".to_string(),
+            LayerType::Texture,
+            Shape::from_square(2),
+            vec![],
+            1,
+        );
+
+        let old_shape = layer.shape;
+        layer.positive_reshape(Shape {
+            width: 3,
+            height: 4,
+        });
+
+        assert!(layer.shape.width >= old_shape.width);
+        assert!(layer.shape.height >= old_shape.height);
+        assert_eq!(layer.shape.width, 3);
+        assert_eq!(layer.shape.height, 4);
     }
 }

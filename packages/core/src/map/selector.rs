@@ -1,27 +1,29 @@
 use crate::prelude::{Coordinates, Shape};
 
-/// A [`SingleSelector`] targets a single tile using its [`Coordinates`] on the grid.
+/// Targets a single tile using its coordinates on the grid.
 pub type SingleSelector = Coordinates;
 
-/// A [`BlockSelector`] defines a rectangular area by specifying two opposite corner [`Coordinates`],
+/// Defines a rectangular area by specifying two opposite corner coordinates,
 /// typically top-left and bottom-right, to select a block of tiles.
 pub type BlockSelector = (Coordinates, Coordinates);
 
-/// A [`FilterSelector`] is a function that receives a reference to a [`Grid`] and returns a filtered list
-/// of [`Tile`]s based on custom logic (e.g. pathfinding zones, terrain type).
+/// A function that takes a coordinate and a shape and returns whether
+/// the coordinate matches a filter criterion.
 pub type FilterSelector = fn(Coordinates, Shape) -> bool;
 
-/// A [`Selector`] defines how to target a subset of [`Tile`]s on a [`Grid`] for applying effects or logic.
-/// It supports selecting individual [`Tile`]s, rectangular blocks, or filtered custom selections.
-#[derive(Clone, Debug, Copy)]
+#[doc = include_str!("../../docs/selector.md")]
+/// Defines how to target tiles on a grid for effects or logic.
+///
+/// Can select a single tile, a rectangular block, or tiles filtered by custom logic.
+#[derive(Clone, Debug, Copy, PartialEq, Eq)]
 pub enum Selector {
-    /// Selects a single [`Tile`] at the given [`Coordinates`].
+    /// Selects a single tile at the given coordinates.
     Single(SingleSelector),
 
-    /// Selects a rectangular block of [`Tile`]s between two [`Coordinates`].
+    /// Selects a rectangular block of tiles between two coordinates.
     Block(BlockSelector),
 
-    /// Selects [`Tile`]s based on a custom filtering function.
+    /// Selects tiles based on a custom filtering function.
     Filter(FilterSelector),
 }
 
@@ -64,8 +66,20 @@ pub mod tests {
 
         let selector = Selector::Filter(only_even);
         if let Selector::Filter(f) = selector {
-            assert!(f(Coordinates { x: 2, y: 2 }, Shape { width: 6, height: 6 }));
-            assert!(!f(Coordinates { x: 1, y: 2 }, Shape { width: 6, height: 6 }));
+            assert!(f(
+                Coordinates { x: 2, y: 2 },
+                Shape {
+                    width: 6,
+                    height: 6
+                }
+            ));
+            assert!(!f(
+                Coordinates { x: 1, y: 2 },
+                Shape {
+                    width: 6,
+                    height: 6
+                }
+            ));
         } else {
             panic!("Expected Selector::Filter");
         }
@@ -95,5 +109,23 @@ pub mod tests {
         let copy = clone_selector(original);
 
         assert_eq!(format!("{:?}", original), format!("{:?}", copy));
+    }
+
+    // Additional tests for PartialEq and Eq
+    #[test]
+    fn selector_equality() {
+        let c1 = Coordinates { x: 5, y: 6 };
+        let c2 = Coordinates { x: 5, y: 6 };
+        let c3 = Coordinates { x: 7, y: 8 };
+
+        assert_eq!(Selector::Single(c1), Selector::Single(c2));
+        assert_ne!(Selector::Single(c1), Selector::Single(c3));
+
+        let block1 = Selector::Block((c1, c3));
+        let block2 = Selector::Block((c2, c3));
+        let block3 = Selector::Block((c3, c1));
+
+        assert_eq!(block1, block2);
+        assert_ne!(block1, block3);
     }
 }
