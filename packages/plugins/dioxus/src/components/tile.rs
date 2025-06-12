@@ -1,12 +1,13 @@
 use dioxus::prelude::*;
-use rpgx::{common::errors::MapError, library::Library, prelude::LayerType};
+use rpgx::{common::errors::MapError, library::Library};
 use std::any::Any;
+use web_sys::console;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct TileProps {
     tile: rpgx::prelude::Tile,
     layer_z: u32,
-    layer_kind: LayerType,
+    // layer_kind: LayerType,
     square_size: u32,
     library: Signal<Library<Box<dyn Any>>>,
     onclick: EventHandler<Result<rpgx::prelude::Tile, MapError>>,
@@ -56,19 +57,21 @@ pub fn Tile(props: TileProps) -> Element {
             1 as u32
         } * props.square_size,
         props.layer_z,
-        if props.layer_kind == LayerType::Base {
-            "auto"
-        } else {
-            "none"
-        }
+        // if props.layer_kind == LayerType::Base {
+        //     "auto"
+        // } else {
+        //     "none"
+        // }
+        "auto"
     );
 
     let onclick_tile = {
         let tile = props.tile.clone();
+        // console::log_1(&"onclick_tile".into());
         move |_| {
-            if props.layer_kind == LayerType::Base {
-                let _ = props.onclick.call(Ok(tile.clone()));
-            }
+            println!("onclick_tile");
+            // console::log_1(&"onclick_tile_emit_props".into());
+            let _ = props.onclick.call(Ok(tile.clone()));
         }
     };
 
@@ -76,7 +79,7 @@ pub fn Tile(props: TileProps) -> Element {
 
     rsx! {
         div {
-            class: if props.layer_kind == LayerType::Base { "base-layer-tile" } else { "layer-tile" },
+            class: "layer-tile",
             style: "{base_style}",
             onclick: onclick_tile,
             {
@@ -94,7 +97,7 @@ pub fn Tile(props: TileProps) -> Element {
                     })
                     .unwrap_or(rsx! {}.unwrap())
             }
-
+        
         }
     }
 }

@@ -1,7 +1,7 @@
 use std::any::Any;
 
 use dioxus::prelude::*;
-use rpgx::{common::errors::MapError, engine::Engine, library::Library, prelude::LayerType};
+use rpgx::{common::errors::MapError, engine::Engine, library::Library};
 
 use crate::components::tile::Tile;
 
@@ -23,7 +23,6 @@ pub fn Grid(props: GridProps) -> Element {
                     .map
                     .layers
                     .iter()
-                    .filter(|layer| layer.kind != LayerType::Texture)
                     .enumerate()
                     .flat_map(|(layer_index, layer)| {
                         layer
@@ -36,7 +35,7 @@ pub fn Grid(props: GridProps) -> Element {
                                         key: "{layer_index}-{i}",
                                         tile: tile.clone(),
                                         layer_z: layer.z,
-                                        layer_kind: layer.kind,
+                                        // layer_kind: layer.kind,
                                         square_size: props.square_size,
                                         library: props.library.clone(),
                                         onclick: props.onclick.clone(),

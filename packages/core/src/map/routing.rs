@@ -87,7 +87,7 @@ impl Map {
 
             for neighbor in neighbors {
                 // Skip if no tile at neighbor or tile is blocking
-                if self.get_base_tile(neighbor).is_none() || self.is_blocking_at(neighbor) {
+                if !self.move_allowed(neighbor) {
                     continue;
                 }
 
@@ -116,7 +116,7 @@ impl Map {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::prelude::{Effect, Layer, LayerType, Map, Shape, Tile};
+    use crate::prelude::{Effect, Layer, Map, Shape, Tile};
 
     // Helper: create a blocking tile at the given coordinate
     fn blocking_tile_at(coord: Coordinates) -> Tile {
@@ -138,7 +138,6 @@ pub mod tests {
 
         let block_layer = Layer {
             name: "block".into(),
-            kind: LayerType::Block,
             shape,
             tiles: block_tiles,
             masks: vec![],

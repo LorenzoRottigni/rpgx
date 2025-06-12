@@ -3,7 +3,7 @@ use std::any::Any;
 use rpgx::{
     library::Library,
     map::Map,
-    prelude::{Coordinates, Direction, Effect, Layer, LayerType, Mask, Selector, Shape},
+    prelude::{Coordinates, Direction, Effect, Layer, Mask, Selector, Shape},
 };
 
 pub fn use_map2(library: &Library<Box<dyn Any>>) -> Map {
@@ -79,7 +79,6 @@ pub fn use_map2(library: &Library<Box<dyn Any>>) -> Map {
 
     map.load_layer(Layer::new(
         "ground_decoration".to_string(),
-        LayerType::Texture,
         map.get_shape(),
         vec![Mask::new(
             "ground_decoration".to_string(),

@@ -3,7 +3,7 @@ use std::any::Any;
 use rpgx::{
     library::Library,
     map::Map,
-    prelude::{Coordinates, Effect, Layer, LayerType, Mask, Selector, Shape},
+    prelude::{Coordinates, Effect, Layer, Mask, Selector, Shape},
 };
 
 const GRID_SIZE: u32 = 12;
@@ -19,7 +19,6 @@ fn is_center_tile(pointer: Coordinates, _shape: Shape) -> bool {
 pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
     let ground_layer = Layer::new(
         "ground".to_string(),
-        LayerType::Texture,
         Shape {
             width: GRID_SIZE as u32,
             height: GRID_SIZE as u32,
@@ -53,7 +52,6 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
 
     let building_layer = Layer::new(
         "buildings".to_string(),
-        LayerType::Block,
         Shape {
             width: GRID_SIZE as u32,
             height: GRID_SIZE as u32,
@@ -74,7 +72,6 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
 
     let action_layer = Layer::new(
         "actions".to_string(),
-        LayerType::Action,
         Shape {
             width: GRID_SIZE as u32,
             height: GRID_SIZE as u32,

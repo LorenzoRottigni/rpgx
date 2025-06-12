@@ -27,6 +27,41 @@ pub enum Selector {
     Filter(FilterSelector),
 }
 
+/*
+impl Selector {
+    /// Returns the bounding `Shape` that contains all selected coordinates.
+    /// For `Single`, the shape is 1x1.
+    /// For `Block`, the shape is computed from bounds.
+    /// For `Sparse`, the minimal bounding rectangle containing all coordinates is returned.
+    pub fn get_shape(&self) -> Shape {
+        match self {
+            Selector::Single(_) => Shape::from_square(1),
+            Selector::Block((start, end)) => Shape::from_bounds(*start, *end),
+            Selector::Sparse(coords) => {
+                if coords.is_empty() {
+                    return Shape::default();
+                }
+
+                let (min_x, max_x) = coords
+                    .iter()
+                    .map(|c| c.x)
+                    .fold((u32::MAX, 0), |(min, max), x| (min.min(x), max.max(x)));
+
+                let (min_y, max_y) = coords
+                    .iter()
+                    .map(|c| c.y)
+                    .fold((u32::MAX, 0), |(min, max), y| (min.min(y), max.max(y)));
+
+                Shape::from_bounds(
+                    Coordinates { x: min_x, y: min_y },
+                    Coordinates { x: max_x, y: max_y },
+                )
+            }
+        }
+    }
+}
+*/
+
 #[cfg(test)]
 pub mod tests {
     use super::*;

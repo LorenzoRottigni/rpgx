@@ -3,7 +3,7 @@ use std::any::Any;
 use rpgx::{
     library::Library,
     map::Map,
-    prelude::{Coordinates, Effect, Layer, LayerType, Mask, Selector, Shape},
+    prelude::{Coordinates, Effect, Layer, Mask, Selector, Shape},
 };
 
 pub fn use_map1(library: &Library<Box<dyn Any>>) -> Map {
@@ -39,7 +39,6 @@ pub fn use_map1(library: &Library<Box<dyn Any>>) -> Map {
     ));
     single_map.load_layer(Layer::new(
         "sign".into(),
-        LayerType::Block,
         Shape {
             width: 6,
             height: 8,

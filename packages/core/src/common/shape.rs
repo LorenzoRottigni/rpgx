@@ -8,61 +8,6 @@ pub struct Shape {
     pub height: u32,
 }
 
-impl Add for Shape {
-    type Output = Shape;
-
-    fn add(self, other: Shape) -> Shape {
-        Shape {
-            width: self.width + other.width,
-            height: self.height + other.height,
-        }
-    }
-}
-
-impl Sub<u32> for Shape {
-    type Output = Shape;
-
-    fn sub(self, value: u32) -> Shape {
-        Shape {
-            width: self.width - value,
-            height: self.height - value,
-        }
-    }
-}
-
-impl Add<Coordinates> for Shape {
-    type Output = Shape;
-
-    fn add(self, coordinates: Coordinates) -> Shape {
-        Shape {
-            width: self.width + coordinates.x,
-            height: self.height + coordinates.y,
-        }
-    }
-}
-
-impl Sub for Shape {
-    type Output = Shape;
-
-    fn sub(self, other: Shape) -> Shape {
-        Shape {
-            width: self.width - other.width,
-            height: self.height - other.height,
-        }
-    }
-}
-
-impl Sub<Coordinates> for Shape {
-    type Output = Shape;
-
-    fn sub(self, coordinates: Coordinates) -> Shape {
-        Shape {
-            width: self.width - coordinates.x,
-            height: self.height - coordinates.y,
-        }
-    }
-}
-
 impl Shape {
     pub fn from_square(side: u32) -> Self {
         Self {
@@ -80,6 +25,12 @@ impl Shape {
         let height = start.y.max(end.y) - start.y.min(end.y) + 1;
 
         Self { width, height }
+    }
+
+    pub fn bounding_shape(shapes: &[Self]) -> Self {
+        shapes
+            .iter()
+            .fold(Self::default(), |acc, shape| acc.union(*shape))
     }
 
     pub fn union(&self, other: Shape) -> Self {
@@ -140,6 +91,61 @@ impl Shape {
     pub fn expand_to_include(&mut self, offset: Coordinates, other: Shape) {
         self.width = self.width.max(offset.x + other.width);
         self.height = self.height.max(offset.y + other.height);
+    }
+}
+
+impl Add for Shape {
+    type Output = Shape;
+
+    fn add(self, other: Shape) -> Shape {
+        Shape {
+            width: self.width + other.width,
+            height: self.height + other.height,
+        }
+    }
+}
+
+impl Sub<u32> for Shape {
+    type Output = Shape;
+
+    fn sub(self, value: u32) -> Shape {
+        Shape {
+            width: self.width - value,
+            height: self.height - value,
+        }
+    }
+}
+
+impl Add<Coordinates> for Shape {
+    type Output = Shape;
+
+    fn add(self, coordinates: Coordinates) -> Shape {
+        Shape {
+            width: self.width + coordinates.x,
+            height: self.height + coordinates.y,
+        }
+    }
+}
+
+impl Sub for Shape {
+    type Output = Shape;
+
+    fn sub(self, other: Shape) -> Shape {
+        Shape {
+            width: self.width - other.width,
+            height: self.height - other.height,
+        }
+    }
+}
+
+impl Sub<Coordinates> for Shape {
+    type Output = Shape;
+
+    fn sub(self, coordinates: Coordinates) -> Shape {
+        Shape {
+            width: self.width - coordinates.x,
+            height: self.height - coordinates.y,
+        }
     }
 }
 

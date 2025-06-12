@@ -1,4 +1,4 @@
-use crate::prelude::{Coordinates, Effect, Layer, LayerType, Mask, Selector, Shape};
+use crate::prelude::{Coordinates, Effect, Layer, Mask, Selector, Shape};
 
 /// Generates a street `Layer` that surrounds the area defined by `shape`.
 pub fn ground_layer(shape: Shape, texture_id: u32) -> Layer {
@@ -17,11 +17,5 @@ pub fn ground_layer(shape: Shape, texture_id: u32) -> Layer {
         )),
     };
 
-    Layer::new(
-        "street".to_string(),
-        LayerType::Texture,
-        shape,
-        vec![mask],
-        1,
-    )
+    Layer::new("street".to_string(), shape, vec![mask], 1)
 }

@@ -5,17 +5,17 @@ pub use crate::prelude::{BlockSelector, Coordinates, Effect, Shape, SingleSelect
 pub mod mask;
 
 /// Represents the different roles a [`Layer`] can play in the [`Grid`] stack.
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub enum LayerType {
-    /// The base of all layers, includes all tiles of a Shape which takes into account all layers shapes.
-    Base,
-    /// Any action has to be placed within this layer, or won't be triggered within RPGX flows.
-    Action,
-    /// This layer is merged into the base layer and modifies base tiles.
-    Texture,
-    /// A special layer that uses unstandard tile shapes (e.g., 4×5 or 3×3 instead of 1×1).
-    Block,
-}
+// #[derive(Clone, Copy, PartialEq, Debug)]
+// pub enum LayerType {
+//     /// The base of all layers, includes all tiles of a Shape which takes into account all layers shapes.
+//     Base,
+//     /// Any action has to be placed within this layer, or won't be triggered within RPGX flows.
+//     Action,
+//     /// This layer is merged into the base layer and modifies base tiles.
+//     Texture,
+//     /// A special layer that uses unstandard tile shapes (e.g., 4×5 or 3×3 instead of 1×1).
+//     Block,
+// }
 
 #[doc = include_str!("../../../docs/layer.md")]
 /// A visual or logical overlay on top of the base grid, used to apply effects
@@ -28,7 +28,7 @@ pub struct Layer {
     /// The name of the layer (e.g., `"collision"`, `"visuals"`)
     pub name: String,
     /// The type of layer (e.g., `Base`, `Action`, `Texture`, etc.)
-    pub kind: LayerType,
+    // pub kind: LayerType,
     /// All tiles currently active within the layer.
     pub tiles: Vec<Tile>,
     /// The shape (bounds) of the layer.
@@ -46,16 +46,10 @@ impl Layer {
     /// Panics if called with [`LayerType::Base`] (use [`Layer::base`] instead).
     ///
     /// Applies each mask's selector and effect over the `shape` to generate tiles.
-    pub fn new(name: String, kind: LayerType, shape: Shape, masks: Vec<Mask>, z: u32) -> Self {
-        assert!(
-            kind != LayerType::Base,
-            "Use Layer::base instead of Layer::new for Base layers"
-        );
-
+    pub fn new(name: String, shape: Shape, masks: Vec<Mask>, z: u32) -> Self {
         let tiles = masks.iter().flat_map(|mask| mask.apply(shape)).collect();
         Self {
             name,
-            kind,
             tiles,
             shape,
             masks,
@@ -63,13 +57,14 @@ impl Layer {
         }
     }
 
+    /*
     /// Constructs the base layer from a group of other layers.
     ///
     /// This layer will have a unified shape that encompasses all others and may
     /// merge any tiles from [`LayerType::Texture`] layers into itself by copying their effects.
     ///
     /// The base layer's tiles cover the entire unified shape with 1×1 squares by default.
-    pub fn base(layers: Vec<Self>) -> Self {
+     pub fn base(layers: Vec<Self>) -> Self {
         let mut base_shape = Shape::default();
 
         // Compute the union of all layer shapes to find the base bounds
@@ -120,7 +115,7 @@ impl Layer {
         }
 
         base_layer
-    }
+    } */
 }
 
 impl Layer {
@@ -141,27 +136,27 @@ impl Layer {
         self.tiles = tiles;
 
         // For base layers, regenerate tiles to fill the new shape
-        if self.kind == LayerType::Base {
-            let mut base_tiles = Vec::new();
-            for y in 0..self.shape.height {
-                for x in 0..self.shape.width {
-                    let pointer = Coordinates { x, y };
-                    // Preserve effect from previous tile if present
-                    let effect = if let Some(tile) = self.get_tile_at(pointer) {
-                        tile.effect
-                    } else {
-                        Effect::default()
-                    };
-                    base_tiles.push(Tile {
-                        id: x as u32,
-                        pointer,
-                        shape: Shape::from_square(1),
-                        effect,
-                    });
-                }
-            }
-            self.tiles = base_tiles;
-        }
+        // if self.kind == LayerType::Base {
+        //     let mut base_tiles = Vec::new();
+        //     for y in 0..self.shape.height {
+        //         for x in 0..self.shape.width {
+        //             let pointer = Coordinates { x, y };
+        //             // Preserve effect from previous tile if present
+        //             let effect = if let Some(tile) = self.get_tile_at(pointer) {
+        //                 tile.effect
+        //             } else {
+        //                 Effect::default()
+        //             };
+        //             base_tiles.push(Tile {
+        //                 id: x as u32,
+        //                 pointer,
+        //                 shape: Shape::from_square(1),
+        //                 effect,
+        //             });
+        //         }
+        //     }
+        //     self.tiles = base_tiles;
+        // }
     }
 
     /// Expands the shape to include the provided shape (only grows, never shrinks).
@@ -214,9 +209,6 @@ impl Layer {
             .collect()
     }
 
-    /// Checks if any tile covering the given coordinate is blocking.
-    ///
-    /// This method considers tiles with larger shapes.
     pub fn is_blocking_at(&self, target: &Coordinates) -> bool {
         self.tiles.iter().any(|tile| tile.is_blocking_at(*target))
     }
@@ -262,7 +254,6 @@ pub mod tests {
         let shape = Shape::from_square(2);
         let layer = Layer::new(
             "MultiMask".to_string(),
-            LayerType::Action,
             shape,
             vec![mask1.clone(), mask2.clone()],
             1,
@@ -298,13 +289,7 @@ pub mod tests {
         };
 
         let shape = Shape::from_square(3);
-        let layer = Layer::new(
-            "MaskedDefault".to_string(),
-            LayerType::Texture,
-            shape,
-            vec![mask],
-            1,
-        );
+        let layer = Layer::new("MaskedDefault".to_string(), shape, vec![mask], 1);
 
         let block =
             layer.get_block_at((SingleSelector { x: 0, y: 0 }, SingleSelector { x: 2, y: 2 }));
@@ -320,26 +305,14 @@ pub mod tests {
             width: 0,
             height: 0,
         };
-        let layer = Layer::new(
-            "EmptyShape".to_string(),
-            LayerType::Texture,
-            shape,
-            vec![],
-            1,
-        );
+        let layer = Layer::new("EmptyShape".to_string(), shape, vec![], 1);
 
         assert_eq!(layer.tiles.len(), 0);
     }
 
     #[test]
     fn returns_none_for_missing_tile() {
-        let layer = Layer::new(
-            "Empty".to_string(),
-            LayerType::Texture,
-            Shape::from_square(2),
-            vec![],
-            1,
-        );
+        let layer = Layer::new("Empty".to_string(), Shape::from_square(2), vec![], 1);
 
         let out_of_bounds = SingleSelector { x: 10, y: 10 };
         assert_eq!(layer.get_tile_at(out_of_bounds), None);
@@ -357,7 +330,6 @@ pub mod tests {
         };
         let layer = Layer::new(
             "BlockingLayer".to_string(),
-            LayerType::Action,
             Shape::from_square(1),
             vec![mask],
             1,
@@ -369,13 +341,7 @@ pub mod tests {
 
     #[test]
     fn offset_adjusts_all_tiles_and_shape() {
-        let mut layer = Layer::new(
-            "Offset".to_string(),
-            LayerType::Texture,
-            Shape::from_square(2),
-            vec![],
-            1,
-        );
+        let mut layer = Layer::new("Offset".to_string(), Shape::from_square(2), vec![], 1);
         let original_tiles = layer.tiles.clone();
 
         layer.offset(Coordinates { x: 1, y: 1 });
@@ -393,7 +359,7 @@ pub mod tests {
     }
 
     #[test]
-    fn base_layer_combines_and_applies_textures() {
+    /* fn base_layer_combines_and_applies_textures() {
         let base_layer = Layer::base(vec![
             Layer::new(
                 "Layer1".to_string(),
@@ -439,13 +405,11 @@ pub mod tests {
         // Check action effect applied from other texture layer
         let tile_1_1 = base_layer.get_tile_at(Coordinates { x: 1, y: 1 }).unwrap();
         assert_eq!(tile_1_1.effect.action_id, Some(5));
-    }
-
+    } */
     #[test]
     fn reshape_discards_tiles_outside_shape() {
         let mut layer = Layer::new(
             "Reshape".to_string(),
-            LayerType::Texture,
             Shape::from_square(3),
             vec![Mask {
                 name: "BlockMask".to_string(),
@@ -471,7 +435,6 @@ pub mod tests {
     fn positive_reshape_expands_shape_and_regenerates_tiles() {
         let mut layer = Layer::new(
             "PositiveReshape".to_string(),
-            LayerType::Texture,
             Shape::from_square(2),
             vec![],
             1,
