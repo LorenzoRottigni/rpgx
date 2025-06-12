@@ -4,10 +4,16 @@ pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
     // let base_layer = Layer::base("base".to_string(), shape, vec![]);
     let building_layer = Layer::new(
         "buildings".to_string(),
-        shape,
-        vec![Mask {
-            name: "logo".to_string(),
-            effect: Effect {
+        vec![Mask::new(
+            "logo".to_string(),
+            Selector::Block((
+                Coordinates { x: 0, y: 0 },
+                Coordinates {
+                    x: shape.width,
+                    y: shape.height,
+                },
+            )),
+            Effect {
                 texture_id: Some(texture_id),
                 block: true,
                 group: true,
@@ -20,14 +26,7 @@ pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
                 )),
                 ..Default::default()
             },
-            selector: Selector::Block((
-                Coordinates { x: 0, y: 0 },
-                Coordinates {
-                    x: shape.width,
-                    y: shape.height,
-                },
-            )),
-        }],
+        )],
         5,
     );
 
@@ -43,14 +42,9 @@ pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
 
     let action_layer = Layer::new(
         "actions".to_string(),
-        shape,
-        vec![Mask {
-            name: "action_test".to_string(),
-            effect: Effect {
-                action_id: Some(action_id),
-                ..Default::default()
-            },
-            selector: Selector::Block((
+        vec![Mask::new(
+            "action_test".to_string(),
+            Selector::Block((
                 Coordinates {
                     x: start_x,
                     y: bottom_y,
@@ -60,7 +54,11 @@ pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
                     y: bottom_y + 1,
                 },
             )),
-        }],
+            Effect {
+                action_id: Some(action_id),
+                ..Default::default()
+            },
+        )],
         6,
     );
 
@@ -79,10 +77,16 @@ pub fn building_1x1(shape: Shape, texture_id: u32, action_id: u32) -> Map {
     // let base_layer = Layer::base("base".to_string(), shape, vec![]);
     let building_layer = Layer::new(
         "buildings".to_string(),
-        shape,
-        vec![Mask {
-            name: "logo".to_string(),
-            effect: Effect {
+        vec![Mask::new(
+            "logo".to_string(),
+            Selector::Block((
+                Coordinates { x: 0, y: 0 },
+                Coordinates {
+                    x: shape.width,
+                    y: shape.height,
+                },
+            )),
+            Effect {
                 texture_id: Some(texture_id),
                 block: true,
                 group: true,
@@ -95,14 +99,7 @@ pub fn building_1x1(shape: Shape, texture_id: u32, action_id: u32) -> Map {
                 )),
                 ..Default::default()
             },
-            selector: Selector::Block((
-                Coordinates { x: 0, y: 0 },
-                Coordinates {
-                    x: shape.width,
-                    y: shape.height,
-                },
-            )),
-        }],
+        )],
         5,
     );
 
@@ -112,14 +109,9 @@ pub fn building_1x1(shape: Shape, texture_id: u32, action_id: u32) -> Map {
 
     let action_layer = Layer::new(
         "actions".to_string(),
-        shape,
-        vec![Mask {
-            name: "action_test".to_string(),
-            effect: Effect {
-                action_id: Some(action_id),
-                ..Default::default()
-            },
-            selector: Selector::Block((
+        vec![Mask::new(
+            "action_test".to_string(),
+            Selector::Block((
                 Coordinates {
                     x: start_x,
                     y: bottom_y,
@@ -129,7 +121,11 @@ pub fn building_1x1(shape: Shape, texture_id: u32, action_id: u32) -> Map {
                     y: bottom_y + 1,
                 },
             )),
-        }],
+            Effect {
+                action_id: Some(action_id),
+                ..Default::default()
+            },
+        )],
         6,
     );
 
@@ -144,10 +140,16 @@ pub fn building_3x2(shape: Shape, texture_id: u32, action_id: u32) -> Map {
     // let base_layer = Layer::base("base".to_string(), shape, vec![]);
     let building_layer = Layer::new(
         "buildings".to_string(),
-        shape,
-        vec![Mask {
-            name: "logo".to_string(),
-            effect: Effect {
+        vec![Mask::new(
+            "logo".to_string(),
+            Selector::Block((
+                Coordinates { x: 0, y: 0 },
+                Coordinates {
+                    x: shape.width,
+                    y: shape.height,
+                },
+            )),
+            Effect {
                 texture_id: Some(texture_id),
                 block: true,
                 group: true,
@@ -160,14 +162,7 @@ pub fn building_3x2(shape: Shape, texture_id: u32, action_id: u32) -> Map {
                 )),
                 ..Default::default()
             },
-            selector: Selector::Block((
-                Coordinates { x: 0, y: 0 },
-                Coordinates {
-                    x: shape.width,
-                    y: shape.height,
-                },
-            )),
-        }],
+        )],
         5,
     );
 
@@ -183,14 +178,9 @@ pub fn building_3x2(shape: Shape, texture_id: u32, action_id: u32) -> Map {
 
     let action_layer = Layer::new(
         "actions".to_string(),
-        shape,
-        vec![Mask {
-            name: "action_test".to_string(),
-            effect: Effect {
-                action_id: Some(action_id),
-                ..Default::default()
-            },
-            selector: Selector::Block((
+        vec![Mask::new(
+            "action_test".to_string(),
+            Selector::Block((
                 Coordinates {
                     x: start_x,
                     y: bottom_y,
@@ -200,7 +190,11 @@ pub fn building_3x2(shape: Shape, texture_id: u32, action_id: u32) -> Map {
                     y: bottom_y + 1,
                 },
             )),
-        }],
+            Effect {
+                action_id: Some(action_id),
+                ..Default::default()
+            },
+        )],
         6,
     );
 

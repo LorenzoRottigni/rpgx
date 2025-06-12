@@ -26,7 +26,7 @@ pub fn Grid(props: GridProps) -> Element {
                     .enumerate()
                     .flat_map(|(layer_index, layer)| {
                         layer
-                            .tiles
+                            .render()
                             .iter()
                             .enumerate()
                             .map(move |(i, tile)| {
@@ -42,6 +42,7 @@ pub fn Grid(props: GridProps) -> Element {
                                     }
                                 }
                             })
+                            .collect::<Vec<_>>()
                     })
             }
         }

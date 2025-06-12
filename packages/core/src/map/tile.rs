@@ -13,9 +13,6 @@ use crate::{
 /// - [`SingleSelector`](crate::prelude::SingleSelector)
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Tile {
-    /// Unique ID for the tile.
-    pub id: u32,
-
     /// Effect applied to this tile (e.g., blocking, status changes).
     pub effect: Effect,
 
@@ -28,9 +25,8 @@ pub struct Tile {
 
 impl Tile {
     /// Creates a new tile from the given ID, effect, pointer, and shape.
-    pub fn new(id: u32, effect: Effect, pointer: SingleSelector, shape: Shape) -> Self {
+    pub fn new(effect: Effect, pointer: SingleSelector, shape: Shape) -> Self {
         Self {
-            id,
             effect,
             pointer,
             shape,
@@ -91,7 +87,6 @@ mod tests {
     #[test]
     fn test_contains_inside_and_outside() {
         let tile = Tile::new(
-            1,
             basic_effect(false, None),
             SingleSelector { x: 10, y: 20 },
             Shape::from_rectangle(3, 3),
@@ -109,7 +104,6 @@ mod tests {
     #[test]
     fn test_is_blocking_at_without_block() {
         let tile = Tile::new(
-            1,
             basic_effect(false, None),
             SingleSelector { x: 0, y: 0 },
             Shape::from_square(2),
@@ -120,7 +114,6 @@ mod tests {
     #[test]
     fn test_is_blocking_at_with_block_no_shrink() {
         let tile = Tile::new(
-            1,
             basic_effect(true, None),
             SingleSelector { x: 5, y: 5 },
             Shape::from_square(2),
@@ -141,7 +134,6 @@ mod tests {
         let shrink_end = Coordinates { x: 7, y: 7 };
 
         let tile = Tile::new(
-            1,
             basic_effect(true, Some((shrink_start, shrink_end))),
             SingleSelector { x: 5, y: 5 },
             Shape::from_square(3),
@@ -163,7 +155,6 @@ mod tests {
         let shrink_start = Coordinates { x: 1, y: 1 };
         let shrink_end = Coordinates { x: 2, y: 2 };
         let mut tile = Tile::new(
-            1,
             basic_effect(true, Some((shrink_start, shrink_end))),
             SingleSelector { x: 0, y: 0 },
             Shape::from_square(3),

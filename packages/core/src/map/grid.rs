@@ -1,5 +1,6 @@
-use crate::prelude::{Shape, Tile};
+use crate::prelude::{Coordinates, Shape, Tile};
 
+#[derive(Clone, Debug)]
 pub struct Grid {
     pub tiles: Vec<Tile>,
     pub shape: Shape,
@@ -19,5 +20,13 @@ impl Grid {
         };
 
         Self { tiles, shape }
+    }
+
+    pub fn offset(&mut self, delta: Coordinates) {
+        for tile in &mut self.tiles {
+            tile.offset(delta);
+        }
+        self.shape.width = (self.shape.width + delta.x).max(0);
+        self.shape.height = (self.shape.height + delta.y).max(0);
     }
 }

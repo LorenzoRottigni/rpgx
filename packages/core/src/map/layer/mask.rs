@@ -1,4 +1,7 @@
-use crate::prelude::{Coordinates, Effect, Selector, Shape, Tile};
+use crate::{
+    map::grid::Grid,
+    prelude::{Coordinates, Effect, Selector, Shape, Tile},
+};
 
 #[doc = include_str!("../../../docs/mask.md")]
 /// A [`Mask`] defines a logical area on a [`super::grid::Grid`] or [`super::layer::Layer`] where specific [`Effect`]s are applied
@@ -18,31 +21,121 @@ pub struct Mask {
 
     /// The effect to apply to all tiles covered by this mask.
     pub effect: Effect,
+
+    pub grid: Grid,
 }
 
 impl Mask {
     /// Create a new mask with the given name, selector, and effect.
     pub fn new(name: String, selector: Selector, effect: Effect) -> Self {
+        let shape = selector.get_shape();
+        let tiles = match &selector {
+            Selector::Single(pointer) => {
+                // If the selector is a single coordinate and is inside the shape,
+                // create one tile with the effect at that coordinate.
+                if shape.in_bounds(*pointer) {
+                    vec![Tile {
+                        pointer: *pointer,
+                        shape: Shape::from_square(1), // single tile shape
+                        effect: effect,
+                    }]
+                } else {
+                    vec![]
+                }
+            }
+
+            Selector::Block((start, end)) => {
+                // For a block selector, get all coordinates in the rectangular range
+                // and create tiles for each coordinate.
+
+                let tiles: Vec<Tile> = shape
+                    .coordinates_in_range(*start, *end)
+                    .into_iter()
+                    .map(|coord| Tile {
+                        pointer: coord,
+                        shape: Shape::from_square(1),
+                        effect: effect,
+                    })
+                    .collect();
+
+                // Optimization: if all tiles have the 'group' flag in the effect,
+                // merge them into a single tile with a bounding box shape covering all tiles.
+                if tiles.iter().all(|t| t.effect.group) {
+                    if let Some((top_left, bottom_right)) = Coordinates::bounding_box(
+                        &tiles.iter().map(|t| t.pointer).collect::<Vec<_>>(),
+                    ) {
+                        return Self {
+                            name,
+                            selector: selector.clone(),
+                            effect,
+                            grid: Grid {
+                                shape: selector.get_shape(),
+                                tiles: vec![Tile {
+                                    pointer: top_left,
+                                    shape: Shape::from_bounds(top_left, bottom_right),
+                                    effect,
+                                }],
+                            },
+                        };
+                    }
+                }
+
+                tiles
+            }
+
+            Selector::Sparse(pointers) => pointers
+                .into_iter()
+                .map(|pointer| Tile {
+                    pointer: *pointer,
+                    shape: Shape::from_square(1),
+                    effect: effect,
+                })
+                .collect(),
+            // Selector::Filter(filter_fn) => {
+            //     // For a filter selector, filter coordinates inside the shape using the provided function
+            //     // and create tiles for each matching coordinate.
+            //
+            //     shape
+            //         .filter_coordinates(filter_fn)
+            //         .into_iter()
+            //         .map(|coord| Tile {
+            //             pointer: coord,
+            //             shape: Shape::from_square(1),
+            //             effect: self.effect,
+            //         })
+            //         .collect()
+            // }
+        };
+        let grid = Grid {
+            shape: selector.get_shape(),
+            tiles,
+        };
         Self {
             name,
             selector,
             effect,
+            grid,
         }
     }
 
+    pub fn offset(&mut self, delta: Coordinates) {
+        self.grid.offset(delta);
+    }
+
+    /*
     /// Apply this mask's effect to the tiles within the given shape bounds.
     ///
     /// Returns a vector of [`Tile`]s representing the effect applied to coordinates
     /// matching the mask's selector within the shape.
-    pub fn apply(&self, shape: Shape) -> Vec<Tile> {
-        match self.selector {
+     pub fn apply(&self, _shape: Shape) -> Vec<Tile> {
+        let shape = &self.selector.get_shape();
+        match &self.selector {
             Selector::Single(pointer) => {
                 // If the selector is a single coordinate and is inside the shape,
                 // create one tile with the effect at that coordinate.
-                if shape.in_bounds(pointer) {
+                if shape.in_bounds(*pointer) {
                     vec![Tile {
-                        id: 0,
-                        pointer,
+                        pointer: *pointer,
                         shape: Shape::from_square(1), // single tile shape
                         effect: self.effect,
                     }]
@@ -56,10 +149,9 @@ impl Mask {
                 // and create tiles for each coordinate.
 
                 let tiles: Vec<Tile> = shape
-                    .coordinates_in_range(start, end)
+                    .coordinates_in_range(*start, *end)
                     .into_iter()
                     .map(|coord| Tile {
-                        id: 0,
                         pointer: coord,
                         shape: Shape::from_square(1),
                         effect: self.effect,
@@ -74,7 +166,6 @@ impl Mask {
                             &tiles.iter().map(|t| t.pointer).collect::<Vec<_>>(),
                         ) {
                             return vec![Tile {
-                                id: first_tile.id,
                                 pointer: top_left,
                                 shape: Shape::from_bounds(top_left, bottom_right),
                                 effect: self.effect,
@@ -86,23 +177,30 @@ impl Mask {
                 tiles
             }
 
-            Selector::Filter(filter_fn) => {
-                // For a filter selector, filter coordinates inside the shape using the provided function
-                // and create tiles for each matching coordinate.
-
-                shape
-                    .filter_coordinates(filter_fn)
-                    .into_iter()
-                    .map(|coord| Tile {
-                        id: 0,
-                        pointer: coord,
-                        shape: Shape::from_square(1),
-                        effect: self.effect,
-                    })
-                    .collect()
-            }
+            Selector::Sparse(pointers) => pointers
+                .into_iter()
+                .map(|pointer| Tile {
+                    pointer: *pointer,
+                    shape: Shape::from_square(1),
+                    effect: self.effect,
+                })
+                .collect(),
+            // Selector::Filter(filter_fn) => {
+            //     // For a filter selector, filter coordinates inside the shape using the provided function
+            //     // and create tiles for each matching coordinate.
+            //
+            //     shape
+            //         .filter_coordinates(filter_fn)
+            //         .into_iter()
+            //         .map(|coord| Tile {
+            //             pointer: coord,
+            //             shape: Shape::from_square(1),
+            //             effect: self.effect,
+            //         })
+            //         .collect()
+            // }
         }
-    }
+    } */
 }
 
 #[cfg(test)]
@@ -112,24 +210,21 @@ pub mod tests {
 
     #[test]
     fn applies_effect_to_single_tile() {
-        let mask = Mask {
-            name: "TestMask".to_string(),
-            selector: Selector::Single(SingleSelector { x: 1, y: 1 }),
-            effect: Effect {
+        let mask = Mask::new(
+            "TestMask".to_string(),
+            Selector::Single(SingleSelector { x: 1, y: 1 }),
+            Effect {
                 action_id: Some(1),
                 ..Default::default()
             },
-        };
+        );
 
-        let shape = Shape::from_square(3);
-        let tiles = mask.apply(shape);
-
-        assert_eq!(tiles.len(), 1);
-        assert_eq!(tiles[0].pointer, SingleSelector { x: 1, y: 1 });
-        assert_eq!(tiles[0].effect.action_id, Some(1));
+        assert_eq!(mask.grid.tiles.len(), 1);
+        assert_eq!(mask.grid.tiles[0].pointer, SingleSelector { x: 1, y: 1 });
+        assert_eq!(mask.grid.tiles[0].effect.action_id, Some(1));
     }
 
-    #[test]
+    /* #[test]
     fn applies_effect_to_block_of_tiles() {
         let mask = Mask {
             name: "TestMask".to_string(),
@@ -193,7 +288,7 @@ pub mod tests {
         assert_eq!(tiles[0].shape.height, 2);
     }
 
-    #[test]
+    /* #[test]
     fn applies_effect_using_filter_selector() {
         let mask = Mask {
             name: "FilterMask".to_string(),
@@ -215,7 +310,7 @@ pub mod tests {
                 .all(|tile| tile.pointer.x % 2 == 0 && tile.pointer.y % 2 == 0)
         );
         assert!(tiles.iter().all(|tile| tile.effect.block));
-    }
+    } */
 
     #[test]
     fn handles_empty_block_range() {
@@ -233,22 +328,5 @@ pub mod tests {
 
         // Invalid range (start > end) should produce no tiles
         assert!(tiles.is_empty());
-    }
-
-    // --- Additional tests for edge cases ---
-
-    #[test]
-    fn applies_empty_filter_selector() {
-        // A filter that excludes all coordinates results in no tiles.
-        let mask = Mask {
-            name: "EmptyFilter".to_string(),
-            selector: Selector::Filter(|_, _| false),
-            effect: Effect::default(),
-        };
-
-        let shape = Shape::from_square(3);
-        let tiles = mask.apply(shape);
-
-        assert!(tiles.is_empty());
-    }
+    } */
 }

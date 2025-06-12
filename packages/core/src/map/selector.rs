@@ -9,13 +9,15 @@ pub type BlockSelector = (Coordinates, Coordinates);
 
 /// A function that takes a coordinate and a shape and returns whether
 /// the coordinate matches a filter criterion.
-pub type FilterSelector = fn(Coordinates, Shape) -> bool;
+// pub type FilterSelector = fn(Coordinates, Shape) -> bool;
+
+pub type SparseSelector = Vec<Coordinates>;
 
 #[doc = include_str!("../../docs/selector.md")]
 /// Defines how to target tiles on a grid for effects or logic.
 ///
 /// Can select a single tile, a rectangular block, or tiles filtered by custom logic.
-#[derive(Clone, Debug, Copy, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Selector {
     /// Selects a single tile at the given coordinates.
     Single(SingleSelector),
@@ -23,11 +25,11 @@ pub enum Selector {
     /// Selects a rectangular block of tiles between two coordinates.
     Block(BlockSelector),
 
-    /// Selects tiles based on a custom filtering function.
-    Filter(FilterSelector),
+    Sparse(SparseSelector),
+    // Selects tiles based on a custom filtering function.
+    // Filter(FilterSelector),
 }
 
-/*
 impl Selector {
     /// Returns the bounding `Shape` that contains all selected coordinates.
     /// For `Single`, the shape is 1x1.
@@ -60,7 +62,6 @@ impl Selector {
         }
     }
 }
-*/
 
 #[cfg(test)]
 pub mod tests {
@@ -93,7 +94,7 @@ pub mod tests {
         }
     }
 
-    #[test]
+    /* #[test]
     fn selector_filter_works() {
         fn only_even(c: Coordinates, _s: Shape) -> bool {
             c.x % 2 == 0 && c.y % 2 == 0
@@ -118,7 +119,7 @@ pub mod tests {
         } else {
             panic!("Expected Selector::Filter");
         }
-    }
+    } */
 
     #[test]
     fn selector_block_with_same_coords_is_valid() {
@@ -141,7 +142,7 @@ pub mod tests {
 
         let a = Coordinates { x: 1, y: 2 };
         let original = Selector::Single(a);
-        let copy = clone_selector(original);
+        let copy = clone_selector(original.clone());
 
         assert_eq!(format!("{:?}", original), format!("{:?}", copy));
     }

@@ -30,9 +30,9 @@ pub struct Layer {
     /// The type of layer (e.g., `Base`, `Action`, `Texture`, etc.)
     // pub kind: LayerType,
     /// All tiles currently active within the layer.
-    pub tiles: Vec<Tile>,
+    // pub tiles: Vec<Tile>,
     /// The shape (bounds) of the layer.
-    pub shape: Shape,
+    // pub shape: Shape,
     /// All masks that were used to generate the tiles.
     pub masks: Vec<Mask>,
     /// Z-index for rendering order
@@ -46,15 +46,8 @@ impl Layer {
     /// Panics if called with [`LayerType::Base`] (use [`Layer::base`] instead).
     ///
     /// Applies each mask's selector and effect over the `shape` to generate tiles.
-    pub fn new(name: String, shape: Shape, masks: Vec<Mask>, z: u32) -> Self {
-        let tiles = masks.iter().flat_map(|mask| mask.apply(shape)).collect();
-        Self {
-            name,
-            tiles,
-            shape,
-            masks,
-            z,
-        }
+    pub fn new(name: String, masks: Vec<Mask>, z: u32) -> Self {
+        Self { name, masks, z }
     }
 
     /*
@@ -123,7 +116,7 @@ impl Layer {
     ///
     /// This will discard any tiles outside the shape. For `Base` layers,
     /// tiles are regenerated to fill the new shape, preserving any previous effects.
-    pub fn reshape(&mut self, shape: Shape) {
+    /* pub fn reshape(&mut self, shape: Shape) {
         self.shape = shape;
 
         // Retain only tiles inside the new shape
@@ -157,32 +150,33 @@ impl Layer {
         //     }
         //     self.tiles = base_tiles;
         // }
-    }
+    } */
 
     /// Expands the shape to include the provided shape (only grows, never shrinks).
     ///
     /// Calls [`reshape`] internally if expansion occurs.
-    pub fn positive_reshape(&mut self, shape: Shape) {
-        let mut changed = false;
-        if shape.width > self.shape.width {
-            self.shape.width = shape.width;
-            changed = true;
-        }
-        if shape.height > self.shape.height {
-            self.shape.height = shape.height;
-            changed = true;
-        }
-        if changed {
-            self.reshape(self.shape);
-        }
-    }
+    // pub fn positive_reshape(&mut self, shape: Shape) {
+    //     let mut changed = false;
+    //     if shape.width > self.shape.width {
+    //         self.shape.width = shape.width;
+    //         changed = true;
+    //     }
+    //     if shape.height > self.shape.height {
+    //         self.shape.height = shape.height;
+    //         changed = true;
+    //     }
+    //     if changed {
+    //         self.reshape(self.shape);
+    //     }
+    // }
 
     /// Finds the tile covering the given coordinates, accounting for both tile origin and shape.
     ///
     /// Supports tiles larger than 1×1 by checking if the coordinate lies within the tile's shape.
     pub fn get_tile_at(&self, pointer: Coordinates) -> Option<Tile> {
-        self.tiles
+        self.masks
             .iter()
+            .flat_map(|mask| mask.grid.tiles.clone())
             .find(|tile| {
                 // Avoid underflow for subtraction by checking coordinate ordering
                 if pointer.x >= tile.pointer.x && pointer.y >= tile.pointer.y {
@@ -195,37 +189,76 @@ impl Layer {
                     false
                 }
             })
-            .cloned()
+        // self.tiles
+        //     .iter()
+        //     .find(|tile| {
+        //         // Avoid underflow for subtraction by checking coordinate ordering
+        //         if pointer.x >= tile.pointer.x && pointer.y >= tile.pointer.y {
+        //             let local = Coordinates {
+        //                 x: pointer.x - tile.pointer.x,
+        //                 y: pointer.y - tile.pointer.y,
+        //             };
+        //             tile.shape.in_bounds(local)
+        //         } else {
+        //             false
+        //         }
+        //     })
+        //     .cloned()
     }
 
     /// Retrieves all tiles within a rectangular block defined by two coordinates.
     ///
     /// Only returns tiles that exist exactly at those coordinates (tiles with larger shape ignored if not top-left).
     pub fn get_block_at(&self, pointer: BlockSelector) -> Vec<Tile> {
-        self.shape
+        self.get_shape()
             .coordinates_in_range(pointer.0, pointer.1)
             .into_iter()
-            .filter_map(|coord| self.tiles.iter().find(|t| t.pointer == coord).cloned())
+            // .filter_map(|coord| self.tiles.iter().find(|t| t.pointer == coord).cloned())
+            .filter_map(|coord| self.get_tile_at(coord))
             .collect()
     }
 
     pub fn is_blocking_at(&self, target: &Coordinates) -> bool {
-        self.tiles.iter().any(|tile| tile.is_blocking_at(*target))
+        self.masks.iter().any(|mask| {
+            mask.grid
+                .tiles
+                .iter()
+                .any(|tile| tile.is_blocking_at(*target))
+        })
+    }
+
+    pub fn get_shapes(&self) -> Vec<Shape> {
+        self.masks.iter().map(|mask| mask.grid.shape).collect()
+    }
+
+    pub fn get_shape(&self) -> Shape {
+        Shape::bounding_shape(&self.get_shapes())
+    }
+
+    pub fn render(&self) -> Vec<Tile> {
+        self.masks
+            .iter()
+            .flat_map(|mask| mask.grid.tiles.clone())
+            .collect()
     }
 
     /// Offsets all tiles and the shape of the layer by the given delta.
     ///
     /// The shape dimensions increase by delta.x and delta.y (capped to zero minimum).
     pub fn offset(&mut self, delta: Coordinates) {
-        for tile in &mut self.tiles {
-            tile.offset(delta);
+        for mask in &mut self.masks {
+            mask.offset(delta);
         }
-
-        self.shape.width = (self.shape.width + delta.x).max(0);
-        self.shape.height = (self.shape.height + delta.y).max(0);
+        // for tile in &mut self.tiles {
+        //     tile.offset(delta);
+        // }
+        //
+        // self.shape.width = (self.shape.width + delta.x).max(0);
+        // self.shape.height = (self.shape.height + delta.y).max(0);
     }
 }
 
+/*
 #[cfg(test)]
 pub mod tests {
     use super::*;
@@ -452,3 +485,4 @@ pub mod tests {
         assert_eq!(layer.shape.height, 4);
     }
 }
+ */

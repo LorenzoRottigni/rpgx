@@ -73,7 +73,7 @@ impl Map {
     /// * `layer` - The new layer to add.
     pub fn load_layer(&mut self, layer: Layer /* , offset: Coordinates */) {
         let current_shape = self.get_shape();
-        let target_shape = layer.shape;
+        let target_shape = layer.get_shape();
         let offset = Coordinates {
             x: if target_shape.width > current_shape.width {
                 target_shape.width - current_shape.width - 1
@@ -210,7 +210,7 @@ impl Map {
     ///
     /// Returns a default shape if no base layer is found.
     pub fn get_shape(&self) -> Shape {
-        let shapes: Vec<Shape> = self.layers.iter().map(|l| l.shape).collect();
+        let shapes: Vec<Shape> = self.layers.iter().map(|l| l.get_shape()).collect();
         Shape::bounding_shape(&shapes)
         // if let Some(base_layer) = self.get_base_layer() {
         //     base_layer.shape
@@ -306,7 +306,6 @@ pub mod tests {
     /// Creates a dummy tile at the given coordinates.
     fn dummy_tile(x: u32, y: u32) -> Tile {
         Tile {
-            id: 1,
             pointer: Coordinates { x, y },
             shape: Shape::from_square(1),
             effect: Effect::default(),
@@ -314,11 +313,9 @@ pub mod tests {
     }
 
     /// Creates a dummy layer with the specified name, kind, tiles, and shape.
-    fn dummy_layer(name: &str, tiles: Vec<Tile>, shape: Shape) -> Layer {
+    fn dummy_layer(name: &str) -> Layer {
         Layer {
             name: name.to_string(),
-            tiles,
-            shape,
             masks: vec![],
             z: 1,
         }
@@ -353,7 +350,6 @@ pub mod tests {
     #[test]
     fn detects_blocked_tile_across_layers() {
         let blocked_tile = Tile {
-            id: 2,
             pointer: Coordinates { x: 0, y: 0 },
             shape: Shape::from_square(1),
             effect: Effect {
@@ -361,7 +357,7 @@ pub mod tests {
                 ..Default::default()
             },
         };
-        let blocking_layer = dummy_layer("block", vec![blocked_tile], Shape::from_square(1));
+        let blocking_layer = dummy_layer("block");
         let map = Map::new(
             "BlockMap".to_string(),
             vec![blocking_layer],

@@ -39,19 +39,15 @@ pub fn use_map1(library: &Library<Box<dyn Any>>) -> Map {
     ));
     single_map.load_layer(Layer::new(
         "sign".into(),
-        Shape {
-            width: 6,
-            height: 8,
-        },
-        vec![Mask {
-            name: "sign".into(),
-            effect: Effect {
+        vec![Mask::new(
+            "sign".into(),
+            Selector::Block((Coordinates { x: 0, y: 0 }, Coordinates { x: 2, y: 2 })),
+            Effect {
                 render_id: library.get_id("sign"),
                 group: true,
                 ..Default::default()
             },
-            selector: Selector::Block((Coordinates { x: 0, y: 0 }, Coordinates { x: 2, y: 2 })),
-        }],
+        )],
         8,
     ));
 
