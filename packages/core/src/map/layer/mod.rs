@@ -180,12 +180,12 @@ impl Layer {
             .flat_map(|mask| mask.grid.tiles.clone())
             .find(|tile| {
                 // Avoid underflow for subtraction by checking coordinate ordering
-                if pointer.x >= tile.pointer.x && pointer.y >= tile.pointer.y {
+                if pointer.x >= tile.area.origin.x && pointer.y >= tile.area.origin.y {
                     let local = Coordinates {
-                        x: pointer.x - tile.pointer.x,
-                        y: pointer.y - tile.pointer.y,
+                        x: pointer.x - tile.area.origin.x,
+                        y: pointer.y - tile.area.origin.y,
                     };
-                    tile.shape.in_bounds(local)
+                    tile.area.shape.in_bounds(local)
                 } else {
                     false
                 }

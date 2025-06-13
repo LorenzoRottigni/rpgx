@@ -15,7 +15,7 @@ impl Grid {
             Shape::default()
         } else {
             let (max_x, max_y) = tiles.iter().fold((0, 0), |(mx, my), tile| {
-                (mx.max(tile.pointer.x), my.max(tile.pointer.y))
+                (mx.max(tile.area.origin.x), my.max(tile.area.origin.y))
             });
 
             // Add 1 because shape is width/height, and coordinates are 0-indexed

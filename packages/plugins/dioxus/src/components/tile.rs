@@ -30,8 +30,8 @@ pub fn Tile(props: TileProps) -> Element {
         "background-size: cover;".to_string()
     };
 
-    let x = props.tile.pointer.x;
-    let y = props.tile.pointer.y;
+    let x = props.tile.area.origin.x;
+    let y = props.tile.area.origin.y;
 
     let base_style = format!(
         "{background} \
@@ -44,18 +44,20 @@ pub fn Tile(props: TileProps) -> Element {
         z-index: {}; \
         pointer-events: {}; \
         cursor: pointer;",
-        x as u32 * props.square_size,
-        y as u32 * props.square_size,
-        if props.tile.effect.group {
-            props.tile.shape.width as u32
-        } else {
-            1 as u32
-        } * props.square_size,
-        if props.tile.effect.group {
-            props.tile.shape.height as u32
-        } else {
-            1 as u32
-        } * props.square_size,
+        x * props.square_size,
+        y * props.square_size,
+        // if props.tile.effect.group {
+        //     props.tile.area.shape.width
+        // } else {
+        //     1
+        // } * props.square_size,
+        props.tile.area.shape.width * props.square_size,
+        // if props.tile.effect.group {
+        //     props.tile.area.shape.height
+        // } else {
+        //     1
+        // } * props.square_size,
+        props.tile.area.shape.height * props.square_size,
         props.layer_z,
         // if props.layer_kind == LayerType::Base {
         //     "auto"
@@ -97,7 +99,6 @@ pub fn Tile(props: TileProps) -> Element {
                     })
                     .unwrap_or(rsx! {}.unwrap())
             }
-        
         }
     }
 }

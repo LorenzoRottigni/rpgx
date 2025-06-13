@@ -6,7 +6,6 @@ use rpgx::{
     library::Library,
     prelude::{Direction, Tile},
 };
-use web_sys::console;
 
 use crate::{
     components::{grid::Grid, pawn::Pawn},
@@ -26,8 +25,7 @@ pub fn Engine(props: EngineProps) -> Element {
     let controller = use_controller(engine.clone(), props.library.clone());
 
     let onclick = move |tile: Tile| -> Result<(), MapError> {
-        console::log_1(&format!("onclick_engine: {:?}", tile.pointer).into());
-        controller.send(Command::WalkTo(tile.pointer));
+        controller.send(Command::WalkTo(tile.area.origin));
         Ok(())
     };
 

@@ -116,13 +116,18 @@ impl Map {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::prelude::{Effect, Layer, Map, Shape, Tile};
+    use crate::{
+        common::rect::Rect,
+        prelude::{Effect, Layer, Map, Shape, Tile},
+    };
 
     // Helper: create a blocking tile at the given coordinate
     fn blocking_tile_at(coord: Coordinates) -> Tile {
         Tile {
-            pointer: coord,
-            shape: Shape::from_square(1),
+            area: Rect {
+                origin: coord,
+                shape: Shape::from_square(1),
+            },
             effect: Effect {
                 block: true,
                 ..Default::default()

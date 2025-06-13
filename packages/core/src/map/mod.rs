@@ -305,13 +305,18 @@ impl Map {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::prelude::{Effect, Shape};
+    use crate::{
+        common::rect::Rect,
+        prelude::{Effect, Shape},
+    };
 
     /// Creates a dummy tile at the given coordinates.
     fn dummy_tile(x: u32, y: u32) -> Tile {
         Tile {
-            pointer: Coordinates { x, y },
-            shape: Shape::from_square(1),
+            area: Rect {
+                origin: Coordinates { x, y },
+                shape: Shape::from_square(1),
+            },
             effect: Effect::default(),
         }
     }
@@ -354,8 +359,10 @@ pub mod tests {
     #[test]
     fn detects_blocked_tile_across_layers() {
         let blocked_tile = Tile {
-            pointer: Coordinates { x: 0, y: 0 },
-            shape: Shape::from_square(1),
+            area: Rect {
+                origin: Coordinates { x: 0, y: 0 },
+                shape: Shape::from_square(1),
+            },
             effect: Effect {
                 block: true,
                 ..Default::default()

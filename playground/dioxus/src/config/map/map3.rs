@@ -6,30 +6,34 @@ use rpgx::{
     prelude::{Coordinates, Effect, Layer, Mask, Selector, Shape},
 };
 
-const GRID_SIZE: u32 = 12;
+const SHAPE_WIDTH: u32 = 4;
+const SHAPE_HEIGHT: u32 = 6;
 
-fn is_center_tile(pointer: Coordinates, _shape: Shape) -> bool {
-    let x = pointer.x as u32;
-    let y = pointer.y as u32;
-    let center_x = GRID_SIZE / 2;
-    let center_y = GRID_SIZE / 2;
-    (x == center_x || x == center_x - 1) || (y == center_y || y == center_y - 1)
+fn is_center_tile(pointer: Coordinates, shape: Shape) -> bool {
+    // Select a 2x2 block in the center
+    let center_x = shape.width / 2;
+    let center_y = shape.height / 2;
+    (pointer.x == center_x || pointer.x == center_x - 1)
+        && (pointer.y == center_y || pointer.y == center_y - 1)
 }
 
 pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
+    let shape: Shape = Shape {
+        width: SHAPE_WIDTH,
+        height: SHAPE_HEIGHT,
+    };
+
+    // Collect center 2x2 coords
     let center_coords = {
         let mut coords = Vec::new();
-        let shape = Shape::from_square(GRID_SIZE);
-
-        for y in 0..GRID_SIZE {
-            for x in 0..GRID_SIZE {
+        for y in 0..shape.height {
+            for x in 0..shape.width {
                 let coord = Coordinates { x, y };
                 if is_center_tile(coord, shape) {
                     coords.push(coord);
                 }
             }
         }
-
         coords
     };
 
@@ -41,8 +45,8 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
                 Selector::Block((
                     Coordinates { x: 0, y: 0 },
                     Coordinates {
-                        x: GRID_SIZE - 1,
-                        y: GRID_SIZE - 1,
+                        x: shape.width,
+                        y: shape.height,
                     },
                 )),
                 Effect {
@@ -54,7 +58,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
                 "floor_alt".to_string(),
                 Selector::Sparse(center_coords),
                 Effect {
-                    texture_id: Some(library.get_id("floor_2").unwrap()),
+                    texture_id: library.get_id("floor_2"),
                     ..Default::default()
                 },
             ),
@@ -66,12 +70,12 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
         "buildings".to_string(),
         vec![Mask::new(
             "logo".to_string(),
-            Selector::Block((Coordinates { x: 1, y: 6 }, Coordinates { x: 4, y: 11 })),
+            Selector::Block((Coordinates { x: 1, y: 1 }, Coordinates { x: 3, y: 4 })),
             Effect {
                 texture_id: Some(library.get_id("building_1").unwrap()),
                 block: true,
                 group: true,
-                shrink: Some((Coordinates { x: 2, y: 7 }, Coordinates { x: 3, y: 10 })),
+                // Removed shrink to avoid hiding tiles
                 ..Default::default()
             },
         )],
@@ -82,7 +86,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
         "actions".to_string(),
         vec![Mask::new(
             "action_test".to_string(),
-            Selector::Block((Coordinates { x: 2, y: 11 }, Coordinates { x: 3, y: 11 })),
+            Selector::Block((Coordinates { x: 2, y: 4 }, Coordinates { x: 3, y: 4 })),
             Effect {
                 texture_id: Some(library.get_id("portal_1").unwrap()),
                 action_id: Some(library.get_id("consolelog").unwrap()),
@@ -92,7 +96,8 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
         6,
     );
 
-    let mut map = Map::new(
+    // Create base map
+    let base_map = Map::new(
         "home".to_string(),
         vec![
             ground_layer.clone(),
@@ -102,70 +107,29 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
         Coordinates { x: 0, y: 0 },
     );
 
+    // Merge maps at consistent offsets like in use_map1
+    let mut map = base_map.clone();
     map.merge_at(
-        &Map::new(
-            "home".to_string(),
-            vec![
-                ground_layer.clone(),
-                building_layer.clone(),
-                action_layer.clone(),
-            ],
-            Coordinates { x: 0, y: 0 },
-        ),
+        &base_map,
         Coordinates {
-            x: GRID_SIZE as u32,
+            x: SHAPE_WIDTH,
             y: 0,
         },
         None,
     );
-
     map.merge_at(
-        &Map::new(
-            "home".to_string(),
-            vec![
-                ground_layer.clone(),
-                building_layer.clone(),
-                action_layer.clone(),
-            ],
-            Coordinates { x: 0, y: 0 },
-        ),
+        &base_map,
         Coordinates {
             x: 0,
-            y: GRID_SIZE as u32,
+            y: SHAPE_HEIGHT,
         },
         None,
     );
-
     map.merge_at(
-        &Map::new(
-            "home".to_string(),
-            vec![
-                ground_layer.clone(),
-                building_layer.clone(),
-                action_layer.clone(),
-            ],
-            Coordinates { x: 0, y: 0 },
-        ),
+        &base_map,
         Coordinates {
-            x: 0,
-            y: GRID_SIZE as u32 * 2,
-        },
-        None,
-    );
-
-    map.merge_at(
-        &Map::new(
-            "home".to_string(),
-            vec![
-                ground_layer.clone(),
-                building_layer.clone(),
-                action_layer.clone(),
-            ],
-            Coordinates { x: 0, y: 0 },
-        ),
-        Coordinates {
-            x: GRID_SIZE as u32,
-            y: GRID_SIZE as u32 * 2,
+            x: SHAPE_WIDTH,
+            y: SHAPE_HEIGHT,
         },
         None,
     );

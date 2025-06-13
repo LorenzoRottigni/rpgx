@@ -1,5 +1,5 @@
 use crate::{
-    common::delta::Delta,
+    common::{delta::Delta, rect::Rect},
     map::grid::Grid,
     prelude::{Coordinates, Effect, Selector, Shape, Tile},
 };
@@ -37,8 +37,10 @@ impl Mask {
                 // create one tile with the effect at that coordinate.
                 if shape.in_bounds(*pointer) {
                     vec![Tile {
-                        pointer: *pointer,
-                        shape: Shape::from_square(1), // single tile shape
+                        area: Rect {
+                            origin: *pointer,
+                            shape: Shape::from_square(1),
+                        },
                         effect: effect,
                     }]
                 } else {
@@ -54,9 +56,11 @@ impl Mask {
                     .coordinates_in_range(*start, *end)
                     .into_iter()
                     .map(|coord| Tile {
-                        pointer: coord,
-                        shape: Shape::from_square(1),
-                        effect: effect,
+                        area: Rect {
+                            origin: coord,
+                            shape: Shape::from_square(1),
+                        },
+                        effect,
                     })
                     .collect();
 
@@ -64,7 +68,7 @@ impl Mask {
                 // merge them into a single tile with a bounding box shape covering all tiles.
                 if tiles.iter().all(|t| t.effect.group) {
                     if let Some((top_left, bottom_right)) = Coordinates::bounding_box(
-                        &tiles.iter().map(|t| t.pointer).collect::<Vec<_>>(),
+                        &tiles.iter().map(|t| t.area.origin).collect::<Vec<_>>(),
                     ) {
                         let shape_width = bottom_right.x - top_left.x;
                         let shape_height = bottom_right.y - top_left.y;
@@ -76,10 +80,12 @@ impl Mask {
                             grid: Grid {
                                 shape: selector.get_shape(),
                                 tiles: vec![Tile {
-                                    pointer: top_left,
-                                    shape: Shape {
-                                        width: shape_width,
-                                        height: shape_height,
+                                    area: Rect {
+                                        origin: top_left,
+                                        shape: Shape {
+                                            width: shape_width,
+                                            height: shape_height,
+                                        },
                                     },
                                     effect,
                                 }],
@@ -94,8 +100,10 @@ impl Mask {
             Selector::Sparse(pointers) => pointers
                 .into_iter()
                 .map(|pointer| Tile {
-                    pointer: *pointer,
-                    shape: Shape::from_square(1),
+                    area: Rect {
+                        origin: *pointer,
+                        shape: Shape::from_square(1),
+                    },
                     effect: effect,
                 })
                 .collect(),
@@ -225,7 +233,10 @@ pub mod tests {
         );
 
         assert_eq!(mask.grid.tiles.len(), 1);
-        assert_eq!(mask.grid.tiles[0].pointer, SingleSelector { x: 1, y: 1 });
+        assert_eq!(
+            mask.grid.tiles[0].area.origin,
+            SingleSelector { x: 1, y: 1 }
+        );
         assert_eq!(mask.grid.tiles[0].effect.action_id, Some(1));
     }
 
