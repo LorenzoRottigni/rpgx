@@ -1,9 +1,10 @@
 use std::any::Any;
 
 use rpgx::{
+    common::rect::Rect,
     library::Library,
     map::Map,
-    prelude::{Coordinates, Direction, Effect, Layer, Mask, Selector, Shape},
+    prelude::{Coordinates, Direction, Effect, Layer, Mask, Shape},
 };
 
 pub fn use_map2(library: &Library<Box<dyn Any>>) -> Map {
@@ -101,7 +102,10 @@ pub fn use_map2(library: &Library<Box<dyn Any>>) -> Map {
         "ground_decoration".to_string(),
         vec![Mask::new(
             "ground_decoration".to_string(),
-            Selector::Sparse(border_coords),
+            border_coords
+                .iter()
+                .map(|c| Rect::new(*c, Shape::from_square(1)))
+                .collect(),
             Effect {
                 texture_id: Some(library.get_id("floor_3").unwrap()),
                 ..Default::default()

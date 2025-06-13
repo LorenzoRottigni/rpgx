@@ -4,7 +4,7 @@ use rpgx::{
     common::rect::Rect,
     library::Library,
     map::Map,
-    prelude::{Coordinates, Effect, Layer, Mask, Selector, Shape},
+    prelude::{Coordinates, Effect, Layer, Mask, Shape},
 };
 
 pub fn use_map1(library: &Library<Box<dyn Any>>) -> Map {
@@ -17,6 +17,7 @@ pub fn use_map1(library: &Library<Box<dyn Any>>) -> Map {
         library.get_id("building_1").unwrap(),
         library.get_id("consolelog").unwrap(),
     );
+    println!("length: {:?}", single_map.get_shape());
     single_map.load_layer(rpgx::factory::layer::presets::ground::ground_layer(
         Shape {
             width: 4,
@@ -42,16 +43,23 @@ pub fn use_map1(library: &Library<Box<dyn Any>>) -> Map {
         "sign".into(),
         vec![Mask::new(
             "sign".into(),
-            Selector::Block(Rect::new(
+            // Selector::Block(Rect::new(
+            //     Coordinates { x: 1, y: 1 },
+            //     Shape {
+            //         width: 3,
+            //         height: 3,
+            //     },
+            // )),
+            vec![Rect::new(
                 Coordinates { x: 1, y: 1 },
                 Shape {
                     width: 3,
                     height: 3,
                 },
-            )),
+            )],
             Effect {
                 render_id: library.get_id("sign"),
-                group: true,
+                // group: true,
                 ..Default::default()
             },
         )],

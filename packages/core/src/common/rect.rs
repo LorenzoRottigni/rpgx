@@ -1,5 +1,5 @@
 use crate::{
-    common::{delta::Delta, shape},
+    common::delta::Delta,
     prelude::{Coordinates, Shape},
 };
 
@@ -86,5 +86,41 @@ impl Rect {
 
         self.origin.x = if new_x < 0 { 0 } else { new_x as u32 };
         self.origin.y = if new_y < 0 { 0 } else { new_y as u32 };
+    }
+
+    /// Parse a NxN shape area in its sub areas of 1x1
+    pub fn as_many(&self) -> Vec<Self> {
+        self.iter()
+            .map(|coord| Rect {
+                origin: coord,
+                shape: Shape::from_square(1),
+            })
+            .collect()
+    }
+
+    /// Combine many 1x1 Rects into a single bounding Rect.
+    /// Assumes the input Rects are all 1x1 in shape.
+    pub fn from_many(rects: Vec<Self>) -> Self {
+        assert!(!rects.is_empty(), "Cannot create Rect from empty list");
+
+        let mut min_x = u32::MAX;
+        let mut min_y = u32::MAX;
+        let mut max_x = u32::MIN;
+        let mut max_y = u32::MIN;
+
+        for rect in rects {
+            let Coordinates { x, y } = rect.origin;
+            min_x = min_x.min(x);
+            min_y = min_y.min(y);
+            max_x = max_x.max(x);
+            max_y = max_y.max(y);
+        }
+
+        let origin = Coordinates { x: min_x, y: min_y };
+        let width = max_x - min_x + 1;
+        let height = max_y - min_y + 1;
+        let shape = Shape { width, height };
+
+        Rect { origin, shape }
     }
 }

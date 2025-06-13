@@ -15,11 +15,12 @@ impl Grid {
             Shape::default()
         } else {
             let (max_x, max_y) = tiles.iter().fold((0, 0), |(mx, my), tile| {
-                (mx.max(tile.area.origin.x), my.max(tile.area.origin.y))
+                let x_end = tile.area.origin.x + tile.area.shape.width;
+                let y_end = tile.area.origin.y + tile.area.shape.height;
+                (mx.max(x_end), my.max(y_end))
             });
 
-            // Add 1 because shape is width/height, and coordinates are 0-indexed
-            Shape::from_rectangle(max_x + 1, max_y + 1)
+            Shape::from_rectangle(max_x, max_y)
         };
 
         Self { tiles, shape }

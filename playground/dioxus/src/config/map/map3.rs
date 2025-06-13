@@ -4,7 +4,7 @@ use rpgx::{
     common::rect::Rect,
     library::Library,
     map::Map,
-    prelude::{Coordinates, Effect, Layer, Mask, Selector, Shape},
+    prelude::{Coordinates, Effect, Layer, Mask, Shape},
 };
 
 const SHAPE_WIDTH: u32 = 4;
@@ -43,7 +43,8 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
         vec![
             Mask::new(
                 "default_floor".to_string(),
-                Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
+                // Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
+                Rect::new(Coordinates { x: 0, y: 0 }, shape).as_many(),
                 Effect {
                     texture_id: Some(library.get_id("floor_1").unwrap()),
                     ..Default::default()
@@ -51,7 +52,10 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
             ),
             Mask::new(
                 "floor_alt".to_string(),
-                Selector::Sparse(center_coords),
+                center_coords
+                    .iter()
+                    .map(|c| Rect::new(*c, Shape::from_square(1)))
+                    .collect(),
                 Effect {
                     texture_id: library.get_id("floor_2"),
                     ..Default::default()
@@ -65,17 +69,24 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
         "buildings".to_string(),
         vec![Mask::new(
             "logo".to_string(),
-            Selector::Block(Rect::new(
+            // Selector::Block(Rect::new(
+            //     Coordinates { x: 1, y: 1 },
+            //     Shape {
+            //         width: 3 - 1,  // 2
+            //         height: 4 - 1, // 3
+            //     },
+            // )),
+            vec![Rect::new(
                 Coordinates { x: 1, y: 1 },
                 Shape {
                     width: 3 - 1,  // 2
                     height: 4 - 1, // 3
                 },
-            )),
+            )],
             Effect {
                 texture_id: Some(library.get_id("building_1").unwrap()),
                 block: None,
-                group: true,
+                // group: true,
                 // Removed shrink to avoid hiding tiles
                 ..Default::default()
             },
@@ -87,13 +98,21 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
         "actions".to_string(),
         vec![Mask::new(
             "action_test".to_string(),
-            Selector::Block(Rect::new(
+            // Selector::Block(Rect::new(
+            //     Coordinates { x: 2, y: 4 },
+            //     Shape {
+            //         width: 3 - 2,  // 1
+            //         height: 4 - 4, // 0, maybe you want height = 1? Adjust if needed.
+            //     },
+            // )),
+            Rect::new(
                 Coordinates { x: 2, y: 4 },
                 Shape {
                     width: 3 - 2,  // 1
                     height: 4 - 4, // 0, maybe you want height = 1? Adjust if needed.
                 },
-            )),
+            )
+            .as_many(),
             Effect {
                 texture_id: Some(library.get_id("portal_1").unwrap()),
                 action_id: Some(library.get_id("consolelog").unwrap()),

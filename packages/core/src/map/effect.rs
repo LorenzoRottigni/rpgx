@@ -1,9 +1,6 @@
-use crate::{
-    common::rect::Rect,
-    prelude::{Coordinates, Shape},
-};
+use crate::common::rect::Rect;
 
-#[doc = include_str!("../../docs/tile.md")]
+#[doc = include_str!("../../docs/effect.md")]
 /// Visual and interactive properties applied to a [`super::tile::Tile`] or UI element.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct Effect {
@@ -15,10 +12,8 @@ pub struct Effect {
     pub render_id: Option<u32>,
     /// Make the tile area, or a part of it not walkable.
     pub block: Option<Rect>,
-    /// Whether the tile belongs to a group of contiguous tiles.
-    pub group: bool,
-    // Optional bounding box that restricts the blocking region on the tile.
-    // pub shrink: Option<BlockSelector>,
+    //// Whether the tile belongs to a group of contiguous tiles.
+    // pub group: bool,
 }
 /*
 impl Effect {

@@ -1,6 +1,6 @@
 use crate::{
-    common::delta::Delta,
-    prelude::{Coordinates, Effect, Layer, Mask, Selector, Shape},
+    common::rect::Rect,
+    prelude::{Coordinates, Effect, Layer, Mask, Shape},
 };
 
 /// Generates a street `Layer` that surrounds the area defined by `shape`.
@@ -33,7 +33,11 @@ pub fn street_layer_around(shape: Shape, texture_id: u32) -> Layer {
 
     let mask = Mask::new(
         "street_border".to_string(),
-        Selector::Sparse(edge_coords),
+        // Selector::Sparse(edge_coords),
+        edge_coords
+            .iter()
+            .map(|c| Rect::new(*c, Shape::from_square(1)))
+            .collect(),
         Effect {
             texture_id: Some(texture_id),
             ..Default::default()

@@ -9,7 +9,7 @@ pub mod effect;
 pub mod grid;
 pub mod layer;
 pub mod routing;
-pub mod selector;
+// pub mod selector;
 pub mod tile;
 
 #[doc = include_str!("../../docs/map.md")]

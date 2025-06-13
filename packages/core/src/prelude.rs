@@ -7,7 +7,6 @@ pub use crate::map::Map;
 pub use crate::map::effect::Effect;
 pub use crate::map::layer::Layer;
 pub use crate::map::layer::mask::Mask;
-pub use crate::map::selector::*;
 pub use crate::map::tile::Tile;
 pub use crate::pawn::Pawn;
 pub use crate::scene::Scene;

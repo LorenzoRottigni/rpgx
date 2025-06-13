@@ -1,6 +1,6 @@
 use crate::{
     common::rect::Rect,
-    prelude::{Coordinates, Effect, Layer, Map, Mask, Selector, Shape},
+    prelude::{Coordinates, Effect, Layer, Map, Mask, Shape},
 };
 
 pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
@@ -8,11 +8,12 @@ pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
         "buildings".to_string(),
         vec![Mask::new(
             "logo".to_string(),
-            Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
+            // Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
+            vec![Rect::new(Coordinates { x: 0, y: 0 }, shape)],
             Effect {
                 texture_id: Some(texture_id),
                 block: Some(Rect::new(Coordinates { x: 1, y: 1 }, shape - 2)),
-                group: true,
+                // group: true,
                 ..Default::default()
             },
         )],
@@ -45,7 +46,8 @@ pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
         "actions".to_string(),
         vec![Mask::new(
             "action_test".to_string(),
-            Selector::Block(action_rect),
+            // Selector::Block(action_rect),
+            action_rect.as_many(),
             Effect {
                 action_id: Some(action_id),
                 ..Default::default()
@@ -56,7 +58,7 @@ pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
 
     Map::new(
         "base".to_string(),
-        vec![building_layer.clone(), action_layer.clone()],
+        vec![building_layer.clone() /* action_layer.clone() */],
         Coordinates::default(),
     )
 }
@@ -66,11 +68,12 @@ pub fn building_1x1(shape: Shape, texture_id: u32, action_id: u32) -> Map {
         "buildings".to_string(),
         vec![Mask::new(
             "logo".to_string(),
-            Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
+            // Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
+            vec![Rect::new(Coordinates { x: 0, y: 0 }, shape)],
             Effect {
                 texture_id: Some(texture_id),
                 block: Some(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
-                group: true,
+                // group: true,
                 ..Default::default()
             },
         )],
@@ -91,7 +94,8 @@ pub fn building_1x1(shape: Shape, texture_id: u32, action_id: u32) -> Map {
         "actions".to_string(),
         vec![Mask::new(
             "action_test".to_string(),
-            Selector::Block(action_rect),
+            // Selector::Block(action_rect),
+            action_rect.as_many(),
             Effect {
                 action_id: Some(action_id),
                 ..Default::default()
@@ -112,7 +116,8 @@ pub fn building_3x2(shape: Shape, texture_id: u32, action_id: u32) -> Map {
         "buildings".to_string(),
         vec![Mask::new(
             "logo".to_string(),
-            Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
+            // Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
+            vec![Rect::new(Coordinates { x: 0, y: 0 }, shape)],
             Effect {
                 texture_id: Some(texture_id),
                 block: Some(Rect::new(
@@ -122,7 +127,7 @@ pub fn building_3x2(shape: Shape, texture_id: u32, action_id: u32) -> Map {
                         height: shape.height.saturating_sub(1),
                     },
                 )),
-                group: true,
+                // group: true,
                 ..Default::default()
             },
         )],
@@ -154,7 +159,8 @@ pub fn building_3x2(shape: Shape, texture_id: u32, action_id: u32) -> Map {
         "actions".to_string(),
         vec![Mask::new(
             "action_test".to_string(),
-            Selector::Block(action_rect),
+            // Selector::Block(action_rect),
+            action_rect.as_many(),
             Effect {
                 action_id: Some(action_id),
                 ..Default::default()

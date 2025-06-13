@@ -1,7 +1,7 @@
 use crate::{
     common::{delta::Delta, rect::Rect},
     map::grid::Grid,
-    prelude::{Coordinates, Effect, Selector, Shape, Tile},
+    prelude::{Coordinates, Effect, Shape, Tile},
 };
 
 #[doc = include_str!("../../../docs/mask.md")]
@@ -16,19 +16,13 @@ use crate::{
 pub struct Mask {
     /// The name of the mask for identification or debugging.
     pub name: String,
-
-    /// The selector pattern defining which coordinates this mask applies to.
-    pub selector: Selector,
-
-    /// The effect to apply to all tiles covered by this mask.
-    pub effect: Effect,
-
     pub grid: Grid,
 }
 
 impl Mask {
     /// Create a new mask with the given name, selector, and effect.
-    pub fn new(name: String, selector: Selector, effect: Effect) -> Self {
+    /// pub fn new(name: String, areas: Vec<Rect>, effect: Effect) -> Self {
+    /* pub fn new(name: String, selector: Selector, effect: Effect) -> Self {
         let shape = selector.get_shape();
         let tiles = match &selector {
             Selector::Single(pointer) => {
@@ -127,6 +121,20 @@ impl Mask {
             effect,
             grid,
         }
+    } */
+
+    pub fn new(name: String, areas: Vec<Rect>, effect: Effect) -> Self {
+        let tiles = areas
+            .iter()
+            .map(|area| Tile {
+                area: *area,
+                effect,
+            })
+            .collect();
+
+        let grid = Grid::new(tiles);
+
+        Self { grid, name }
     }
 
     pub fn offset(&mut self, delta: Delta) {
