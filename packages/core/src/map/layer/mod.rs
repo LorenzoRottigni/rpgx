@@ -1,7 +1,7 @@
 use mask::Mask;
 
 use crate::common::delta::Delta;
-pub use crate::prelude::{BlockSelector, Coordinates, Effect, Shape, SingleSelector, Tile};
+pub use crate::prelude::{Coordinates, Effect, Shape, Tile};
 
 pub mod mask;
 
@@ -210,14 +210,14 @@ impl Layer {
     /// Retrieves all tiles within a rectangular block defined by two coordinates.
     ///
     /// Only returns tiles that exist exactly at those coordinates (tiles with larger shape ignored if not top-left).
-    pub fn get_block_at(&self, pointer: BlockSelector) -> Vec<Tile> {
-        self.get_shape()
-            .coordinates_in_range(pointer.0, pointer.1)
-            .into_iter()
-            // .filter_map(|coord| self.tiles.iter().find(|t| t.pointer == coord).cloned())
-            .filter_map(|coord| self.get_tile_at(coord))
-            .collect()
-    }
+    // pub fn get_block_at(&self, pointer: BlockSelector) -> Vec<Tile> {
+    //     self.get_shape()
+    //         .coordinates_in_range(pointer.0, pointer.1)
+    //         .into_iter()
+    //         // .filter_map(|coord| self.tiles.iter().find(|t| t.pointer == coord).cloned())
+    //         .filter_map(|coord| self.get_tile_at(coord))
+    //         .collect()
+    // }
 
     pub fn is_blocking_at(&self, target: &Coordinates) -> bool {
         self.masks.iter().any(|mask| {

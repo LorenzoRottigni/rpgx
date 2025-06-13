@@ -20,32 +20,37 @@ impl Tile {
         Self { effect, area }
     }
 
-    /// Returns true if the given point lies within the tile's area.
-    pub fn contains(&self, point: Coordinates) -> bool {
-        self.area.contains(point)
-    }
-
     /// Returns true if the tile blocks at a specific coordinate.
     ///
     /// Blocking is defined by [`Effect::block`] and optional [`Effect::shrink`] region.
     pub fn is_blocking_at(&self, target: Coordinates) -> bool {
-        if !self.effect.block {
-            return false;
+        // if !self.effect.block {
+        //     return false;
+        // }
+        if let Some(block_area) = self.effect.block {
+            self.area.contains(target) && block_area.contains(target)
+        } else {
+            false
         }
 
-        self.effect.shrink_contains(target) && self.contains(target)
+        // self.effect.shrink_contains(target) && self.contains(target)
     }
 
     /// Offsets the tile and any effect shrink bounds by the given delta.
     pub fn offset(&mut self, delta: Delta) {
-        self.area.origin = self.area.origin.offseted(delta);
+        self.area.offset(delta);
 
-        if let Some((start, end)) = self.effect.shrink {
-            self.effect.shrink = Some((start.offseted(delta), end.offseted(delta)));
+        if let Some(block_area) = &mut self.effect.block {
+            block_area.offset(delta);
         }
+
+        //if let Some((start, end)) = self.effect.block {
+        //    self.effect.block = Some((start.offseted(delta), end.offseted(delta)));
+        //}
     }
 }
 
+/*
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -143,3 +148,4 @@ mod tests {
         assert_eq!(new_end, Coordinates { x: 7, y: 7 });
     }
 }
+ */

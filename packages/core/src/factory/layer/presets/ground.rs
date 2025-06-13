@@ -1,16 +1,13 @@
-use crate::prelude::{Coordinates, Effect, Layer, Mask, Selector, Shape};
+use crate::{
+    common::rect::Rect,
+    prelude::{Coordinates, Effect, Layer, Mask, Selector, Shape},
+};
 
 /// Generates a street `Layer` that surrounds the area defined by `shape`.
 pub fn ground_layer(shape: Shape, texture_id: u32) -> Layer {
     let mask = Mask::new(
         "street_border".to_string(),
-        Selector::Block((
-            Coordinates { x: 0, y: 0 },
-            Coordinates {
-                x: shape.width,
-                y: shape.height,
-            },
-        )),
+        Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
         Effect {
             texture_id: Some(texture_id),
             ..Default::default()

@@ -1,4 +1,7 @@
-use crate::prelude::{Coordinates, Shape};
+use crate::{
+    common::{delta::Delta, shape},
+    prelude::{Coordinates, Shape},
+};
 
 /// Axis-aligned rectangle on a 2D grid.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -11,6 +14,47 @@ pub struct Rect {
 }
 
 impl Rect {
+    pub fn new(origin: Coordinates, shape: Shape) -> Self {
+        Self { origin, shape }
+    }
+
+    /// Returns the top-left corner (same as origin).
+    pub fn top_left(&self) -> Coordinates {
+        self.origin
+    }
+
+    /// Returns the top-right corner.
+    pub fn top_right(&self) -> Coordinates {
+        Coordinates {
+            x: self.origin.x + self.shape.width as u32 - 1,
+            y: self.origin.y,
+        }
+    }
+
+    /// Returns the bottom-left corner.
+    pub fn bottom_left(&self) -> Coordinates {
+        Coordinates {
+            x: self.origin.x,
+            y: self.origin.y + self.shape.height as u32 - 1,
+        }
+    }
+
+    /// Returns the bottom-right corner.
+    pub fn bottom_right(&self) -> Coordinates {
+        Coordinates {
+            x: self.origin.x + self.shape.width as u32 - 1,
+            y: self.origin.y + self.shape.height as u32 - 1,
+        }
+    }
+
+    /// Returns the center of the rectangle, floored if even dimensions.
+    pub fn center(&self) -> Coordinates {
+        Coordinates {
+            x: self.origin.x + self.shape.width as u32 / 2,
+            y: self.origin.y + self.shape.height as u32 / 2,
+        }
+    }
+
     /// Test if a point lies within this rectangle.
     pub fn contains(&self, pt: Coordinates) -> bool {
         let x = pt.x;
@@ -34,5 +78,13 @@ impl Rect {
                 y: oy + dy as u32,
             })
         })
+    }
+
+    pub fn offset(&mut self, delta: Delta) {
+        let new_x = self.origin.x as i32 + delta.dx;
+        let new_y = self.origin.y as i32 + delta.dy;
+
+        self.origin.x = if new_x < 0 { 0 } else { new_x as u32 };
+        self.origin.y = if new_y < 0 { 0 } else { new_y as u32 };
     }
 }

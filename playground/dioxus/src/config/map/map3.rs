@@ -1,6 +1,7 @@
 use std::any::Any;
 
 use rpgx::{
+    common::rect::Rect,
     library::Library,
     map::Map,
     prelude::{Coordinates, Effect, Layer, Mask, Selector, Shape},
@@ -42,13 +43,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
         vec![
             Mask::new(
                 "default_floor".to_string(),
-                Selector::Block((
-                    Coordinates { x: 0, y: 0 },
-                    Coordinates {
-                        x: shape.width,
-                        y: shape.height,
-                    },
-                )),
+                Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
                 Effect {
                     texture_id: Some(library.get_id("floor_1").unwrap()),
                     ..Default::default()
@@ -70,10 +65,16 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
         "buildings".to_string(),
         vec![Mask::new(
             "logo".to_string(),
-            Selector::Block((Coordinates { x: 1, y: 1 }, Coordinates { x: 3, y: 4 })),
+            Selector::Block(Rect::new(
+                Coordinates { x: 1, y: 1 },
+                Shape {
+                    width: 3 - 1,  // 2
+                    height: 4 - 1, // 3
+                },
+            )),
             Effect {
                 texture_id: Some(library.get_id("building_1").unwrap()),
-                block: true,
+                block: None,
                 group: true,
                 // Removed shrink to avoid hiding tiles
                 ..Default::default()
@@ -86,7 +87,13 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
         "actions".to_string(),
         vec![Mask::new(
             "action_test".to_string(),
-            Selector::Block((Coordinates { x: 2, y: 4 }, Coordinates { x: 3, y: 4 })),
+            Selector::Block(Rect::new(
+                Coordinates { x: 2, y: 4 },
+                Shape {
+                    width: 3 - 2,  // 1
+                    height: 4 - 4, // 0, maybe you want height = 1? Adjust if needed.
+                },
+            )),
             Effect {
                 texture_id: Some(library.get_id("portal_1").unwrap()),
                 action_id: Some(library.get_id("consolelog").unwrap()),

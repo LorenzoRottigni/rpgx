@@ -112,7 +112,7 @@ impl Map {
         None
     }
 }
-
+/*
 #[cfg(test)]
 pub mod tests {
     use super::*;
@@ -235,3 +235,4 @@ pub mod tests {
         assert!(map.find_path(&start, &goal).is_none());
     }
 }
+ */

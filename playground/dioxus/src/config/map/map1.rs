@@ -1,6 +1,7 @@
 use std::any::Any;
 
 use rpgx::{
+    common::rect::Rect,
     library::Library,
     map::Map,
     prelude::{Coordinates, Effect, Layer, Mask, Selector, Shape},
@@ -41,7 +42,13 @@ pub fn use_map1(library: &Library<Box<dyn Any>>) -> Map {
         "sign".into(),
         vec![Mask::new(
             "sign".into(),
-            Selector::Block((Coordinates { x: 1, y: 1 }, Coordinates { x: 4, y: 4 })),
+            Selector::Block(Rect::new(
+                Coordinates { x: 1, y: 1 },
+                Shape {
+                    width: 3,
+                    height: 3,
+                },
+            )),
             Effect {
                 render_id: library.get_id("sign"),
                 group: true,

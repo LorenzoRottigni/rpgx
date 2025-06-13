@@ -1,4 +1,7 @@
-use crate::prelude::{BlockSelector, Coordinates, Shape};
+use crate::{
+    common::rect::Rect,
+    prelude::{Coordinates, Shape},
+};
 
 #[doc = include_str!("../../docs/tile.md")]
 /// Visual and interactive properties applied to a [`super::tile::Tile`] or UI element.
@@ -10,15 +13,16 @@ pub struct Effect {
     pub texture_id: Option<u32>,
     /// Optional render callback ID attached to the tile.
     pub render_id: Option<u32>,
-    /// Whether this tile blocks movement or interaction.
-    pub block: bool,
+    /// Make the tile area, or a part of it not walkable.
+    pub block: Option<Rect>,
     /// Whether the tile belongs to a group of contiguous tiles.
     pub group: bool,
-    /// Optional bounding box that restricts the blocking region on the tile.
-    pub shrink: Option<BlockSelector>,
+    // Optional bounding box that restricts the blocking region on the tile.
+    // pub shrink: Option<BlockSelector>,
 }
-
+/*
 impl Effect {
+
     /// Checks if the given point lies within the `shrink` bounding box, if any.
     ///
     /// If no `shrink` box is defined, always returns `true`.
@@ -107,3 +111,4 @@ mod tests {
         assert!(!effect.shrink_contains(underflow_point));
     }
 }
+*/

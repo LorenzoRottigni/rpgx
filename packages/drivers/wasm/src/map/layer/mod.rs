@@ -118,17 +118,17 @@ impl WasmLayer {
             .map(WasmTile::from_inner)
     }
 
-    pub fn get_block_at(&self, pointer: &WasmBlockSelector) -> js_sys::Array {
-        // Use as_inner() to get a reference, then deref to pass owned tuple
-        let tiles = self.inner.get_block_at(pointer.clone().into_inner());
-        let arr = js_sys::Array::new_with_length(tiles.len() as u32);
-
-        for (i, tile) in tiles.into_iter().enumerate() {
-            arr.set(i as u32, WasmTile::from_inner(tile).into());
-        }
-
-        arr
-    }
+    // pub fn get_block_at(&self, pointer: &WasmBlockSelector) -> js_sys::Array {
+    //     // Use as_inner() to get a reference, then deref to pass owned tuple
+    //     let tiles = self.inner.get_block_at(pointer.clone().into_inner());
+    //     let arr = js_sys::Array::new_with_length(tiles.len() as u32);
+    //
+    //     for (i, tile) in tiles.into_iter().enumerate() {
+    //         arr.set(i as u32, WasmTile::from_inner(tile).into());
+    //     }
+    //
+    //     arr
+    // }
 
     pub fn is_blocking_at(&self, target: &WasmCoordinates) -> bool {
         self.inner.is_blocking_at(&target.inner)
