@@ -117,6 +117,17 @@ impl Sub<u32> for Shape {
     }
 }
 
+impl Add<u32> for Shape {
+    type Output = Shape;
+
+    fn add(self, value: u32) -> Shape {
+        Shape {
+            width: self.width + value,
+            height: self.height + value,
+        }
+    }
+}
+
 impl Add<Coordinates> for Shape {
     type Output = Shape;
 
