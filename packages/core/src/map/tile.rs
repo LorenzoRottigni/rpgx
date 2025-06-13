@@ -63,10 +63,11 @@ impl Tile {
     /// # Parameters
     ///
     /// * `delta` - The coordinate offset to apply to the tile's pointer and effect bounds.
-    pub fn offset(&mut self, delta: Coordinates) {
-        self.pointer += delta;
+    pub fn offset(&mut self, delta: Delta) {
+        self.pointer = self.pointer.offseted(delta);
+
         if let Some((start, end)) = self.effect.shrink {
-            self.effect.shrink = Some((start + delta, end + delta));
+            self.effect.shrink = Some((start.offseted(delta), end.offseted(delta)));
         }
     }
 }
@@ -160,7 +161,7 @@ mod tests {
             Shape::from_square(3),
         );
 
-        tile.offset(Coordinates { x: 5, y: 5 });
+        tile.offset(Delta { dx: 5, dy: 5 });
 
         // Tile pointer updated
         assert_eq!(tile.pointer.x, 5);

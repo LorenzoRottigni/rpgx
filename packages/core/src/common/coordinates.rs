@@ -19,58 +19,72 @@ impl Coordinates {
         let min_y = coords.iter().map(|c| c.y).min()?;
         let max_y = coords.iter().map(|c| c.y).max()?;
 
-        Some((Self { x: min_x, y: min_y }, Self { x: max_x, y: max_y }))
+        // Add +1 to max_x and max_y to make bounds exclusive
+        Some((
+            Self { x: min_x, y: min_y },
+            Self {
+                x: max_x + 1,
+                y: max_y + 1,
+            },
+        ))
     }
 
     pub fn is_within(&self, origin: Coordinates, shape: Shape) -> bool {
-        let end = origin + shape - 1;
-        self.x >= origin.x && self.x <= end.x && self.y >= origin.y && self.y <= end.y
+        let end = origin + shape; // exclusive end coordinate
+        // Check if self is inside [origin, end) range
+        self.x >= origin.x && self.x < end.x && self.y >= origin.y && self.y < end.y
     }
-}
 
-impl Sub<u32> for Coordinates {
-    type Output = Coordinates;
+    pub fn offseted(self, delta: Delta) -> Self {
+        let x = if delta.dx < 0 {
+            self.x.saturating_sub((-delta.dx) as u32)
+        } else {
+            self.x.saturating_add(delta.dx as u32)
+        };
 
-    fn sub(self, value: u32) -> Coordinates {
-        Coordinates {
-            x: self.x.saturating_sub(value),
-            y: self.y.saturating_sub(value),
+        let y = if delta.dy < 0 {
+            self.y.saturating_sub((-delta.dy) as u32)
+        } else {
+            self.y.saturating_add(delta.dy as u32)
+        };
+
+        Coordinates { x, y }
+    }
+
+    pub fn try_offseted(self, delta: Delta) -> Option<Self> {
+        let x = self.x as i32 + delta.dx;
+        let y = self.y as i32 + delta.dy;
+        if x >= 0 && y >= 0 {
+            Some(Self {
+                x: x as u32,
+                y: y as u32,
+            })
+        } else {
+            None
+        }
+    }
+
+    pub fn to_delta(self) -> Delta {
+        Delta {
+            dx: self.x as i32,
+            dy: self.y as i32,
         }
     }
 }
 
+// Coordinates ± Coordinates
 impl Add for Coordinates {
     type Output = Coordinates;
-
-    fn add(self, other: Coordinates) -> Coordinates {
+    fn add(self, rhs: Coordinates) -> Coordinates {
         Coordinates {
-            x: self.x + other.x,
-            y: self.y + other.y,
-        }
-    }
-}
-
-impl AddAssign for Coordinates {
-    fn add_assign(&mut self, other: Coordinates) {
-        self.x += other.x;
-        self.y += other.y;
-    }
-}
-
-impl Add<Shape> for Coordinates {
-    type Output = Coordinates;
-
-    fn add(self, shape: Shape) -> Coordinates {
-        Coordinates {
-            x: self.x + shape.width,
-            y: self.y + shape.height,
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
         }
     }
 }
 
 impl Sub for Coordinates {
     type Output = Coordinates;
-
     fn sub(self, rhs: Coordinates) -> Coordinates {
         Coordinates {
             x: self.x.saturating_sub(rhs.x),
@@ -79,32 +93,57 @@ impl Sub for Coordinates {
     }
 }
 
-impl Sub<Shape> for Coordinates {
+impl Sub<usize> for Coordinates {
     type Output = Coordinates;
 
-    fn sub(self, shape: Shape) -> Coordinates {
+    fn sub(self, value: usize) -> Coordinates {
         Coordinates {
-            x: self.x - shape.width,
-            y: self.y - shape.height,
+            x: self.x.saturating_sub(value as u32),
+            y: self.y.saturating_sub(value as u32),
         }
     }
 }
 
+// Coordinates ± Shape
+impl Add<Shape> for Coordinates {
+    type Output = Coordinates;
+    fn add(self, shape: Shape) -> Coordinates {
+        Coordinates {
+            x: self.x + shape.width,
+            y: self.y + shape.height,
+        }
+    }
+}
+
+impl Sub<Shape> for Coordinates {
+    type Output = Coordinates;
+    fn sub(self, shape: Shape) -> Coordinates {
+        Coordinates {
+            x: self.x.saturating_sub(shape.width),
+            y: self.y.saturating_sub(shape.height),
+        }
+    }
+}
+
+// Coordinates ± Delta
 impl Add<Delta> for Coordinates {
     type Output = Option<Coordinates>;
-
     fn add(self, delta: Delta) -> Self::Output {
-        let x = self.x as i32 + delta.dx;
-        let y = self.y as i32 + delta.dy;
+        self.try_offseted(delta)
+    }
+}
 
-        if x >= 0 && y >= 0 {
-            Some(Coordinates {
-                x: x as u32,
-                y: y as u32,
-            })
-        } else {
-            None
-        }
+impl Sub<Delta> for Coordinates {
+    type Output = Option<Coordinates>;
+    fn sub(self, delta: Delta) -> Self::Output {
+        self.try_offseted(delta.invert())
+    }
+}
+
+impl AddAssign for Coordinates {
+    fn add_assign(&mut self, rhs: Coordinates) {
+        self.x += rhs.x;
+        self.y += rhs.y;
     }
 }
 

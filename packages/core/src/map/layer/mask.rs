@@ -1,4 +1,5 @@
 use crate::{
+    common::delta::Delta,
     map::grid::Grid,
     prelude::{Coordinates, Effect, Selector, Shape, Tile},
 };
@@ -29,6 +30,7 @@ impl Mask {
     /// Create a new mask with the given name, selector, and effect.
     pub fn new(name: String, selector: Selector, effect: Effect) -> Self {
         let shape = selector.get_shape();
+        let offset = selector.get_shape_offset();
         let tiles = match &selector {
             Selector::Single(pointer) => {
                 // If the selector is a single coordinate and is inside the shape,
@@ -64,6 +66,9 @@ impl Mask {
                     if let Some((top_left, bottom_right)) = Coordinates::bounding_box(
                         &tiles.iter().map(|t| t.pointer).collect::<Vec<_>>(),
                     ) {
+                        let shape_width = bottom_right.x - top_left.x;
+                        let shape_height = bottom_right.y - top_left.y;
+
                         return Self {
                             name,
                             selector: selector.clone(),
@@ -72,7 +77,10 @@ impl Mask {
                                 shape: selector.get_shape(),
                                 tiles: vec![Tile {
                                     pointer: top_left,
-                                    shape: Shape::from_bounds(top_left, bottom_right),
+                                    shape: Shape {
+                                        width: shape_width,
+                                        height: shape_height,
+                                    },
                                     effect,
                                 }],
                             },
@@ -106,10 +114,7 @@ impl Mask {
             //         .collect()
             // }
         };
-        let grid = Grid {
-            shape: selector.get_shape(),
-            tiles,
-        };
+        let grid = Grid { shape, tiles };
         Self {
             name,
             selector,
@@ -118,7 +123,7 @@ impl Mask {
         }
     }
 
-    pub fn offset(&mut self, delta: Coordinates) {
+    pub fn offset(&mut self, delta: Delta) {
         self.grid.offset(delta);
     }
 

@@ -7,8 +7,8 @@ pub fn ground_layer(shape: Shape, texture_id: u32) -> Layer {
         Selector::Block((
             Coordinates { x: 0, y: 0 },
             Coordinates {
-                x: shape.width - 1,
-                y: shape.height - 1,
+                x: shape.width,
+                y: shape.height,
             },
         )),
         Effect {

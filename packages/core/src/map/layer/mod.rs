@@ -1,5 +1,6 @@
 use mask::Mask;
 
+use crate::common::delta::Delta;
 pub use crate::prelude::{BlockSelector, Coordinates, Effect, Shape, SingleSelector, Tile};
 
 pub mod mask;
@@ -245,7 +246,7 @@ impl Layer {
     /// Offsets all tiles and the shape of the layer by the given delta.
     ///
     /// The shape dimensions increase by delta.x and delta.y (capped to zero minimum).
-    pub fn offset(&mut self, delta: Coordinates) {
+    pub fn offset(&mut self, delta: Delta) {
         for mask in &mut self.masks {
             mask.offset(delta);
         }

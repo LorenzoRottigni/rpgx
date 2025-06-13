@@ -54,10 +54,64 @@ impl Selector {
                     .map(|c| c.y)
                     .fold((u32::MAX, 0), |(min, max), y| (min.min(y), max.max(y)));
 
+                // Since max_x and max_y are inclusive coords,
+                // add +1 to make exclusive bounds.
                 Shape::from_bounds(
                     Coordinates { x: min_x, y: min_y },
-                    Coordinates { x: max_x, y: max_y },
+                    Coordinates {
+                        x: max_x + 1,
+                        y: max_y + 1,
+                    },
                 )
+            }
+        }
+    }
+
+    /// Returns the top-left coordinate (offset) of the shape.
+    /// Useful for determining where the selector's region begins on the grid.
+    pub fn get_shape_offset(&self) -> Coordinates {
+        match self {
+            Selector::Single(coord) => *coord,
+            Selector::Block((start, end)) => Coordinates {
+                x: start.x.min(end.x),
+                y: start.y.min(end.y),
+            },
+            Selector::Sparse(coords) => {
+                if coords.is_empty() {
+                    Coordinates { x: 0, y: 0 }
+                } else {
+                    let min_x = coords.iter().map(|c| c.x).min().unwrap();
+                    let min_y = coords.iter().map(|c| c.y).min().unwrap();
+                    Coordinates { x: min_x, y: min_y }
+                }
+            }
+        }
+    }
+
+    pub fn get_absolute_shape(&self) -> Shape {
+        match self {
+            Selector::Single(coord) => Shape {
+                width: coord.x + 1,
+                height: coord.y + 1,
+            },
+
+            Selector::Block((start, end)) => Shape {
+                width: end.x.max(start.x) + 1,
+                height: end.y.max(start.y) + 1,
+            },
+
+            Selector::Sparse(coords) => {
+                if coords.is_empty() {
+                    return Shape::default();
+                }
+
+                let max_x = coords.iter().map(|c| c.x).max().unwrap_or(0);
+                let max_y = coords.iter().map(|c| c.y).max().unwrap_or(0);
+
+                Shape {
+                    width: max_x + 1,
+                    height: max_y + 1,
+                }
             }
         }
     }

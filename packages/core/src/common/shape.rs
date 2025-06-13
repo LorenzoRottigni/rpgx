@@ -21,10 +21,9 @@ impl Shape {
     }
 
     pub fn from_bounds(start: Coordinates, end: Coordinates) -> Self {
-        let width = start.x.max(end.x) - start.x.min(end.x) + 1;
-        let height = start.y.max(end.y) - start.y.min(end.y) + 1;
-
-        Self { width, height }
+        let width = end.x.saturating_sub(start.x);
+        let height = end.y.saturating_sub(start.y);
+        Shape { width, height }
     }
 
     pub fn bounding_shape(shapes: &[Self]) -> Self {
@@ -58,12 +57,14 @@ impl Shape {
     pub fn coordinates_in_range(&self, start: Coordinates, end: Coordinates) -> Vec<Coordinates> {
         let start_x = start.x.max(0);
         let start_y = start.y.max(0);
-        let end_x = end.x.min(self.width - 1);
-        let end_y = end.y.min(self.height - 1);
+        let end_x = end.x.min(self.width);
+        let end_y = end.y.min(self.height);
 
         let mut coords = Vec::new();
-        for y in start_y..=end_y {
-            for x in start_x..=end_x {
+        for y in start_y..end_y {
+            // end_y exclusive
+            for x in start_x..end_x {
+                // end_x exclusive
                 coords.push(Coordinates { x, y });
             }
         }

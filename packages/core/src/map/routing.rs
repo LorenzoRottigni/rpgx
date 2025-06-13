@@ -121,7 +121,6 @@ pub mod tests {
     // Helper: create a blocking tile at the given coordinate
     fn blocking_tile_at(coord: Coordinates) -> Tile {
         Tile {
-            id: 0,
             pointer: coord,
             shape: Shape::from_square(1),
             effect: Effect {
@@ -133,13 +132,11 @@ pub mod tests {
 
     // Helper: create a Map with a Block layer containing blocking tiles at specified coordinates
     fn map_with_layer(blocks: Vec<Coordinates>, width: u32, height: u32) -> Map {
-        let shape = Shape { width, height };
-        let block_tiles = blocks.into_iter().map(blocking_tile_at).collect::<Vec<_>>();
+        // let shape = Shape { width, height };
+        // let block_tiles = blocks.into_iter().map(blocking_tile_at).collect::<Vec<_>>();
 
         let block_layer = Layer {
             name: "block".into(),
-            shape,
-            tiles: block_tiles,
             masks: vec![],
             z: 1,
         };

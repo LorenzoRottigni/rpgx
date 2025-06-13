@@ -1,4 +1,7 @@
-use crate::prelude::{Coordinates, Direction, Layer, Tile};
+use crate::{
+    common::delta::Delta,
+    prelude::{Coordinates, Direction, Layer, Tile},
+};
 use indexmap::IndexMap;
 use layer::{Effect, Shape, SingleSelector};
 
@@ -74,23 +77,24 @@ impl Map {
     pub fn load_layer(&mut self, layer: Layer /* , offset: Coordinates */) {
         let current_shape = self.get_shape();
         let target_shape = layer.get_shape();
-        let offset = Coordinates {
-            x: if target_shape.width > current_shape.width {
-                target_shape.width - current_shape.width - 1
-            } else {
-                0
-            },
-            y: if target_shape.height > current_shape.height {
-                target_shape.height - current_shape.height - 1
-            } else {
-                0
-            },
+
+        // -1 beacause coordinates starts form 0 and shape from 1
+        let dx = (target_shape.width as i32) - (current_shape.width as i32) - 1;
+        let dy = (target_shape.height as i32) - (current_shape.height as i32) - 1;
+
+        let offset = Delta {
+            dx: if dx > 0 { dx } else { 0 },
+            dy: if dy > 0 { dy } else { 0 },
         };
 
-        // println!("Computed offset: {} {}", offset.x, offset.y);
-        for existing_layer in &mut self.layers {
-            existing_layer.offset(offset);
+        // Only offset existing layers if offset is positive
+        if offset.dx > 0 || offset.dy > 0 {
+            for existing_layer in &mut self.layers {
+                existing_layer.offset(offset);
+            }
         }
+
+        // Now add the new layer
         self.layers.push(layer);
         /* if let Some(base_layer) = self.get_base_layer() {
             // Calculate offset based on size difference
@@ -151,7 +155,7 @@ impl Map {
 
         for layer in &other.layers {
             let mut offset_layer = layer.clone();
-            offset_layer.offset(top_left);
+            offset_layer.offset(top_left.to_delta());
             self.layers.push(offset_layer)
 
             // layers_by_name

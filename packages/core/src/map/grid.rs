@@ -1,4 +1,7 @@
-use crate::prelude::{Coordinates, Shape, Tile};
+use crate::{
+    common::delta::Delta,
+    prelude::{Shape, Tile},
+};
 
 #[derive(Clone, Debug)]
 pub struct Grid {
@@ -22,11 +25,22 @@ impl Grid {
         Self { tiles, shape }
     }
 
-    pub fn offset(&mut self, delta: Coordinates) {
+    pub fn offset(&mut self, delta: Delta) {
         for tile in &mut self.tiles {
             tile.offset(delta);
         }
-        self.shape.width = (self.shape.width + delta.x).max(0);
-        self.shape.height = (self.shape.height + delta.y).max(0);
+
+        // Apply delta safely, preventing underflow
+        if delta.dx < 0 {
+            self.shape.width = self.shape.width.saturating_sub((-delta.dx) as u32);
+        } else {
+            self.shape.width = self.shape.width.saturating_add(delta.dx as u32);
+        }
+
+        if delta.dy < 0 {
+            self.shape.height = self.shape.height.saturating_sub((-delta.dy) as u32);
+        } else {
+            self.shape.height = self.shape.height.saturating_add(delta.dy as u32);
+        }
     }
 }
