@@ -38,7 +38,7 @@ pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
         },
         Shape {
             width: end_x - start_x,
-            height: 2,
+            height: 1,
         },
     );
 
@@ -58,7 +58,7 @@ pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
 
     Map::new(
         "base".to_string(),
-        vec![building_layer.clone() /* action_layer.clone() */],
+        vec![building_layer.clone(), action_layer.clone()],
         Coordinates::default(),
     )
 }
