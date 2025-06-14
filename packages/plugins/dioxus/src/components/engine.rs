@@ -2,14 +2,14 @@ use std::any::Any;
 
 use dioxus::prelude::*;
 use rpgx::{
-    common::errors::MapError,
     library::Library,
     prelude::{Direction, Tile},
+    scene::MoveError,
 };
 
 use crate::{
     components::{grid::Grid, pawn::Pawn},
-    controller::{Command, use_controller},
+    controller::{use_controller, Command},
 };
 
 #[derive(PartialEq, Props, Clone)]
@@ -24,7 +24,7 @@ pub fn Engine(props: EngineProps) -> Element {
     let engine = props.engine.clone();
     let controller = use_controller(engine.clone(), props.library.clone());
 
-    let onclick = move |tile: Tile| -> Result<(), MapError> {
+    let onclick = move |tile: Tile| -> Result<(), MoveError> {
         controller.send(Command::WalkTo(tile.area.origin));
         Ok(())
     };
@@ -98,7 +98,7 @@ pub fn Engine(props: EngineProps) -> Element {
                 engine: engine.clone(),
                 library: props.library.clone(),
                 square_size: props.square_size,
-                onclick: EventHandler::new(move |tile: Result<Tile, MapError>| {
+                onclick: EventHandler::new(move |tile: Result<Tile, MoveError>| {
                     if let Ok(tile) = tile {
                         let _ = onclick(tile);
                     }

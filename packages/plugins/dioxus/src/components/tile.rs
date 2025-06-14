@@ -1,5 +1,5 @@
 use dioxus::prelude::*;
-use rpgx::{common::errors::MapError, library::Library};
+use rpgx::{library::Library, scene::MoveError};
 use std::any::Any;
 use web_sys::console;
 
@@ -10,7 +10,7 @@ pub struct TileProps {
     // layer_kind: LayerType,
     square_size: u32,
     library: Signal<Library<Box<dyn Any>>>,
-    onclick: EventHandler<Result<rpgx::prelude::Tile, MapError>>,
+    onclick: EventHandler<Result<rpgx::prelude::Tile, MoveError>>,
 }
 
 #[allow(non_snake_case)]

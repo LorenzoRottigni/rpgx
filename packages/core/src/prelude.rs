@@ -1,8 +1,7 @@
-pub use crate::common::direction::Direction;
-pub use crate::common::errors::MoveError;
 pub use crate::engine::Engine;
 pub use crate::eucl::coordinates::Coordinates;
 pub use crate::eucl::delta::Delta;
+pub use crate::eucl::direction::Direction;
 pub use crate::eucl::rect::Rect;
 pub use crate::eucl::shape::Shape;
 pub use crate::map::effect::Effect;
@@ -11,4 +10,5 @@ pub use crate::map::mask::Mask;
 pub use crate::map::tile::Tile;
 pub use crate::map::Map;
 pub use crate::pawn::Pawn;
+pub use crate::scene::MoveError;
 pub use crate::scene::Scene;

@@ -1,4 +1,13 @@
-use crate::prelude::{Coordinates, Direction, Map, MoveError, Pawn};
+use crate::prelude::{Coordinates, Direction, Map, Pawn};
+
+#[derive(Debug)]
+pub enum MoveError {
+    TileBlocked,
+    TileNotFound,
+    TileOutOfBounds,
+    PathNotFound,
+    StepFailed(Coordinates),
+}
 
 #[doc = include_str!("../docs/scene.md")]
 /// RPG scene providing [`Pawn`] movement computation across the [`Map`].
