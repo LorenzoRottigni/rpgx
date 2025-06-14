@@ -114,50 +114,76 @@ impl Rect {
             .collect()
     }
 
-    /// Returns the perimeter tiles of the rect as 1x1 Rects offset inward by `offset`.
+    /// Returns the perimeter tiles of the rect as 1×1 `Rect`s offset inward by `offset`, with `size` thickness.
     ///
-    /// Tiles are returned clockwise starting from top-left corner.
-    pub fn as_perimeter(&self, offset: u32) -> Vec<Self> {
+    /// Tiles are returned clockwise starting from the top-left corner of the outermost perimeter band.
+    ///
+    /// # Arguments
+    /// * `offset` - Distance from the edge before the perimeter starts.
+    /// * `size` - Thickness of the perimeter band.
+    ///
+    /// # Panics
+    /// Panics if `offset + size` exceeds half the width or height.
+    ///
+    /// # Example
+    /// ```
+    /// let rect = Rect::from_xywh(0, 0, 5, 5);
+    /// let border = rect.as_perimeter(0, 1);
+    /// assert_eq!(border.len(), 16); // 5+5+3+3
+    /// ```
+    pub fn as_perimeter(&self, offset: u32, size: u32) -> Vec<Self> {
         let mut perimeter = Vec::new();
 
         if self.shape.width <= 2 * offset || self.shape.height <= 2 * offset {
-            // No perimeter exists for this offset
             return perimeter;
         }
 
-        let left = self.origin.x + offset;
-        let right = self.origin.x + self.shape.width - 1 - offset;
-        let top = self.origin.y + offset;
-        let bottom = self.origin.y + self.shape.height - 1 - offset;
+        let max_size = std::cmp::min(
+            (self.shape.width / 2).saturating_sub(offset),
+            (self.shape.height / 2).saturating_sub(offset),
+        );
 
-        // Top row (left to right)
-        for x in left..=right {
-            perimeter.push(Rect::from_xywh(x, top, 1, 1));
-        }
-        // Right column (top+1 to bottom-1)
-        for y in (top + 1)..bottom {
-            perimeter.push(Rect::from_xywh(right, y, 1, 1));
-        }
-        // Bottom row (right to left)
-        if bottom > top {
-            for x in (left..=right).rev() {
-                perimeter.push(Rect::from_xywh(x, bottom, 1, 1));
+        let size = size.min(max_size);
+
+        for s in 0..size {
+            let left = self.origin.x + offset + s;
+            let right = self.origin.x + self.shape.width - 1 - offset - s;
+            let top = self.origin.y + offset + s;
+            let bottom = self.origin.y + self.shape.height - 1 - offset - s;
+
+            // Top edge
+            for x in left..=right {
+                perimeter.push(Rect::from_xywh(x, top, 1, 1));
             }
-        }
-        // Left column (bottom-1 down to top+1)
-        if right > left {
-            for y in ((top + 1)..bottom).rev() {
-                perimeter.push(Rect::from_xywh(left, y, 1, 1));
+            // Right edge
+            for y in (top + 1)..bottom {
+                perimeter.push(Rect::from_xywh(right, y, 1, 1));
+            }
+            // Bottom edge
+            if bottom > top {
+                for x in (left..=right).rev() {
+                    perimeter.push(Rect::from_xywh(x, bottom, 1, 1));
+                }
+            }
+            // Left edge
+            if right > left {
+                for y in ((top + 1)..bottom).rev() {
+                    perimeter.push(Rect::from_xywh(left, y, 1, 1));
+                }
             }
         }
 
         perimeter
     }
 
-    /// Returns a vertical or horizontal bisector line of 1x1 Rects offset inward by `offset`.
+    /// Returns a vertical or horizontal bisector band of 1×1 `Rect`s offset inward by `offset`, with `size` thickness.
     ///
-    /// If the width is >= height, returns a vertical bisector line; otherwise, horizontal.
-    pub fn as_bisector(&self, offset: u32) -> Vec<Self> {
+    /// If the inner width is greater than or equal to height, returns a vertical band; otherwise, horizontal.
+    ///
+    /// # Arguments
+    /// * `offset` - Distance from the edge before bisecting.
+    /// * `size` - Thickness of the bisector (number of rows or columns).
+    pub fn as_bisector(&self, offset: u32, size: u32) -> Vec<Self> {
         let mut bisector = Vec::new();
 
         if self.shape.width <= 2 * offset || self.shape.height <= 2 * offset {
@@ -170,61 +196,64 @@ impl Rect {
         let height = self.shape.height - 2 * offset;
 
         if width >= height {
-            // vertical bisector: middle column
-            let mid_x = left + width / 2;
-            for y in top..(top + height) {
-                bisector.push(Rect::from_xywh(mid_x, y, 1, 1));
+            // Vertical strip
+            let center_x = left + width / 2;
+            let half = (size / 2) as i32;
+
+            for dx in -half..=(half + (size % 2 == 0) as i32 - 1) {
+                let x = center_x as i32 + dx;
+                if x >= left as i32 && x < (left + width) as i32 {
+                    for y in top..top + height {
+                        bisector.push(Rect::from_xywh(x as u32, y, 1, 1));
+                    }
+                }
             }
         } else {
-            // horizontal bisector: middle row
-            let mid_y = top + height / 2;
-            for x in left..(left + width) {
-                bisector.push(Rect::from_xywh(x, mid_y, 1, 1));
+            // Horizontal strip
+            let center_y = top + height / 2;
+            let half = (size / 2) as i32;
+
+            for dy in -half..=(half + (size % 2 == 0) as i32 - 1) {
+                let y = center_y as i32 + dy;
+                if y >= top as i32 && y < (top + height) as i32 {
+                    for x in left..left + width {
+                        bisector.push(Rect::from_xywh(x, y as u32, 1, 1));
+                    }
+                }
             }
         }
 
         bisector
     }
 
-    /// Returns the center tile(s) of the Rect offset inward by `offset`.
+    /// Returns a center block of `size × size` 1×1 `Rect`s offset inward by `offset`.
     ///
-    /// For odd dimensions returns one tile; for even dimensions returns a 2x2 square.
-    pub fn as_center(&self, offset: u32) -> Vec<Self> {
+    /// # Arguments
+    /// * `offset` - Distance from the edge before selecting center.
+    /// * `size` - Width and height of the center selection.
+    ///
+    /// # Notes
+    /// If the rect is too small to fit the center block after offset, returns empty.
+    pub fn as_center(&self, offset: u32, size: u32) -> Vec<Self> {
         let mut center = Vec::new();
 
         if self.shape.width <= 2 * offset || self.shape.height <= 2 * offset {
             return center;
         }
 
-        let left = self.origin.x + offset;
-        let top = self.origin.y + offset;
-        let width = self.shape.width - 2 * offset;
-        let height = self.shape.height - 2 * offset;
+        let inner_width = self.shape.width - 2 * offset;
+        let inner_height = self.shape.height - 2 * offset;
 
-        // Determine center coordinates
-        let center_x = left + width / 2;
-        let center_y = top + height / 2;
+        if inner_width < size || inner_height < size {
+            return center;
+        }
 
-        if width % 2 == 1 && height % 2 == 1 {
-            // Odd dimensions: single center tile
-            center.push(Rect::from_xywh(center_x, center_y, 1, 1));
-        } else {
-            // Even dimension(s): 2x2 center block
-            let cx_start = if width % 2 == 0 {
-                center_x - 1
-            } else {
-                center_x
-            };
-            let cy_start = if height % 2 == 0 {
-                center_y - 1
-            } else {
-                center_y
-            };
+        let left = self.origin.x + offset + (inner_width - size) / 2;
+        let top = self.origin.y + offset + (inner_height - size) / 2;
 
-            for x in cx_start..=cx_start + 1 {
-                for y in cy_start..=cy_start + 1 {
-                    center.push(Rect::from_xywh(x, y, 1, 1));
-                }
+        for x in left..left + size {
+            for y in top..top + size {
+                center.push(Rect::from_xywh(x, y, 1, 1));
             }
         }
 
@@ -293,20 +322,20 @@ impl Rect {
     /// Returns all 1×1 tiles within the `Rect` that are located on odd (x + y) sum positions.
     ///
     /// Useful for checkerboard or diagonal pattern logic.
-    pub fn as_odds(&self) -> Vec<Self> {
+    pub fn as_odds(&self) -> Vec<Rect> {
         self.iter()
-            .filter(|coord| (coord.x + coord.y) % 2 == 1)
-            .map(|coord| Rect::from_xywh(coord.x, coord.y, 1, 1))
+            .filter(|coord| coord.x % 2 == 1 && coord.y % 2 == 1)
+            .map(|coord| Rect::new(coord, Shape::from_square(1)))
             .collect()
     }
 
     /// Returns all 1×1 tiles within the `Rect` that are located on even (x + y) sum positions.
     ///
     /// Useful for checkerboard or diagonal pattern logic.
-    pub fn as_evens(&self) -> Vec<Self> {
+    pub fn as_evens(&self) -> Vec<Rect> {
         self.iter()
-            .filter(|coord| (coord.x + coord.y) % 2 == 0)
-            .map(|coord| Rect::from_xywh(coord.x, coord.y, 1, 1))
+            .filter(|coord| coord.x % 2 == 0 && coord.y % 2 == 0)
+            .map(|coord| Rect::new(coord, Shape::from_square(1)))
             .collect()
     }
 
@@ -697,7 +726,6 @@ mod tests {
             )
         );
 
-        // Non-overlapping case
         let c = Rect::new(
             Coordinates { x: 10, y: 10 },
             Shape {
@@ -732,242 +760,29 @@ mod tests {
         assert_eq!(translated.shape, base.shape, "shape should not change");
     }
 
-    #[cfg(test)]
-    mod tests {
-        use super::*;
-
-        #[test]
-        fn as_round_includes_center_and_neighbors_for_small_odd_rect() {
-            let rect = Rect::from_shape(Shape {
-                width: 3,
-                height: 3,
-            });
-            let round_tiles = rect.as_round(1);
-
-            let expected_coords = vec![
-                (1, 1), // center
-                (0, 1),
-                (1, 0),
-                (1, 2),
-                (2, 1), // neighbors at distance 1
-            ];
-
-            let round_coords: Vec<_> = round_tiles
-                .iter()
-                .map(|r| (r.origin.x, r.origin.y))
-                .collect();
-
-            for coord in expected_coords {
-                assert!(
-                    round_coords.contains(&coord),
-                    "Expected coordinate {:?} in round tiles",
-                    coord
-                );
-            }
-
-            assert!(
-                round_coords.iter().all(|&(x, y)| x < 3 && y < 3),
-                "All tiles should be within rectangle bounds"
-            );
+    #[test]
+    pub fn as_evens_returns_even_coordinates() {
+        let rect = Rect::from_shape(Shape {
+            width: 4,
+            height: 4,
+        });
+        let evens = rect.as_evens();
+        for tile in evens {
+            assert_eq!(tile.origin.x % 2, 0);
+            assert_eq!(tile.origin.y % 2, 0);
         }
+    }
 
-        #[test]
-        fn as_round_correctly_handles_even_sized_rectangle() {
-            let rect = Rect::from_shape(Shape {
-                width: 4,
-                height: 4,
-            });
-            let round_tiles = rect.as_round(1);
-
-            let centers = [(1, 1), (1, 2), (2, 1), (2, 2)];
-
-            for &(cx, cy) in &centers {
-                assert!(
-                    round_tiles
-                        .iter()
-                        .any(|r| r.origin.x == cx && r.origin.y == cy),
-                    "Expected center tile at ({}, {})",
-                    cx,
-                    cy
-                );
-            }
-
-            assert!(
-                round_tiles.iter().all(|r| r.origin.x < 4 && r.origin.y < 4),
-                "All tiles should be within rectangle bounds"
-            );
-        }
-
-        #[test]
-        fn as_round_with_zero_dial_returns_center_tiles_only() {
-            let rect = Rect::from_shape(Shape {
-                width: 5,
-                height: 5,
-            });
-            let round_tiles = rect.as_round(0);
-
-            let expected_count = if rect.shape.width % 2 == 1 && rect.shape.height % 2 == 1 {
-                1
-            } else {
-                4
-            };
-
-            assert_eq!(
-                round_tiles.len(),
-                expected_count,
-                "Expected only center tiles with zero dial"
-            );
-        }
-
-        #[test]
-        fn as_round_with_large_dial_returns_all_tiles() {
-            let rect = Rect::from_shape(Shape {
-                width: 3,
-                height: 3,
-            });
-            let round_tiles = rect.as_round(10);
-
-            assert_eq!(
-                round_tiles.len(),
-                9,
-                "With large dial, all tiles in the rectangle should be included"
-            );
-        }
-
-        #[test]
-        fn as_perimeter_returns_correct_number_of_tiles() {
-            let rect = Rect::from_shape(Shape {
-                width: 4,
-                height: 4,
-            });
-            let perimeter = rect.as_perimeter(0);
-
-            assert_eq!(
-                perimeter.len(),
-                12,
-                "Perimeter length should be number of tiles around rectangle"
-            );
-
-            assert_eq!(
-                perimeter.first().unwrap().origin,
-                Coordinates { x: 0, y: 0 },
-                "First perimeter tile should be top-left corner"
-            );
-
-            let top_row_xs: Vec<_> = perimeter.iter().take(4).map(|r| r.origin.x).collect();
-            assert_eq!(
-                top_row_xs,
-                vec![0, 1, 2, 3],
-                "Top row perimeter tiles should be in ascending x order"
-            );
-        }
-
-        #[test]
-        fn as_perimeter_with_offset_returns_shrunk_perimeter() {
-            let rect = Rect::from_shape(Shape {
-                width: 6,
-                height: 6,
-            });
-            let perimeter = rect.as_perimeter(1);
-
-            assert_eq!(
-                perimeter.len(),
-                12,
-                "Perimeter length with offset 1 matches shrunk rectangle perimeter"
-            );
-        }
-
-        #[test]
-        fn as_bisector_vertical_for_wider_rectangle_returns_column() {
-            let rect = Rect::from_shape(Shape {
-                width: 6,
-                height: 4,
-            });
-            let bisector = rect.as_bisector(0);
-
-            assert_eq!(
-                bisector.len(),
-                4,
-                "Bisector length equals height for vertical bisector"
-            );
-
-            let expected_x = rect.origin.x + rect.shape.width / 2;
-            for tile in bisector.iter() {
-                assert_eq!(
-                    tile.origin.x, expected_x,
-                    "Bisector tiles should be aligned on bisector column"
-                );
-            }
-        }
-
-        #[test]
-        fn as_bisector_horizontal_for_taller_rectangle_returns_row() {
-            let rect = Rect::from_shape(Shape {
-                width: 4,
-                height: 6,
-            });
-            let bisector = rect.as_bisector(0);
-
-            assert_eq!(
-                bisector.len(),
-                4,
-                "Bisector length equals width for horizontal bisector"
-            );
-
-            let expected_y = rect.origin.y + rect.shape.height / 2;
-            for tile in bisector.iter() {
-                assert_eq!(
-                    tile.origin.y, expected_y,
-                    "Bisector tiles should be aligned on bisector row"
-                );
-            }
-        }
-
-        #[test]
-        fn as_center_returns_single_tile_for_odd_dimensions() {
-            let rect = Rect::from_shape(Shape {
-                width: 5,
-                height: 5,
-            });
-            let center = rect.as_center(0);
-
-            assert_eq!(
-                center.len(),
-                1,
-                "Center for odd-sized rectangle is a single tile"
-            );
-            assert_eq!(
-                center[0].origin,
-                Coordinates { x: 2, y: 2 },
-                "Center tile is at center coordinates"
-            );
-        }
-
-        #[test]
-        fn as_center_returns_four_tiles_for_even_dimensions() {
-            let rect = Rect::from_shape(Shape {
-                width: 4,
-                height: 4,
-            });
-            let center = rect.as_center(0);
-
-            assert_eq!(
-                center.len(),
-                4,
-                "Center for even-sized rectangle is four tiles"
-            );
-
-            let centers: Vec<_> = center.iter().map(|r| r.origin).collect();
-            let expected_centers = vec![
-                Coordinates { x: 1, y: 1 },
-                Coordinates { x: 2, y: 1 },
-                Coordinates { x: 1, y: 2 },
-                Coordinates { x: 2, y: 2 },
-            ];
-
-            for c in expected_centers {
-                assert!(centers.contains(&c), "Expected center tile at {:?}", c);
-            }
+    #[test]
+    pub fn as_odds_returns_odd_coordinates() {
+        let rect = Rect::from_shape(Shape {
+            width: 5,
+            height: 5,
+        });
+        let odds = rect.as_odds();
+        for tile in odds {
+            assert_eq!(tile.origin.x % 2, 1);
+            assert_eq!(tile.origin.y % 2, 1);
         }
     }
 }

@@ -22,9 +22,9 @@ pub fn use_map4(library: &Library<Box<dyn Any>>) -> Map {
         "ground".into(),
         vec![Mask::new(
             "ground".into(),
-            Rect::from_shape(Shape::from_square(15)).as_perimeter(1),
+            Rect::from_shape(Shape::from_square(15)).as_perimeter(0, 2),
             Effect {
-                texture_id: library.get_id("floor_2"),
+                texture_id: library.get_id("floor_3"),
                 ..Default::default()
             },
         )],
@@ -36,7 +36,7 @@ pub fn use_map4(library: &Library<Box<dyn Any>>) -> Map {
             "ground".into(),
             Rect::from_shape(Shape::from_square(15)).as_round(5),
             Effect {
-                texture_id: library.get_id("floor_3"),
+                texture_id: library.get_id("floor_2"),
                 ..Default::default()
             },
         )],
