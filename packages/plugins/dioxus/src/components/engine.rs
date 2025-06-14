@@ -3,8 +3,8 @@ use std::any::Any;
 use dioxus::prelude::*;
 use rpgx::{
     library::Library,
+    prelude::MoveError,
     prelude::{Direction, Tile},
-    scene::MoveError,
 };
 
 use crate::{

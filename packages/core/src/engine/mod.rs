@@ -1,6 +1,9 @@
 use crate::prelude::Scene;
 
-#[doc = include_str!("../docs/engine.md")]
+pub mod pawn;
+pub mod scene;
+
+#[doc = include_str!("../../docs/engine.md")]
 #[derive(Clone)]
 pub struct Engine {
     /// Timeline of scene states over time.

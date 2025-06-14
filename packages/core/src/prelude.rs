@@ -1,3 +1,6 @@
+pub use crate::engine::pawn::Pawn;
+pub use crate::engine::scene::MoveError;
+pub use crate::engine::scene::Scene;
 pub use crate::engine::Engine;
 pub use crate::eucl::coordinates::Coordinates;
 pub use crate::eucl::delta::Delta;
@@ -9,6 +12,3 @@ pub use crate::map::layer::Layer;
 pub use crate::map::mask::Mask;
 pub use crate::map::tile::Tile;
 pub use crate::map::Map;
-pub use crate::pawn::Pawn;
-pub use crate::scene::MoveError;
-pub use crate::scene::Scene;

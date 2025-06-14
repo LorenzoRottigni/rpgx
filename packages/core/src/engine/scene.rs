@@ -9,7 +9,7 @@ pub enum MoveError {
     StepFailed(Coordinates),
 }
 
-#[doc = include_str!("../docs/scene.md")]
+#[doc = include_str!("../../docs/scene.md")]
 /// RPG scene providing [`Pawn`] movement computation across the [`Map`].
 #[derive(Clone)]
 pub struct Scene {

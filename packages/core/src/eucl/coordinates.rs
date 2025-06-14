@@ -10,6 +10,9 @@ pub struct Coordinates {
 
 /// Constructors
 impl Coordinates {
+    pub fn new(x: u32, y: u32) -> Self {
+        Self { x, y }
+    }
     /// Computes the exclusive bounding box that contains all the given coordinates.
     ///
     /// Returns `None` if the input slice is empty.

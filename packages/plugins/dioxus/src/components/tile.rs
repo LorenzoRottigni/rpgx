@@ -1,5 +1,5 @@
 use dioxus::prelude::*;
-use rpgx::{library::Library, scene::MoveError};
+use rpgx::{library::Library, prelude::MoveError};
 use std::any::Any;
 use web_sys::console;
 

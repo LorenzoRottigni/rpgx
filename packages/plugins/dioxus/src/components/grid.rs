@@ -1,7 +1,7 @@
 use std::any::Any;
 
 use dioxus::prelude::*;
-use rpgx::{engine::Engine, library::Library, scene::MoveError};
+use rpgx::{engine::Engine, library::Library, prelude::MoveError};
 
 use crate::components::tile::Tile;
 

@@ -11,6 +11,9 @@ pub struct Shape {
 
 /// Constructors
 impl Shape {
+    pub fn new(width: u32, height: u32) -> Self {
+        Self { width, height }
+    }
     /// Creates a square shape with equal width and height.
     pub fn from_square(side: u32) -> Self {
         Self {

@@ -84,6 +84,14 @@ impl Rect {
 
         Ok(Rect { origin, shape })
     }
+
+    /// Creates a new `Rect` from origin `(x, y)` and dimensions `(width, height)`.
+    pub fn from_xywh(x: u32, y: u32, width: u32, height: u32) -> Self {
+        Self {
+            origin: Coordinates { x, y },
+            shape: Shape { width, height },
+        }
+    }
 }
 
 impl Rect {

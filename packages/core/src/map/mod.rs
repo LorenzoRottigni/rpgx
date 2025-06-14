@@ -1,38 +1,30 @@
-use crate::prelude::{Coordinates, Delta, Direction, Layer, Tile};
+use crate::prelude::{Coordinates, Delta, Direction, Effect, Layer, Shape, Tile};
 use indexmap::IndexMap;
-use layer::{Effect, Shape};
 
 pub mod effect;
 pub mod grid;
 pub mod layer;
 pub mod mask;
 pub mod routing;
-// pub mod selector;
 pub mod tile;
 
-#[doc = include_str!("../../docs/map.md")]
-/// Game map containing multiple layers.
+/// Represents a game map with multiple layers, a name, and a spawn point.
 #[derive(Clone)]
 pub struct Map {
+    /// Name identifier for the map
     pub name: String,
+    /// Vector of layers stacked in this map
     pub layers: Vec<Layer>,
+    /// Default spawn coordinates for pawns/players
     pub spawn: Coordinates,
 }
 
 impl Map {
-    /// Creates a new map, adding a base layer if none exists.
+    /// Creates a new map with the given name, layers, and spawn location.
     ///
-    /// # Arguments
-    /// * `name` - The name of the map.
-    /// * `layers` - Vector of layers to include in the map.
-    /// * `spawn` - The spawn coordinates within the map.
-    ///
-    /// # Behavior
-    /// If no layer of kind `Base` exists, a base layer is generated from existing layers.
+    /// # Notes
+    /// The layers vector can be empty or contain any number of layers.
     pub fn new(name: String, layers: Vec<Layer>, spawn: Coordinates) -> Self {
-        // if !layers.iter().any(|layer| layer.kind == LayerType::Base) {
-        //     layers.push(Layer::base(layers.clone()));
-        // }
         Self {
             name,
             layers,
@@ -40,16 +32,13 @@ impl Map {
         }
     }
 
-    /// Composes a map from multiple maps and layers.
+    /// Composes a new map by merging multiple maps at specified top-left offsets,
+    /// adding additional layers, and setting spawn location.
     ///
-    /// # Arguments
-    /// * `name` - The name of the resulting composed map.
-    /// * `maps` - Vector of tuples containing maps and their placement offsets.
-    /// * `layers` - Additional layers to include in the composed map.
-    /// * `spawn` - The spawn coordinates for the composed map.
+    /// Each map in `maps` is merged at its specified `Coordinates`.
+    /// Any additional `layers` are added on top.
     ///
-    /// # Returns
-    /// A new `Map` instance that merges the given maps and layers.
+    /// The `spawn` is the spawn point for the composed map.
     pub fn compose(
         name: String,
         maps: Vec<(Map, Coordinates)>,
@@ -62,21 +51,15 @@ impl Map {
         }
         map
     }
-}
 
-impl Map {
-    /// Adds a layer to the map.
+    /// Loads a new layer into the map, offsetting existing layers if needed to fit.
     ///
-    /// If a base layer exists, the base and existing layers are offset and reshaped to accommodate the new layer.
-    /// If no base layer exists, it creates one from all layers.
-    ///
-    /// # Arguments
-    /// * `layer` - The new layer to add.
+    /// If the new layer is larger than the current bounding shape, existing layers
+    /// are offset by the necessary amount to make room.
     pub fn load_layer(&mut self, layer: Layer /* , offset: Coordinates */) {
         let current_shape = self.get_shape();
         let target_shape = layer.get_shape();
 
-        // -1 beacause coordinates starts form 0 and shape from 1
         let dx = (target_shape.width as i32) - (current_shape.width as i32) - 1;
         let dy = (target_shape.height as i32) - (current_shape.height as i32) - 1;
 
@@ -85,53 +68,16 @@ impl Map {
             dy: if dy > 0 { dy } else { 0 },
         };
 
-        // Only offset existing layers if offset is positive
         if offset.dx > 0 || offset.dy > 0 {
             for existing_layer in &mut self.layers {
                 existing_layer.offset(offset);
             }
         }
 
-        // Now add the new layer
         self.layers.push(layer);
-        /* if let Some(base_layer) = self.get_base_layer() {
-            // Calculate offset based on size difference
-            let offset = Coordinates {
-                x: if layer.shape.width > base_layer.shape.width {
-                    layer.shape.width - base_layer.shape.width - 1
-                } else {
-                    0
-                },
-                y: if layer.shape.height > base_layer.shape.height {
-                    layer.shape.height - base_layer.shape.height - 1
-                } else {
-                    0
-                },
-            };
-
-            // Offset existing layers to fit the new layer
-            for existing_layer in &mut self.layers {
-                existing_layer.offset(offset);
-            }
-
-            // Add the new layer
-            self.layers.push(layer);
-
-            // Remove old base layer
-            self.layers.retain(|l| l.kind != LayerType::Base);
-
-            // Recreate base layer from all non-base layers
-            let base_layer = Layer::base(self.layers.clone());
-            self.layers.push(base_layer);
-        } else {
-            // If no base layer, just add the layer and create base layer from all
-            self.layers.push(layer);
-            let base_layer = Layer::base(self.layers.clone());
-            self.layers.push(base_layer);
-        } */
     }
 
-    /// Returns a map from layer names to their corresponding layers.
+    /// Returns a map from layer name to the corresponding `Layer`.
     pub fn layers_by_name(&self) -> IndexMap<String, Layer> {
         self.layers
             .iter()
@@ -139,43 +85,24 @@ impl Map {
             .collect()
     }
 
-    /// Merges another map into this map at a specified offset.
+    /// Merges another map into this one at the specified top-left coordinate.
     ///
-    /// Layers with the same name are merged by extending tiles and expanding shape.
-    /// New layers are added directly.
-    ///
-    /// # Arguments
-    /// * `other` - The other map to merge.
-    /// * `top_left` - The offset coordinate where `other` map is placed relative to this map.
-    /// * `spawn` - Optional new spawn coordinates to override this map's spawn.
+    /// Layers from `other` are offset by `top_left` and appended.
+    /// Optionally updates the spawn coordinate.
     pub fn merge_at(&mut self, other: &Map, top_left: Coordinates, spawn: Option<Coordinates>) {
-        // let mut layers_by_name = self.layers_by_name();
-
         for layer in &other.layers {
             let mut offset_layer = layer.clone();
             offset_layer.offset(top_left.to_delta());
-            self.layers.push(offset_layer)
-
-            // layers_by_name
-            //     .entry(layer.name.clone())
-            //     .and_modify(|existing| {
-            //         existing.tiles.extend(&offset_layer.tiles);
-            //         existing.shape.expand_to_include(top_left, layer.shape);
-            //     })
-            //     .or_insert(offset_layer);
+            self.layers.push(offset_layer);
         }
-
-        // self.layers.push(); // layers_by_name.into_values().collect();
-
-        // Optionally update spawn location
-        self.spawn = spawn.unwrap_or(self.spawn);
+        if let Some(new_spawn) = spawn {
+            self.spawn = new_spawn;
+        }
     }
 
-    /// Duplicates the map in a specified direction, expanding it by merging itself offset.
+    /// Duplicates this map in the given direction by merging a copy adjacent to itself.
     ///
-    /// # Arguments
-    /// * `direction` - Direction to duplicate (`Up`, `Down`, `Left`, `Right`).
-    /// * `spawn` - Optional spawn coordinate to override.
+    /// Optionally updates the spawn coordinate.
     pub fn duplicate_to_the(&mut self, direction: Direction, spawn: Option<Coordinates>) {
         let shape = self.get_shape();
         let top_left = match direction {
@@ -191,13 +118,10 @@ impl Map {
         self.merge_at(&self.clone(), top_left, spawn);
     }
 
-    /// Checks if any layer blocks the tile at the given coordinates.
+    /// Returns true if movement onto the specified coordinate is allowed.
     ///
-    /// # Arguments
-    /// * `target` - Coordinates to check.
-    ///
-    /// # Returns
-    /// `true` if any layer marks the tile as blocked.
+    /// A coordinate is allowed if at least one layer has a tile there,
+    /// and no layer is blocking at that coordinate.
     pub fn move_allowed(&self, target: Coordinates) -> bool {
         self.layers
             .iter()
@@ -208,57 +132,15 @@ impl Map {
                 .all(|layer| !layer.is_blocking_at(&target))
     }
 
-    /// Returns the shape of the map, derived from the base layer.
+    /// Returns the bounding shape covering all layers.
     ///
-    /// Returns a default shape if no base layer is found.
+    /// If there are no layers, returns an empty shape.
     pub fn get_shape(&self) -> Shape {
         let shapes: Vec<Shape> = self.layers.iter().map(|l| l.get_shape()).collect();
         Shape::bounding_shape(&shapes)
-        // if let Some(base_layer) = self.get_base_layer() {
-        //     base_layer.shape
-        // } else {
-        //     Shape::default()
-        // }
     }
 
-    /// Returns the first base layer, if present.
-    // pub fn get_base_layer(&self) -> Option<Layer> {
-    //     self.layers
-    //         .iter()
-    //         .find(|l| l.kind == LayerType::Base)
-    //         .cloned()
-    // }
-
-    /// Returns all layers of a specific kind.
-    ///
-    /// # Arguments
-    /// * `kind` - LayerType to filter.
-    // pub fn get_layers_of_type(&self, kind: LayerType) -> Vec<Layer> {
-    //     self.layers
-    //         .iter()
-    //         .filter(|l| l.kind == kind)
-    //         .cloned()
-    //         .collect()
-    // }
-
-    /// Gets the tile at the given coordinates from the base layer.
-    ///
-    /// # Arguments
-    /// * `pointer` - Coordinates of the tile.
-    ///
-    /// # Returns
-    /// An option with the tile if found.
-    // pub fn get_base_tile(&self, pointer: Coordinates) -> Option<Tile> {
-    //     self.get_base_layer()?.get_tile_at(pointer)
-    // }
-
-    /// Gets all tiles stacked at the given coordinates from all layers.
-    ///
-    /// # Arguments
-    /// * `pointer` - Coordinates of the tiles.
-    ///
-    /// # Returns
-    /// Vector of tiles found.
+    /// Returns all tiles present at the given coordinates, from all layers.
     pub fn get_tiles_at(&self, pointer: Coordinates) -> Vec<Tile> {
         self.layers
             .iter()
@@ -266,13 +148,7 @@ impl Map {
             .collect()
     }
 
-    /// Gets all effects at the given coordinates from all layers.
-    ///
-    /// # Arguments
-    /// * `pointer` - Coordinates to query.
-    ///
-    /// # Returns
-    /// Vector of effects.
+    /// Returns all effects present at the given coordinates, from all layers.
     pub fn get_effects_at(&self, pointer: Coordinates) -> Vec<Effect> {
         self.layers
             .iter()
@@ -280,13 +156,7 @@ impl Map {
             .collect()
     }
 
-    /// Gets all action IDs present at the given coordinates in action layers.
-    ///
-    /// # Arguments
-    /// * `pointer` - Coordinates to query.
-    ///
-    /// # Returns
-    /// Vector of action IDs.
+    /// Returns all action IDs present at the given coordinates, from all layers.
     pub fn get_actions_at(&self, pointer: Coordinates) -> Vec<u32> {
         self.layers
             .clone()
@@ -299,142 +169,107 @@ impl Map {
             .collect()
     }
 }
-/*
+
 #[cfg(test)]
-pub mod tests {
+mod tests {
     use super::*;
-    use crate::{
-        common::rect::Rect,
-        prelude::{Effect, Shape},
-    };
+    use crate::prelude::{Coordinates, Effect, Layer, Mask, Rect, Tile};
 
-    /// Creates a dummy tile at the given coordinates.
-    fn dummy_tile(x: u32, y: u32) -> Tile {
-        Tile {
-            area: Rect {
-                origin: Coordinates { x, y },
-                shape: Shape::from_square(1),
-            },
-            effect: Effect::default(),
-        }
-    }
-
-    /// Creates a dummy layer with the specified name, kind, tiles, and shape.
-    fn dummy_layer(name: &str) -> Layer {
-        Layer {
-            name: name.to_string(),
-            masks: vec![],
-            z: 1,
-        }
-    }
-
-     #[test]
-    fn creates_map_with_layers() {
-        let tile = dummy_tile(0, 0);
-        let layer = dummy_layer("base", LayerType::Base, vec![tile], Shape::from_square(1));
-        let map = Map::new(
-            "TestMap".to_string(),
-            vec![layer.clone()],
-            Coordinates::default(),
-        );
-
-        assert_eq!(map.name, "TestMap");
-        assert_eq!(map.layers.len(), 1);
-        assert_eq!(map.get_base_layer().unwrap().name, "base");
-    }
-
-    #[test]
-    fn gets_tile_from_base_layer() {
-        let tile = dummy_tile(1, 2);
-        let layer = dummy_layer("base", LayerType::Base, vec![tile], Shape::from_square(3));
-        let map = Map::new("TileMap".to_string(), vec![layer], Coordinates::default());
-
-        let result = map.get_base_tile(Coordinates { x: 1, y: 2 });
-        assert!(result.is_some());
-        assert_eq!(result.unwrap().pointer, Coordinates { x: 1, y: 2 });
-    }
-
-    #[test]
-    fn detects_blocked_tile_across_layers() {
-        let blocked_tile = Tile {
-            area: Rect {
-                origin: Coordinates { x: 0, y: 0 },
-                shape: Shape::from_square(1),
-            },
-            effect: Effect {
-                block: true,
+    /// Helper: Create a tile with blocking effect at given coordinates and size 1x1.
+    fn blocking_tile_at(x: u32, y: u32) -> Tile {
+        let rect = Rect::from_xywh(x, y, 1, 1);
+        Tile::new(
+            Effect {
+                block: Some(rect),
                 ..Default::default()
             },
-        };
-        let blocking_layer = dummy_layer("block");
-        let map = Map::new(
-            "BlockMap".to_string(),
-            vec![blocking_layer],
-            Coordinates::default(),
-        );
-
-        assert!(map.move_allowed(Coordinates { x: 0, y: 0 }));
-        assert!(!map.move_allowed(Coordinates { x: 1, y: 1 }));
+            rect,
+        )
     }
 
-    /* #[test]
-    fn expands_map_with_offset_layer() {
-        let tile = dummy_tile(0, 0);
-        let shape = Shape::from_square(1);
-        let mut base_map = Map::new(
-            "Base".to_string(),
-            vec![dummy_layer("base", LayerType::Base, vec![tile], shape)],
-            Coordinates::default(),
-        );
+    /// Build a simple map with a blocking layer at given coordinates.
+    fn build_test_map(blocked: &[Coordinates]) -> Map {
+        let mut masks = blocked
+            .iter()
+            .enumerate()
+            .map(|(i, coord)| {
+                let rect = Rect::from_xywh(coord.x, coord.y, 1, 1);
+                Mask::new(
+                    format!("block_{}", i),
+                    vec![rect],
+                    Effect {
+                        block: Some(rect),
+                        ..Default::default()
+                    },
+                )
+            })
+            .collect::<Vec<_>>();
 
-        let new_layer = dummy_layer(
-            "action",
-            LayerType::Action,
-            vec![dummy_tile(2, 2)],
-            Shape::from_square(3),
-        );
-        base_map.load_layer(new_layer);
+        // Add a non-blocking tile at (0,0) if not blocked
+        if !blocked.iter().any(|c| *c == Coordinates::new(0, 0)) {
+            let rect = Rect::from_xywh(0, 0, 1, 1);
+            masks.push(Mask::new(
+                "non_blocking_0_0".into(),
+                vec![rect],
+                Effect::default(), // no blocking
+            ));
+        }
 
-        // Should have at least 2 layers: base + new action layer
-        assert!(base_map.layers.len() >= 2);
-
-        // Base layer shape should have been updated to accommodate new layer size
-        let base_layer = base_map.get_base_layer().unwrap();
-        assert!(base_layer.shape.width >= 3);
-        assert!(base_layer.shape.height >= 3);
+        let block_layer = Layer::new("blocking".into(), masks, 1);
+        Map::new("test_map".into(), vec![block_layer], Coordinates::default())
     }
 
     #[test]
-    fn merges_maps_at_offset() {
-        let layer1 = dummy_layer(
-            "base",
-            LayerType::Base,
-            vec![dummy_tile(0, 0)],
-            Shape::from_square(1),
-        );
-        let mut map1 = Map::new("Map1".to_string(), vec![layer1], Coordinates::default());
+    fn test_map_new_and_shape() {
+        let map = build_test_map(&[]);
+        assert_eq!(map.name, "test_map");
+        let shape = map.get_shape();
+        assert!(shape.width >= 0 && shape.height >= 0);
+    }
 
-        let layer2 = dummy_layer(
-            "base",
-            LayerType::Base,
-            vec![dummy_tile(1, 1)],
-            Shape::from_square(2),
-        );
-        let map2 = Map::new("Map2".to_string(), vec![layer2], Coordinates::default());
+    #[test]
+    fn test_move_allowed() {
+        let blocked = vec![Coordinates::new(1, 1)];
+        let map = build_test_map(&blocked);
 
-        map1.merge_at(&map2, Coordinates { x: 2, y: 2 }, None);
+        assert!(map.move_allowed(Coordinates::new(0, 0))); // empty but tile missing? depends on layers
+        assert!(!map.move_allowed(Coordinates::new(1, 1))); // blocked tile
+    }
 
-        let base_layer = map1.get_base_layer().unwrap();
-        assert!(base_layer.shape.width >= 3);
-        assert!(base_layer.shape.height >= 3);
+    #[test]
+    fn test_merge_and_layers_by_name() {
+        let map1 = build_test_map(&[Coordinates::new(0, 0)]);
+        let map2 = build_test_map(&[Coordinates::new(1, 1)]);
+        let mut map = map1.clone();
 
-        let tiles = base_layer
-            .tiles
-            .iter()
-            .map(|tile| tile.pointer)
-            .collect::<Vec<_>>();
-        assert!(tiles.contains(&Coordinates { x: 0, y: 0 }));
-        assert!(tiles.contains(&Coordinates { x: 3, y: 3 })); // offset tile
-    } */
+        map.merge_at(&map2, Coordinates::new(5, 5), None);
+        let layers = map.layers_by_name();
+        assert!(layers.contains_key("blocking"));
+        assert_eq!(map.layers.len(), 2);
+    }
+
+    #[test]
+    fn test_duplicate_to_the() {
+        let map = build_test_map(&[]);
+        let mut dup = map.clone();
+        dup.duplicate_to_the(Direction::Right, None);
+
+        assert_eq!(dup.layers.len(), map.layers.len() * 2);
+    }
+
+    #[test]
+    fn test_get_tiles_effects_actions() {
+        let blocked = vec![Coordinates::new(1, 1)];
+        let map = build_test_map(&blocked);
+        let coord = Coordinates::new(1, 1);
+
+        let tiles = map.get_tiles_at(coord);
+        assert!(!tiles.is_empty());
+
+        let effects = map.get_effects_at(coord);
+        assert!(!effects.is_empty());
+
+        let actions = map.get_actions_at(coord);
+        assert!(actions.is_empty()); // No actions set in blocking tiles
+    }
 }
-*/
