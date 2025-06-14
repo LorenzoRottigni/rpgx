@@ -260,11 +260,11 @@ impl Rect {
         center
     }
 
-    /// Returns tiles approximating a round (diamond-shaped) area around the center,
+    /// Returns tiles approximating a rhombus (diamond-shaped) area around the center,
     /// including all tiles within `dial` distance (Manhattan distance) from the center tile(s).
     ///
     /// The circle is clamped to the rectangle bounds.
-    pub fn as_round(&self, dial: u32) -> Vec<Self> {
+    pub fn as_rhombus(&self, dial: u32) -> Vec<Self> {
         let mut tiles = Vec::new();
 
         if self.shape.width == 0 || self.shape.height == 0 {
@@ -317,6 +317,24 @@ impl Rect {
         }
 
         tiles
+    }
+
+    pub fn as_circle(&self) -> Vec<Rect> {
+        let center = self.center();
+        let radius_x = self.shape.width as f32 / 2.0;
+        let radius_y = self.shape.height as f32 / 2.0;
+
+        self.iter()
+            .filter(|coord| {
+                // Normalize coordinates relative to center
+                let dx = (coord.x as f32 + 0.5) - (center.x as f32 + 0.5);
+                let dy = (coord.y as f32 + 0.5) - (center.y as f32 + 0.5);
+
+                // Use ellipse equation (dx/rx)^2 + (dy/ry)^2 <= 1
+                (dx * dx) / (radius_x * radius_x) + (dy * dy) / (radius_y * radius_y) <= 1.0
+            })
+            .map(|coord| Rect::new(coord, Shape::from_square(1)))
+            .collect()
     }
 
     /// Returns all 1×1 tiles within the `Rect` that are located on odd (x + y) sum positions.
