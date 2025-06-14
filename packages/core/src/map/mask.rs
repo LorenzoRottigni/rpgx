@@ -67,7 +67,7 @@ impl Effect {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::prelude::{Coordinates, Delta, Effect, Rect, Shape, Tile};
+    use crate::prelude::{Coordinates, Delta, Effect, Rect, Shape};
 
     #[test]
     fn mask_new_creates_tiles() {

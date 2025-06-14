@@ -1,4 +1,4 @@
-use crate::prelude::{Coordinates, Delta, Effect, Mask, Shape, Tile};
+use crate::prelude::{Coordinates, Delta, Mask, Shape, Tile};
 
 #[doc = include_str!("../../docs/layer.md")]
 /// A `Layer` is a logical or visual overlay composed of [`Mask`]s that apply [`Effect`]s to specific tiles.
@@ -80,7 +80,7 @@ impl Layer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::prelude::{Coordinates, Rect};
+    use crate::prelude::{Coordinates, Effect, Rect};
 
     fn dummy_tile(x: u32, y: u32, w: u32, h: u32) -> Tile {
         Tile::new(

@@ -173,19 +173,7 @@ impl Map {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::prelude::{Coordinates, Effect, Layer, Mask, Rect, Tile};
-
-    /// Helper: Create a tile with blocking effect at given coordinates and size 1x1.
-    fn blocking_tile_at(x: u32, y: u32) -> Tile {
-        let rect = Rect::from_xywh(x, y, 1, 1);
-        Tile::new(
-            Effect {
-                block: Some(rect),
-                ..Default::default()
-            },
-            rect,
-        )
-    }
+    use crate::prelude::{Coordinates, Effect, Layer, Mask, Rect};
 
     /// Build a simple map with a blocking layer at given coordinates.
     fn build_test_map(blocked: &[Coordinates]) -> Map {
@@ -223,8 +211,6 @@ mod tests {
     fn test_map_new_and_shape() {
         let map = build_test_map(&[]);
         assert_eq!(map.name, "test_map");
-        let shape = map.get_shape();
-        assert!(shape.width >= 0 && shape.height >= 0);
     }
 
     #[test]

@@ -1,11 +1,17 @@
 use crate::prelude::{Coordinates, Direction, Map, Pawn};
 
-#[derive(Debug)]
+/// Represents possible errors that can occur during pawn movement.
+#[derive(Debug, PartialEq, Eq)]
 pub enum MoveError {
+    /// The target tile is blocked by an obstacle or impassable terrain.
     TileBlocked,
+    /// The target tile does not exist or cannot be found.
     TileNotFound,
+    /// The target tile lies outside the boundaries of the map.
     TileOutOfBounds,
+    /// No path could be found from start to target coordinates.
     PathNotFound,
+    /// A single movement step failed at the specified coordinates.
     StepFailed(Coordinates),
 }
 
@@ -13,21 +19,31 @@ pub enum MoveError {
 /// RPG scene providing [`Pawn`] movement computation across the [`Map`].
 #[derive(Clone)]
 pub struct Scene {
-    /// Scene name identifier
+    /// Scene name identifier.
     pub name: String,
-    /// The game map with multiple layers
+    /// The game map with multiple layers defining terrain and obstacles.
     pub map: Map,
-    /// Optional pawn currently in the scene
+    /// Optional pawn currently active in the scene.
     pub pawn: Option<Pawn>,
 }
 
 impl Scene {
-    /// Create a new `Scene` with name, map and optional pawn
+    /// Creates a new `Scene` with the specified name, map, and optional pawn.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - A string identifier for the scene.
+    /// * `map` - The `Map` instance used in the scene.
+    /// * `pawn` - Optional initial `Pawn` to place in the scene.
     pub fn new(name: String, map: Map, pawn: Option<Pawn>) -> Self {
         Self { map, pawn, name }
     }
 
-    /// Load a [`Pawn`] in the [`Scene`] using default [`Map`] spawn location
+    /// Load a [`Pawn`] into the scene at the map's default spawn position.
+    ///
+    /// # Arguments
+    ///
+    /// * `texture_id` - Identifier for the pawn's texture/sprite.
     pub fn load_pawn(&mut self, texture_id: u32) {
         self.pawn = Some(Pawn {
             texture_id,
@@ -35,14 +51,22 @@ impl Scene {
         })
     }
 
-    /// Load a [`Pawn`] in the [`Scene`] overriding default [`Map`] spawn location
+    /// Load a [`Pawn`] into the scene at a specific location.
+    ///
+    /// # Arguments
+    ///
+    /// * `pawn` - The pawn instance with desired coordinates.
     pub fn load_pawn_at(&mut self, pawn: Pawn) {
         self.pawn = Some(pawn);
     }
 
-    /// Walk to the target [`Coordinates`] through the best path asynchronously
+    /// Walk asynchronously to the target coordinates along the best computed path.
     ///
-    /// Follows the computed path step-by-step, returning the final tile or an error.
+    /// Moves the pawn step-by-step, returning the final position or an error.
+    ///
+    /// # Errors
+    ///
+    /// Returns `MoveError` if the pawn is missing, no path is found, or a step fails.
     pub async fn walk_to(
         &mut self,
         target_position: Coordinates,
@@ -53,14 +77,14 @@ impl Scene {
             .map(|p| p.pointer)
             .ok_or(MoveError::TileNotFound)?;
 
-        // Find path from current pawn position to target
+        // Find the best path from current to target coordinates
         let path = self
             .map
             .find_path(&start, &target_position)
             .ok_or(MoveError::PathNotFound)?;
 
         let mut tile = None;
-        // Move pawn along the path step-by-step
+        // Walk each step in the path, returning early if any step fails
         for step_coords in path {
             tile = Some(self.move_to(step_coords)?);
         }
@@ -68,9 +92,15 @@ impl Scene {
         tile.ok_or(MoveError::TileNotFound)
     }
 
-    /// Make a single step in the given [`Direction`]
+    /// Take a single movement step in the specified direction.
     ///
-    /// Returns the tile stepped onto or an error if movement is blocked or invalid.
+    /// # Arguments
+    ///
+    /// * `direction` - The direction to move.
+    ///
+    /// # Errors
+    ///
+    /// Returns `MoveError` if the pawn is missing, the target tile is invalid or blocked.
     pub fn step_to(&mut self, direction: Direction) -> Result<Coordinates, MoveError> {
         let delta = direction.to_delta();
         let current = self
@@ -79,7 +109,7 @@ impl Scene {
             .map(|p| p.pointer)
             .ok_or(MoveError::TileNotFound)?;
 
-        // Compute new position by applying direction delta
+        // Calculate the target coordinates by applying the delta
         if let Some(target_position) = current + delta {
             self.move_to(target_position)
         } else {
@@ -87,15 +117,15 @@ impl Scene {
         }
     }
 
-    /// Move pawn directly to the specified [`Coordinates`] if accessible
+    /// Move the pawn directly to the target coordinates if movement is allowed.
     ///
-    /// Checks for blocking tiles and updates the pawn's pointer.
+    /// Checks map blocking and updates the pawn's position if possible.
+    ///
+    /// # Errors
+    ///
+    /// Returns `MoveError` if the pawn is missing or the target is blocked.
     pub fn move_to(&mut self, target_position: Coordinates) -> Result<Coordinates, MoveError> {
-        // if self.map.is_blocking_at(target_position) {
-        //     return Err(MoveError::TileBlocked);
-        // }
-
-        // self.map.movement_allowed(); pawn.pointer = target_position:
+        // Check if movement to the target is allowed by the map
         if self.map.move_allowed(target_position) {
             if let Some(pawn) = self.pawn.as_mut() {
                 pawn.pointer = target_position;
@@ -104,25 +134,17 @@ impl Scene {
                 Err(MoveError::TileNotFound)
             }
         } else {
-            Err(MoveError::TileNotFound)
+            Err(MoveError::TileBlocked)
         }
-        // let base_layer = self.map.get_base_layer().ok_or(MoveError::TileNotFound)?;
-        // let tile = base_layer
-        //     .get_tile_at(target_position)
-        //     .ok_or(MoveError::TileNotFound)?;
-        //
-        // if let Some(pawn) = self.pawn.as_mut() {
-        //     pawn.pointer = tile.pointer;
-        // } else {
-        //     return Err(MoveError::TileNotFound);
-        // }
-        //
-        // Ok(tile)
     }
 
-    /// Get all steps from the current pawn position to the target [`Coordinates`]
+    /// Compute all the steps from the current pawn position to the target.
     ///
-    /// Returns a vector of coordinates for the computed path or an error.
+    /// Returns a vector of coordinates representing the path, or an error if no path.
+    ///
+    /// # Errors
+    ///
+    /// Returns `MoveError` if the pawn is missing or no path is found.
     pub fn steps_to(&self, target_position: Coordinates) -> Result<Vec<Coordinates>, MoveError> {
         let start = self
             .pawn
@@ -139,154 +161,27 @@ impl Scene {
     }
 }
 
-/*
 #[cfg(test)]
-pub mod tests {
+mod tests {
     use super::*;
-    use crate::prelude::*;
+    use crate::prelude::{Coordinates, Layer, Map};
 
-    /// Helper: create a basic 3x3 map with a single texture layer, no blocks
-    fn basic_test_map() -> Map {
-        let shape = Shape {
-            width: 3,
-            height: 3,
-        };
-        let masks = vec![];
-        let layer = Layer::new("ground".to_string(), masks, 1);
-        Map::new("test_map".to_string(), vec![layer], Coordinates::default())
-    }
-
-    /// Helper: create a pawn at given coordinates with texture_id=0
-    fn pawn_at(x: u32, y: u32) -> Pawn {
-        Pawn {
-            pointer: Coordinates { x, y },
-            texture_id: 0,
-        }
+    // Helper to build a minimal Map with no blocking tiles
+    fn create_test_map() -> Map {
+        let layer = Layer::new("base".to_string(), vec![], 1);
+        Map::new("test_map".to_string(), vec![layer], Coordinates::new(0, 0))
     }
 
     #[test]
-    fn test_scene_move_to_success() {
-        let map = basic_test_map();
-        let mut scene = Scene::new("test".into(), map, Some(pawn_at(0, 0)));
-        let pointer = scene.move_to(Coordinates { x: 1, y: 0 }).unwrap();
-        assert_eq!(pointer, Coordinates { x: 1, y: 0 });
-    }
-
-    /* #[test]
-    fn test_scene_move_to_blocked() {
-        let mut map = basic_test_map();
-
-        // Manually block tile at (1, 0)
-        let tile = Tile {
-            shape: Shape::from_square(1),
-            pointer: Coordinates { x: 1, y: 0 },
-            effect: Effect {
-                block: true,
-                ..Default::default()
-            },
-        };
-
-        map.layers[0].tiles.push(tile);
-
-        let mut scene = Scene::new("test".into(), map, Some(pawn_at(0, 0)));
-        let result = scene.move_to(Coordinates { x: 1, y: 0 });
-        assert!(matches!(result, Err(MoveError::TileBlocked)));
-    } */
-
-    #[test]
-    fn test_scene_step_to() {
-        let map = basic_test_map();
-        let mut scene = Scene::new("test".into(), map, Some(pawn_at(1, 1)));
-        let pointer = scene.step_to(Direction::Right).unwrap();
-        assert_eq!(pointer, Coordinates { x: 2, y: 1 });
-    }
-
-    #[test]
-    fn test_scene_step_to_out_of_bounds() {
-        let map = basic_test_map();
-        let mut scene = Scene::new("test".into(), map, Some(pawn_at(2, 2)));
-        let result = scene.step_to(Direction::Right);
-        assert!(matches!(result, Err(MoveError::TileNotFound)));
-    }
-
-    #[test]
-    fn test_scene_steps_to() {
-        let map = basic_test_map();
-        let scene = Scene::new("test".into(), map, Some(pawn_at(0, 0)));
-        let steps = scene.steps_to(Coordinates { x: 2, y: 0 }).unwrap();
-        assert_eq!(
-            steps,
-            vec![
-                Coordinates { x: 0, y: 0 },
-                Coordinates { x: 1, y: 0 },
-                Coordinates { x: 2, y: 0 }
-            ]
-        );
-    }
-
-    #[test]
-    fn test_scene_steps_to_no_pawn() {
-        let map = basic_test_map();
-        let scene = Scene::new("no_pawn".into(), map, None);
-        let result = scene.steps_to(Coordinates { x: 1, y: 0 });
-        assert!(matches!(result, Err(MoveError::TileNotFound)));
-    }
-
-    #[test]
-    fn test_scene_walk_to_success() {
-        let map = basic_test_map();
-        let mut scene = Scene::new("test".into(), map, Some(pawn_at(0, 0)));
-        let pointer =
-            futures::executor::block_on(scene.walk_to(Coordinates { x: 2, y: 0 })).unwrap();
-        assert_eq!(pointer, Coordinates { x: 2, y: 0 });
-    }
-
-    /* #[test]
-    fn test_scene_walk_to_fail_no_path() {
-        let mut map = basic_test_map();
-
-        // Block all possible routes
-        for x in 1..3 {
-            let tile = Tile {
-                id: 0,
-                shape: Shape::from_square(1),
-                pointer: Coordinates { x, y: 0 },
-                effect: Effect {
-                    block: true,
-                    ..Default::default()
-                },
-            };
-            map.layers[0].tiles.push(tile);
-        }
-
-        let mut scene = Scene::new("test".into(), map, Some(pawn_at(0, 0)));
-        let result = futures::executor::block_on(scene.walk_to(Coordinates { x: 2, y: 0 }));
-        assert!(matches!(result, Err(MoveError::PathNotFound)));
-    }*/
-
-    #[test]
-    fn test_scene_no_pawn_error() {
-        let map = basic_test_map();
-        let mut scene = Scene::new("no_pawn".into(), map, None);
-        let result = scene.move_to(Coordinates { x: 1, y: 0 });
-        assert!(matches!(result, Err(MoveError::TileNotFound)));
-    }
-
-    #[test]
-    fn test_load_pawn_and_load_pawn_at() {
-        let map = basic_test_map();
+    fn test_move_to_blocked_tile_returns_error() {
+        let mut map = create_test_map();
+        // Manually override map.move_allowed to simulate blocking
+        // For this test, patch move_allowed to always return false
+        map.layers.clear(); // no layers, no tiles = blocked
         let mut scene = Scene::new("test".into(), map, None);
+        scene.load_pawn(1);
 
-        // Test load_pawn sets pawn at map spawn
-        scene.load_pawn(7);
-        assert!(scene.pawn.is_some());
-        assert_eq!(scene.pawn.as_ref().unwrap().texture_id, 7);
-        assert_eq!(scene.pawn.as_ref().unwrap().pointer, scene.map.spawn);
-
-        // Test load_pawn_at overrides pawn
-        let custom_pawn = pawn_at(2, 2);
-        scene.load_pawn_at(custom_pawn.clone());
-        assert_eq!(scene.pawn.as_ref().unwrap().pointer, custom_pawn.pointer);
+        let result = scene.move_to(Coordinates::new(0, 0));
+        assert_eq!(result, Err(MoveError::TileBlocked));
     }
 }
- */
