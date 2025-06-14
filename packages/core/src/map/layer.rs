@@ -1,8 +1,4 @@
-use mask::Mask;
-
-pub use crate::prelude::{Coordinates, Delta, Effect, Shape, Tile};
-
-pub mod mask;
+pub use crate::prelude::{Coordinates, Delta, Effect, Mask, Shape, Tile};
 
 /// Represents the different roles a [`Layer`] can play in the [`Grid`] stack.
 // #[derive(Clone, Copy, PartialEq, Debug)]
@@ -17,7 +13,7 @@ pub mod mask;
 //     Block,
 // }
 
-#[doc = include_str!("../../../docs/layer.md")]
+#[doc = include_str!("../../docs/layer.md")]
 /// A visual or logical overlay on top of the base grid, used to apply effects
 /// to specific [`Tile`]s based on spatial [`Mask`]s and [`Selector`]s.
 ///

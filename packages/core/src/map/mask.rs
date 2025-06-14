@@ -3,7 +3,7 @@ use crate::{
     prelude::{Delta, Effect, Rect, Tile},
 };
 
-#[doc = include_str!("../../../docs/mask.md")]
+#[doc = include_str!("../../docs/mask.md")]
 /// A [`Mask`] defines a logical area on a [`super::grid::Grid`] or [`super::layer::Layer`] where specific [`Effect`]s are applied
 /// based on a [`Selector`] pattern.
 ///

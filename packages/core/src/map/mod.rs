@@ -5,6 +5,7 @@ use layer::{Effect, Shape};
 pub mod effect;
 pub mod grid;
 pub mod layer;
+pub mod mask;
 pub mod routing;
 // pub mod selector;
 pub mod tile;

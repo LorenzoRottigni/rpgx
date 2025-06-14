@@ -1,14 +1,17 @@
-use std::ops::{Add, Sub};
+use std::ops::{Add, Div, Sub};
 
 use crate::prelude::{Coordinates, Delta};
 
+/// Represents a rectangular area by its width and height.
 #[derive(Copy, Clone, PartialEq, Eq, Debug, Default)]
 pub struct Shape {
     pub width: u32,
     pub height: u32,
 }
 
+/// Constructors
 impl Shape {
+    /// Creates a square shape with equal width and height.
     pub fn from_square(side: u32) -> Self {
         Self {
             width: side,
@@ -16,22 +19,29 @@ impl Shape {
         }
     }
 
+    /// Creates a rectangular shape from width and height.
     pub fn from_rectangle(width: u32, height: u32) -> Self {
         Self { width, height }
     }
 
+    /// Creates a shape that covers the area between two coordinates.
     pub fn from_bounds(start: Coordinates, end: Coordinates) -> Self {
         let width = end.x.saturating_sub(start.x);
         let height = end.y.saturating_sub(start.y);
         Shape { width, height }
     }
 
+    /// Computes the smallest shape that can encompass all given shapes.
     pub fn bounding_shape(shapes: &[Self]) -> Self {
         shapes
             .iter()
             .fold(Self::default(), |acc, shape| acc.union(*shape))
     }
+}
 
+/// Core utilities
+impl Shape {
+    /// Computes the union of two shapes by taking the max of each dimension.
     pub fn union(&self, other: Shape) -> Self {
         Self {
             width: self.width.max(other.width),
@@ -39,14 +49,25 @@ impl Shape {
         }
     }
 
+    /// Checks if the given coordinates fall within the shape.
     pub fn in_bounds(&self, coordinates: Coordinates) -> bool {
         coordinates.x < self.width && coordinates.y < self.height
     }
 
+    /// Checks if the given delta is within bounds (non-negative and smaller than shape).
     pub fn delta_in_bounds(&self, delta: Delta) -> bool {
-        delta.dx < self.width as i32 && delta.dy < self.height as i32
+        delta.dx >= 0
+            && delta.dy >= 0
+            && (delta.dx as u32) < self.width
+            && (delta.dy as u32) < self.height
     }
 
+    /// Returns the area (width * height) of this shape.
+    pub fn area(&self) -> u32 {
+        self.width.saturating_mul(self.height)
+    }
+
+    /// Returns a new shape offset by the given coordinates.
     pub fn offset_by(&self, offset: Coordinates) -> Self {
         Self {
             width: self.width + offset.x,
@@ -54,6 +75,16 @@ impl Shape {
         }
     }
 
+    /// Expands this shape to include another shape placed at an offset.
+    pub fn expand_to_include(&mut self, offset: Coordinates, other: Shape) {
+        self.width = self.width.max(offset.x + other.width);
+        self.height = self.height.max(offset.y + other.height);
+    }
+}
+
+/// Iteration and filtering
+impl Shape {
+    /// Iterates through coordinates in a given range clamped by this shape.
     pub fn coordinates_in_range(&self, start: Coordinates, end: Coordinates) -> Vec<Coordinates> {
         let start_x = start.x.max(0);
         let start_y = start.y.max(0);
@@ -62,15 +93,14 @@ impl Shape {
 
         let mut coords = Vec::new();
         for y in start_y..end_y {
-            // end_y exclusive
             for x in start_x..end_x {
-                // end_x exclusive
                 coords.push(Coordinates { x, y });
             }
         }
         coords
     }
 
+    /// Returns coordinates that satisfy a filter predicate.
     pub fn filter_coordinates<F>(&self, mut filter_fn: F) -> Vec<Coordinates>
     where
         F: FnMut(Coordinates, Shape) -> bool,
@@ -88,53 +118,16 @@ impl Shape {
 
         coords
     }
-
-    pub fn expand_to_include(&mut self, offset: Coordinates, other: Shape) {
-        self.width = self.width.max(offset.x + other.width);
-        self.height = self.height.max(offset.y + other.height);
-    }
 }
 
+/// Arithmetic operations between Shapes
 impl Add for Shape {
     type Output = Shape;
 
     fn add(self, other: Shape) -> Shape {
         Shape {
-            width: self.width + other.width,
-            height: self.height + other.height,
-        }
-    }
-}
-
-impl Sub<u32> for Shape {
-    type Output = Shape;
-
-    fn sub(self, value: u32) -> Shape {
-        Shape {
-            width: self.width - value,
-            height: self.height - value,
-        }
-    }
-}
-
-impl Add<u32> for Shape {
-    type Output = Shape;
-
-    fn add(self, value: u32) -> Shape {
-        Shape {
-            width: self.width + value,
-            height: self.height + value,
-        }
-    }
-}
-
-impl Add<Coordinates> for Shape {
-    type Output = Shape;
-
-    fn add(self, coordinates: Coordinates) -> Shape {
-        Shape {
-            width: self.width + coordinates.x,
-            height: self.height + coordinates.y,
+            width: self.width.saturating_add(other.width),
+            height: self.height.saturating_add(other.height),
         }
     }
 }
@@ -144,8 +137,43 @@ impl Sub for Shape {
 
     fn sub(self, other: Shape) -> Shape {
         Shape {
-            width: self.width - other.width,
-            height: self.height - other.height,
+            width: self.width.saturating_sub(other.width),
+            height: self.height.saturating_sub(other.height),
+        }
+    }
+}
+
+/// Arithmetic with scalar values
+impl Add<u32> for Shape {
+    type Output = Shape;
+
+    fn add(self, value: u32) -> Shape {
+        Shape {
+            width: self.width.saturating_add(value),
+            height: self.height.saturating_add(value),
+        }
+    }
+}
+
+impl Sub<u32> for Shape {
+    type Output = Shape;
+
+    fn sub(self, value: u32) -> Shape {
+        Shape {
+            width: self.width.saturating_sub(value),
+            height: self.height.saturating_sub(value),
+        }
+    }
+}
+
+/// Arithmetic with coordinates
+impl Add<Coordinates> for Shape {
+    type Output = Shape;
+
+    fn add(self, coordinates: Coordinates) -> Shape {
+        Shape {
+            width: self.width.saturating_add(coordinates.x),
+            height: self.height.saturating_add(coordinates.y),
         }
     }
 }
@@ -155,18 +183,48 @@ impl Sub<Coordinates> for Shape {
 
     fn sub(self, coordinates: Coordinates) -> Shape {
         Shape {
-            width: self.width - coordinates.x,
-            height: self.height - coordinates.y,
+            width: self.width.saturating_sub(coordinates.x),
+            height: self.height.saturating_sub(coordinates.y),
         }
     }
 }
 
-/*
+/// Allows dividing the dimensions of a shape by a scalar.
+impl Div<u32> for Shape {
+    type Output = Shape;
+
+    fn div(self, divisor: u32) -> Shape {
+        Shape {
+            width: self.width / divisor,
+            height: self.height / divisor,
+        }
+    }
+}
+
 #[cfg(test)]
-#[cfg(test)]
-pub mod tests {
+mod tests {
     use super::*;
-    use crate::prelude::Coordinates;
+
+    #[test]
+    fn divides_shape() {
+        let shape = Shape::from_rectangle(8, 6);
+        let divided = shape / 2;
+        assert_eq!(divided, Shape::from_rectangle(4, 3));
+    }
+
+    #[test]
+    fn area_is_correct() {
+        let shape = Shape::from_rectangle(4, 3);
+        assert_eq!(shape.area(), 12);
+    }
+
+    #[test]
+    fn checked_delta_bounds() {
+        let shape = Shape::from_rectangle(5, 5);
+        assert!(shape.delta_in_bounds(Delta { dx: 4, dy: 4 }));
+        assert!(!shape.delta_in_bounds(Delta { dx: -1, dy: 2 }));
+        assert!(!shape.delta_in_bounds(Delta { dx: 5, dy: 0 }));
+    }
 
     #[test]
     fn creates_square_shape() {
@@ -176,71 +234,61 @@ pub mod tests {
     }
 
     #[test]
-    fn creates_rectangle_shape() {
-        let shape = Shape::from_rectangle(4, 7);
-        assert_eq!(shape.width, 4);
-        assert_eq!(shape.height, 7);
-    }
-
-    #[test]
-    fn creates_shape_from_bounds() {
-        let start = Coordinates { x: 1, y: 2 };
-        let end = Coordinates { x: 3, y: 4 };
+    fn computes_shape_from_bounds() {
+        let start = Coordinates { x: 2, y: 3 };
+        let end = Coordinates { x: 7, y: 8 };
         let shape = Shape::from_bounds(start, end);
-        assert_eq!(shape.width, 3); // 1 to 3 is 3 tiles: 1, 2, 3
-        assert_eq!(shape.height, 3); // 2 to 4 is 3 tiles: 2, 3, 4
+        assert_eq!(shape, Shape::from_rectangle(5, 5));
     }
 
     #[test]
-    fn in_bounds_checks_correctly() {
-        let shape = Shape::from_rectangle(3, 3);
-        assert!(shape.in_bounds(Coordinates { x: 1, y: 1 }));
-        assert!(shape.in_bounds(Coordinates { x: 2, y: 2 }));
-        assert!(!shape.in_bounds(Coordinates { x: 3, y: 3 }));
-    }
-
-    #[test]
-    fn coordinates_in_range_returns_correct_coordinates() {
+    fn shape_in_bounds_check() {
         let shape = Shape::from_rectangle(4, 4);
-        let coords =
-            shape.coordinates_in_range(Coordinates { x: 1, y: 1 }, Coordinates { x: 2, y: 2 });
-
-        let expected = vec![
-            Coordinates { x: 1, y: 1 },
-            Coordinates { x: 2, y: 1 },
-            Coordinates { x: 1, y: 2 },
-            Coordinates { x: 2, y: 2 },
-        ];
-
-        assert_eq!(coords, expected);
+        assert!(shape.in_bounds(Coordinates { x: 3, y: 3 }));
+        assert!(!shape.in_bounds(Coordinates { x: 4, y: 0 }));
+        assert!(!shape.in_bounds(Coordinates { x: 0, y: 4 }));
     }
 
     #[test]
-    fn filter_coordinates_filters_correctly() {
+    fn union_of_shapes() {
+        let a = Shape::from_rectangle(4, 2);
+        let b = Shape::from_rectangle(3, 5);
+        assert_eq!(a.union(b), Shape::from_rectangle(4, 5));
+    }
+
+    #[test]
+    fn offset_and_expand_shape() {
+        let mut shape = Shape::from_rectangle(4, 4);
+        shape.expand_to_include(Coordinates { x: 3, y: 3 }, Shape::from_rectangle(4, 2));
+        assert_eq!(shape, Shape::from_rectangle(7, 5));
+    }
+
+    #[test]
+    fn filter_coordinates_works() {
         let shape = Shape::from_rectangle(3, 3);
-        let even_coords = shape.filter_coordinates(|c, _s| (c.x + c.y) % 2 == 0);
-
-        let expected = vec![
-            Coordinates { x: 0, y: 0 },
-            Coordinates { x: 2, y: 0 },
-            Coordinates { x: 1, y: 1 },
-            Coordinates { x: 0, y: 2 },
-            Coordinates { x: 2, y: 2 },
-        ];
-
-        assert_eq!(even_coords, expected);
+        let filtered = shape.filter_coordinates(|coord, _| coord.x == coord.y);
+        assert_eq!(
+            filtered,
+            vec![
+                Coordinates { x: 0, y: 0 },
+                Coordinates { x: 1, y: 1 },
+                Coordinates { x: 2, y: 2 },
+            ]
+        );
     }
 
     #[test]
-    fn expand_to_include_updates_shape() {
-        let mut shape = Shape::from_rectangle(2, 2);
-        let offset = Coordinates { x: 1, y: 1 };
-        let other = Shape::from_rectangle(3, 3);
+    fn shape_arithmetic_operations() {
+        let a = Shape::from_rectangle(5, 5);
+        let b = Shape::from_rectangle(2, 3);
+        assert_eq!(a + b, Shape::from_rectangle(7, 8));
+        assert_eq!(a - b, Shape::from_rectangle(3, 2));
 
-        shape.expand_to_include(offset, other);
+        assert_eq!(a + 2, Shape::from_rectangle(7, 7));
+        assert_eq!(a - 2, Shape::from_rectangle(3, 3));
 
-        assert_eq!(shape.width, 4); // max of 2 and 1+3 = 4
-        assert_eq!(shape.height, 4); // max of 2 and 1+3 = 4
+        let coord = Coordinates { x: 1, y: 2 };
+        assert_eq!(a + coord, Shape::from_rectangle(6, 7));
+        assert_eq!(a - coord, Shape::from_rectangle(4, 3));
     }
 }
- */
