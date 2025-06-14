@@ -1,7 +1,4 @@
-use crate::{
-    common::rect::Rect,
-    prelude::{Coordinates, Effect, Layer, Map, Mask, Shape},
-};
+use crate::prelude::{Coordinates, Effect, Layer, Map, Mask, Rect, Shape};
 
 pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
     let building_layer = Layer::new(

@@ -1,7 +1,4 @@
-use crate::{
-    common::delta::Delta,
-    prelude::{Coordinates, Shape},
-};
+use crate::prelude::{Coordinates, Delta, Shape};
 
 /// Axis-aligned rectangle on a 2D grid.
 ///

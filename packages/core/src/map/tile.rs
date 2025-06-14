@@ -1,7 +1,4 @@
-use crate::{
-    common::{delta::Delta, rect::Rect},
-    prelude::{Coordinates, Effect},
-};
+use crate::prelude::{Coordinates, Delta, Effect, Rect};
 
 #[doc = include_str!("../../docs/tile.md")]
 /// Represents a single tile on the grid with unique identifier, spatial information, and effects applied.

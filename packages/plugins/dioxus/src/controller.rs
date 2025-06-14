@@ -3,10 +3,9 @@ use std::any::Any;
 use dioxus::prelude::*;
 use futures_util::stream::StreamExt;
 use log::error;
-use rpgx::common::coordinates::Coordinates;
-use rpgx::common::direction::Direction;
 use rpgx::library::Library;
 use rpgx::prelude::Engine;
+use rpgx::prelude::{Coordinates, Direction};
 use web_sys::console;
 
 #[derive(Clone, Debug)]

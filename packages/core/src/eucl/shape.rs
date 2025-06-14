@@ -1,6 +1,6 @@
 use std::ops::{Add, Sub};
 
-use crate::{common::delta::Delta, prelude::Coordinates};
+use crate::prelude::{Coordinates, Delta};
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug, Default)]
 pub struct Shape {

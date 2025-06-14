@@ -1,7 +1,6 @@
 use mask::Mask;
 
-use crate::common::delta::Delta;
-pub use crate::prelude::{Coordinates, Effect, Shape, Tile};
+pub use crate::prelude::{Coordinates, Delta, Effect, Shape, Tile};
 
 pub mod mask;
 

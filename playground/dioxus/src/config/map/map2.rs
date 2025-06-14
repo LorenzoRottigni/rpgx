@@ -1,10 +1,8 @@
 use std::any::Any;
 
 use rpgx::{
-    common::rect::Rect,
     library::Library,
-    map::Map,
-    prelude::{Coordinates, Direction, Effect, Layer, Mask, Shape},
+    prelude::{Coordinates, Direction, Effect, Layer, Map, Mask, Rect, Shape},
 };
 
 pub fn use_map2(library: &Library<Box<dyn Any>>) -> Map {

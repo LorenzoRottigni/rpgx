@@ -1,4 +1,4 @@
-use crate::common::rect::Rect;
+use crate::prelude::Rect;
 
 #[doc = include_str!("../../docs/effect.md")]
 /// Visual and interactive properties applied to a [`super::tile::Tile`] or UI element.

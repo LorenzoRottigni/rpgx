@@ -1,9 +1,5 @@
 use dioxus::prelude::*;
-use rpgx::{
-    common::coordinates::Coordinates,
-    prelude::{Engine, Pawn},
-    scene::Scene,
-};
+use rpgx::prelude::{Coordinates, Engine, Pawn, Scene};
 
 use crate::config::{library::use_library, map::map3::use_map3};
 

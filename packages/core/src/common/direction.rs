@@ -1,4 +1,4 @@
-use crate::common::delta::Delta;
+use crate::prelude::Delta;
 
 #[derive(PartialEq, Eq, Clone, Copy, Debug)]
 pub enum Direction {

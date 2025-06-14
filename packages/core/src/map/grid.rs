@@ -1,7 +1,4 @@
-use crate::{
-    common::delta::Delta,
-    prelude::{Shape, Tile},
-};
+use crate::prelude::{Delta, Shape, Tile};
 
 #[derive(Clone, Debug)]
 pub struct Grid {

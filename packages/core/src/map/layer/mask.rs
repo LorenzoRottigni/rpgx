@@ -1,7 +1,6 @@
 use crate::{
-    common::{delta::Delta, rect::Rect},
     map::grid::Grid,
-    prelude::{Coordinates, Effect, Shape, Tile},
+    prelude::{Delta, Effect, Rect, Tile},
 };
 
 #[doc = include_str!("../../../docs/mask.md")]

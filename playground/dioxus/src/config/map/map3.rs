@@ -1,10 +1,8 @@
 use std::any::Any;
 
 use rpgx::{
-    common::rect::Rect,
     library::Library,
-    map::Map,
-    prelude::{Coordinates, Effect, Layer, Mask, Shape},
+    prelude::{Coordinates, Effect, Layer, Map, Mask, Rect, Shape},
 };
 
 const SHAPE_WIDTH: u32 = 4;

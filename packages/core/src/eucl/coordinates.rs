@@ -1,5 +1,4 @@
-use crate::common::delta::Delta;
-use crate::prelude::Shape;
+use crate::prelude::{Delta, Shape};
 use std::ops::{Add, AddAssign, Sub};
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug, Default)]

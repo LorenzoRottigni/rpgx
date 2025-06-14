@@ -1,7 +1,4 @@
-use crate::{
-    common::delta::Delta,
-    prelude::{Coordinates, Direction, Layer, Tile},
-};
+use crate::prelude::{Coordinates, Delta, Direction, Layer, Tile};
 use indexmap::IndexMap;
 use layer::{Effect, Shape};
 
