@@ -1,3 +1,8 @@
+use std::{
+    fmt,
+    ops::{Add, Sub},
+};
+
 use crate::prelude::{Coordinates, Delta, Shape};
 
 /// Errors related to [`Rect`] construction and manipulation.
@@ -247,6 +252,35 @@ impl Rect {
         let mut rect = *self;
         rect.offset(delta);
         rect
+    }
+}
+
+impl fmt::Display for Rect {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "Rect(origin: {}, {}, shape: {}×{})",
+            self.origin.x, self.origin.y, self.shape.width, self.shape.height
+        )
+    }
+}
+
+impl Add<Delta> for Rect {
+    type Output = Self;
+
+    fn add(self, delta: Delta) -> Self {
+        self.translate(delta)
+    }
+}
+
+impl Sub<Delta> for Rect {
+    type Output = Self;
+
+    fn sub(self, delta: Delta) -> Self {
+        self.translate(Delta {
+            dx: -delta.dx,
+            dy: -delta.dy,
+        })
     }
 }
 
