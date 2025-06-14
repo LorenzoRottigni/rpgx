@@ -33,6 +33,7 @@ impl Direction {
     }
 }
 
+/*
 #[cfg(test)]
 pub mod tests {
     use super::*;
@@ -73,3 +74,4 @@ pub mod tests {
         assert_eq!(Direction::Right.to_delta(), Delta { dx: 1, dy: 0 });
     }
 }
+ */

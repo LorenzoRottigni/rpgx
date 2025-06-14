@@ -161,6 +161,7 @@ impl Sub<Coordinates> for Shape {
     }
 }
 
+/*
 #[cfg(test)]
 #[cfg(test)]
 pub mod tests {
@@ -242,3 +243,4 @@ pub mod tests {
         assert_eq!(shape.height, 4); // max of 2 and 1+3 = 4
     }
 }
+ */

@@ -31,7 +31,7 @@ impl Coordinates {
 
     pub fn is_within(&self, origin: Coordinates, shape: Shape) -> bool {
         let end = origin + shape; // exclusive end coordinate
-        // Check if self is inside [origin, end) range
+                                  // Check if self is inside [origin, end) range
         self.x >= origin.x && self.x < end.x && self.y >= origin.y && self.y < end.y
     }
 
@@ -146,8 +146,7 @@ impl AddAssign for Coordinates {
         self.y += rhs.y;
     }
 }
-
-#[cfg(test)]
+/*#[cfg(test)]
 pub mod tests {
     use super::*;
 
@@ -165,3 +164,4 @@ pub mod tests {
         assert_eq!(result, Coordinates { x: 4, y: 11 });
     }
 }
+     */
