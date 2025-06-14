@@ -290,6 +290,26 @@ impl Rect {
         tiles
     }
 
+    /// Returns all 1×1 tiles within the `Rect` that are located on odd (x + y) sum positions.
+    ///
+    /// Useful for checkerboard or diagonal pattern logic.
+    pub fn as_odds(&self) -> Vec<Self> {
+        self.iter()
+            .filter(|coord| (coord.x + coord.y) % 2 == 1)
+            .map(|coord| Rect::from_xywh(coord.x, coord.y, 1, 1))
+            .collect()
+    }
+
+    /// Returns all 1×1 tiles within the `Rect` that are located on even (x + y) sum positions.
+    ///
+    /// Useful for checkerboard or diagonal pattern logic.
+    pub fn as_evens(&self) -> Vec<Self> {
+        self.iter()
+            .filter(|coord| (coord.x + coord.y) % 2 == 0)
+            .map(|coord| Rect::from_xywh(coord.x, coord.y, 1, 1))
+            .collect()
+    }
+
     /// Returns true if this rectangle intersects with another.
     pub fn intersects(&self, other: &Rect) -> bool {
         let self_right = self.origin.x + self.shape.width;
