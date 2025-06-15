@@ -175,7 +175,7 @@ mod tests {
     use crate::prelude::{Coordinates, Effect, Layer, Mask, Rect};
 
     /// Build a simple map with a blocking layer at given coordinates.
-    fn build_test_map(blocked: &[Coordinates]) -> Map {
+    pub fn build_test_map(blocked: &[Coordinates]) -> Map {
         let mut masks = blocked
             .iter()
             .enumerate()

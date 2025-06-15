@@ -103,6 +103,10 @@ impl Rect {
             .collect()
     }
 
+    pub fn as_block(&self) -> Vec<Self> {
+        vec![*self]
+    }
+
     /// Returns the perimeter tiles of the rect as 1×1 `Rect`s offset inward by `offset`, with `size` thickness.
     ///
     /// Tiles are returned clockwise starting from the top-left corner of the outermost perimeter band.
