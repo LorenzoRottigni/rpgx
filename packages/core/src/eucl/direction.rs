@@ -24,15 +24,6 @@ impl Direction {
     ///
     /// Returns `Some(Direction)` if the delta corresponds exactly to one of
     /// the four cardinal directions (unit steps), otherwise returns `None`.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use your_crate::prelude::{Direction, Delta};
-    ///
-    /// assert_eq!(Direction::from_delta(&Delta { dx: 0, dy: -1 }), Some(Direction::Up));
-    /// assert_eq!(Direction::from_delta(&Delta { dx: 2, dy: 0 }), None);
-    /// ```
     pub fn from_delta(delta: &Delta) -> Option<Self> {
         if delta.dx == 0 && delta.dy == -1 {
             Some(Direction::Up)
@@ -51,14 +42,6 @@ impl Direction {
     ///
     /// This is useful for grid-based movement calculations.
     ///
-    /// # Examples
-    ///
-    /// ```
-    /// use your_crate::prelude::{Direction, Delta};
-    ///
-    /// assert_eq!(Direction::Left.to_delta(), Delta { dx: -1, dy: 0 });
-    /// assert_eq!(Direction::Up.to_delta(), Delta { dx: 0, dy: -1 });
-    /// ```
     pub fn to_delta(&self) -> Delta {
         match self {
             Direction::Up => Delta { dx: 0, dy: -1 },

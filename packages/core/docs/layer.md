@@ -31,11 +31,10 @@ pub enum LayerType {
 ## Struct: `Layer`
 
 ```rust
-use rpgx::prelude::{LayerType, Tile, Shape, Mask};
+use rpgx::prelude::{Tile, Shape, Mask};
 
 pub struct Layer {
     pub name: String,
-    pub kind: LayerType,
     pub tiles: Vec<Tile>,
     pub shape: Shape,
     pub masks: Vec<Mask>,

@@ -1,13 +1,11 @@
 use dioxus::prelude::*;
 use rpgx::{library::Library, prelude::MoveError};
 use std::any::Any;
-use web_sys::console;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct TileProps {
     tile: rpgx::prelude::Tile,
     layer_z: u32,
-    // layer_kind: LayerType,
     square_size: u32,
     library: Signal<Library<Box<dyn Any>>>,
     onclick: EventHandler<Result<rpgx::prelude::Tile, MoveError>>,

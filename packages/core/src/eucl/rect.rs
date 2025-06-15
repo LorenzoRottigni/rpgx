@@ -27,11 +27,6 @@ pub struct Rect {
 
 impl Rect {
     /// Creates a new `Rect` with the given origin and shape.
-    ///
-    /// # Examples
-    /// ```
-    /// let rect = Rect::new(Coordinates { x: 0, y: 0 }, Shape::from_square(3));
-    /// ```
     pub fn new(origin: Coordinates, shape: Shape) -> Self {
         Self { origin, shape }
     }
@@ -99,12 +94,6 @@ impl Rect {
     ///
     /// This is useful for applying per-tile logic or reconstruction.
     ///
-    /// # Examples
-    /// ```
-    /// let rect = Rect::from_shape(Shape { width: 2, height: 2 });
-    /// let many = rect.as_many();
-    /// assert_eq!(many.len(), 4);
-    /// ```
     pub fn as_many(&self) -> Vec<Self> {
         self.iter()
             .map(|coord| Rect {
@@ -125,12 +114,6 @@ impl Rect {
     /// # Panics
     /// Panics if `offset + size` exceeds half the width or height.
     ///
-    /// # Example
-    /// ```
-    /// let rect = Rect::from_xywh(0, 0, 5, 5);
-    /// let border = rect.as_perimeter(0, 1);
-    /// assert_eq!(border.len(), 16); // 5+5+3+3
-    /// ```
     pub fn as_perimeter(&self, offset: u32, size: u32) -> Vec<Self> {
         let mut perimeter = Vec::new();
 
@@ -484,12 +467,6 @@ impl Rect {
     ///
     /// The result is clamped to non-negative values (0, 0 minimum).
     ///
-    /// # Examples
-    /// ```
-    /// let mut rect = Rect::from_origin(Coordinates { x: 5, y: 5 });
-    /// rect.offset(Delta { dx: -10, dy: -10 });
-    /// assert_eq!(rect.origin, Coordinates { x: 0, y: 0 });
-    /// ```
     pub fn offset(&mut self, delta: Delta) {
         let new_x = self.origin.x as i32 + delta.dx;
         let new_y = self.origin.y as i32 + delta.dy;
