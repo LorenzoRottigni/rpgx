@@ -53,7 +53,10 @@ impl Layer {
 
     /// Returns the individual shapes of all masks in the layer.
     pub fn get_shapes(&self) -> Vec<Shape> {
-        self.masks.iter().map(|mask| mask.grid.shape).collect()
+        self.masks
+            .iter()
+            .map(|mask| mask.grid.get_shape())
+            .collect()
     }
 
     /// Returns the overall bounding shape of all masks.
