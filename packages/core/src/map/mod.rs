@@ -2,7 +2,6 @@ use crate::prelude::{Coordinates, Delta, Direction, Effect, Layer, Shape, Tile};
 use indexmap::IndexMap;
 
 pub mod effect;
-pub mod grid;
 pub mod layer;
 pub mod mask;
 pub mod routing;

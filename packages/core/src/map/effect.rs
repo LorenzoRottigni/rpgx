@@ -1,4 +1,4 @@
-use crate::prelude::Rect;
+use crate::prelude::{Delta, Rect};
 
 #[doc = include_str!("../../docs/effect.md")]
 /// Visual and interactive properties applied to a [`super::tile::Tile`] or UI element.
@@ -20,4 +20,12 @@ pub struct Effect {
     ///
     /// When `Some`, defines a rectangular region within the tile area that blocks movement or interaction.
     pub block: Option<Rect>,
+}
+
+impl Effect {
+    pub fn offset(&mut self, delta: Delta) {
+        if let Some(ref mut block_rect) = self.block {
+            block_rect.offset(delta);
+        }
+    }
 }

@@ -27,7 +27,7 @@ impl Layer {
     pub fn get_tile_at(&self, pointer: Coordinates) -> Option<Tile> {
         self.masks
             .iter()
-            .flat_map(|mask| mask.grid.tiles.iter().cloned())
+            .flat_map(|mask| mask.tiles.iter().cloned())
             .find(|tile| {
                 if pointer.x >= tile.area.origin.x && pointer.y >= tile.area.origin.y {
                     let local = Coordinates {
@@ -43,20 +43,14 @@ impl Layer {
 
     /// Checks if any tile in the layer blocks movement at the given coordinate.
     pub fn is_blocking_at(&self, target: &Coordinates) -> bool {
-        self.masks.iter().any(|mask| {
-            mask.grid
-                .tiles
-                .iter()
-                .any(|tile| tile.is_blocking_at(*target))
-        })
+        self.masks
+            .iter()
+            .any(|mask| mask.tiles.iter().any(|tile| tile.is_blocking_at(*target)))
     }
 
     /// Returns the individual shapes of all masks in the layer.
     pub fn get_shapes(&self) -> Vec<Shape> {
-        self.masks
-            .iter()
-            .map(|mask| mask.grid.get_shape())
-            .collect()
+        self.masks.iter().map(|mask| mask.get_shape()).collect()
     }
 
     /// Returns the overall bounding shape of all masks.
@@ -68,7 +62,7 @@ impl Layer {
     pub fn render(&self) -> Vec<Tile> {
         self.masks
             .iter()
-            .flat_map(|mask| mask.grid.tiles.iter().cloned())
+            .flat_map(|mask| mask.tiles.iter().cloned())
             .collect()
     }
 
