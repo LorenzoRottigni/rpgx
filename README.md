@@ -141,7 +141,7 @@ Key responsibilities include:
 - Maintaining the current `Map` and active `Pawn`.
 - Computing optimal paths and validating moves.
 - Supporting step-wise and direct movements with blocking checks.
-- Returning detailed movement errors (`MoveError`) on failure.
+- Returning detailed movement errors (`RPGXError`) on failure.
 - Enabling asynchronous walking for smooth movement sequences.
 
 Typical usage involves creating an `Engine` with a map and pawn, then calling movement methods like `move_to`, `step_to`, and `walk_to`.

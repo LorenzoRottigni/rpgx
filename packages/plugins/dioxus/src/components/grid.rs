@@ -1,7 +1,7 @@
 use std::any::Any;
 
 use dioxus::prelude::*;
-use rpgx::{engine::Engine, library::Library, prelude::MoveError};
+use rpgx::{engine::Engine, library::Library, prelude::RPGXError};
 
 use crate::components::tile::Tile;
 
@@ -10,7 +10,7 @@ pub struct GridProps {
     pub engine: Signal<Engine>,
     pub library: Signal<Library<Box<dyn Any>>>,
     pub square_size: u32,
-    pub onclick: EventHandler<Result<rpgx::prelude::Tile, MoveError>>,
+    pub onclick: EventHandler<Result<rpgx::prelude::Tile, RPGXError>>,
 }
 
 #[allow(non_snake_case)]

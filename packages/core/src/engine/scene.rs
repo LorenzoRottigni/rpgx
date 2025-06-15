@@ -1,19 +1,7 @@
-use crate::prelude::{Coordinates, Direction, Map, Pawn};
-
-/// Represents possible errors that can occur during pawn movement.
-#[derive(Debug, PartialEq, Eq)]
-pub enum MoveError {
-    /// The target tile is blocked by an obstacle or impassable terrain.
-    TileBlocked,
-    /// The target tile does not exist or cannot be found.
-    TileNotFound,
-    /// The target tile lies outside the boundaries of the map.
-    TileOutOfBounds,
-    /// No path could be found from start to target coordinates.
-    PathNotFound,
-    /// A single movement step failed at the specified coordinates.
-    StepFailed(Coordinates),
-}
+use crate::{
+    errors::RPGXError,
+    prelude::{Coordinates, Direction, Map, Pawn},
+};
 
 #[doc = include_str!("../../docs/scene.md")]
 /// RPG scene providing [`Pawn`] movement computation across the [`Map`].
@@ -66,22 +54,25 @@ impl Scene {
     ///
     /// # Errors
     ///
-    /// Returns `MoveError` if the pawn is missing, no path is found, or a step fails.
+    /// Returns `RPGXError` if the pawn is missing, no path is found, or a step fails.
     pub async fn walk_to(
         &mut self,
         target_position: Coordinates,
-    ) -> Result<Coordinates, MoveError> {
+    ) -> Result<Coordinates, RPGXError> {
         let start = self
             .pawn
             .as_ref()
             .map(|p| p.pointer)
-            .ok_or(MoveError::TileNotFound)?;
+            .ok_or_else(|| RPGXError::TileNotFound(target_position))?;
 
         // Find the best path from current to target coordinates
-        let path = self
-            .map
-            .find_path(&start, &target_position)
-            .ok_or(MoveError::PathNotFound)?;
+        let path =
+            self.map
+                .find_path(&start, &target_position)
+                .ok_or(RPGXError::PathNotFround {
+                    from: start,
+                    to: target_position,
+                })?;
 
         let mut tile = None;
         // Walk each step in the path, returning early if any step fails
@@ -89,7 +80,10 @@ impl Scene {
             tile = Some(self.move_to(step_coords)?);
         }
 
-        tile.ok_or(MoveError::TileNotFound)
+        tile.ok_or(RPGXError::WalkFailed {
+            from: start,
+            to: target_position,
+        })
     }
 
     /// Take a single movement step in the specified direction.
@@ -100,20 +94,20 @@ impl Scene {
     ///
     /// # Errors
     ///
-    /// Returns `MoveError` if the pawn is missing, the target tile is invalid or blocked.
-    pub fn step_to(&mut self, direction: Direction) -> Result<Coordinates, MoveError> {
+    /// Returns `RPGXError` if the pawn is missing, the target tile is invalid or blocked.
+    pub fn step_to(&mut self, direction: Direction) -> Result<Coordinates, RPGXError> {
         let delta = direction.to_delta();
         let current = self
             .pawn
             .as_ref()
             .map(|p| p.pointer)
-            .ok_or(MoveError::TileNotFound)?;
+            .ok_or(RPGXError::PawnNotFound)?;
 
         // Calculate the target coordinates by applying the delta
         if let Some(target_position) = current + delta {
             self.move_to(target_position)
         } else {
-            Err(MoveError::TileNotFound)
+            Err(RPGXError::StepFailed(direction))
         }
     }
 
@@ -123,18 +117,18 @@ impl Scene {
     ///
     /// # Errors
     ///
-    /// Returns `MoveError` if the pawn is missing or the target is blocked.
-    pub fn move_to(&mut self, target_position: Coordinates) -> Result<Coordinates, MoveError> {
+    /// Returns `RPGXError` if the pawn is missing or the target is blocked.
+    pub fn move_to(&mut self, target_position: Coordinates) -> Result<Coordinates, RPGXError> {
         // Check if movement to the target is allowed by the map
         if self.map.move_allowed(target_position) {
             if let Some(pawn) = self.pawn.as_mut() {
                 pawn.pointer = target_position;
                 Ok(target_position)
             } else {
-                Err(MoveError::TileNotFound)
+                Err(RPGXError::PawnNotFound)
             }
         } else {
-            Err(MoveError::TileBlocked)
+            Err(RPGXError::TileNotWalkable(target_position))
         }
     }
 
@@ -144,18 +138,21 @@ impl Scene {
     ///
     /// # Errors
     ///
-    /// Returns `MoveError` if the pawn is missing or no path is found.
-    pub fn steps_to(&self, target_position: Coordinates) -> Result<Vec<Coordinates>, MoveError> {
+    /// Returns `RPGXError` if the pawn is missing or no path is found.
+    pub fn steps_to(&self, target_position: Coordinates) -> Result<Vec<Coordinates>, RPGXError> {
         let start = self
             .pawn
             .as_ref()
             .map(|p| p.pointer)
-            .ok_or(MoveError::TileNotFound)?;
+            .ok_or(RPGXError::PawnNotFound)?;
 
-        let path = self
-            .map
-            .find_path(&start, &target_position)
-            .ok_or(MoveError::PathNotFound)?;
+        let path =
+            self.map
+                .find_path(&start, &target_position)
+                .ok_or(RPGXError::PathNotFround {
+                    from: start,
+                    to: target_position,
+                })?;
 
         Ok(path)
     }
@@ -182,6 +179,9 @@ mod tests {
         scene.load_pawn(1);
 
         let result = scene.move_to(Coordinates::new(0, 0));
-        assert_eq!(result, Err(MoveError::TileBlocked));
+        assert_eq!(
+            result,
+            Err(RPGXError::TileNotWalkable(Coordinates::new(0, 0)))
+        );
     }
 }

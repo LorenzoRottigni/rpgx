@@ -1,5 +1,5 @@
 use dioxus::prelude::*;
-use rpgx::{library::Library, prelude::MoveError};
+use rpgx::{library::Library, prelude::RPGXError};
 use std::any::Any;
 
 #[derive(PartialEq, Props, Clone)]
@@ -8,7 +8,7 @@ pub struct TileProps {
     layer_z: u32,
     square_size: u32,
     library: Signal<Library<Box<dyn Any>>>,
-    onclick: EventHandler<Result<rpgx::prelude::Tile, MoveError>>,
+    onclick: EventHandler<Result<rpgx::prelude::Tile, RPGXError>>,
 }
 
 #[allow(non_snake_case)]

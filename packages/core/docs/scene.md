@@ -52,23 +52,23 @@ pub struct Scene {
 
 ### Movement
 
-- `walk_to(&mut self, target_position: Coordinates) -> Result<Tile, MoveError>` (async)  
+- `walk_to(&mut self, target_position: Coordinates) -> Result<Tile, RPGXError>` (async)  
   Attempts to walk the pawn to a target coordinate by finding and following a path step-by-step.
 
-- `step_to(&mut self, direction: Direction) -> Result<Tile, MoveError>`  
+- `step_to(&mut self, direction: Direction) -> Result<Tile, RPGXError>`  
   Moves the pawn one step in the specified direction if possible.
 
-- `move_to(&mut self, target_position: Coordinates) -> Result<Tile, MoveError>`  
+- `move_to(&mut self, target_position: Coordinates) -> Result<Tile, RPGXError>`  
   Moves the pawn directly to the specified coordinate if the tile is accessible.
 
-- `steps_to(&self, target_position: Coordinates) -> Result<Vec<Coordinates>, MoveError>`  
+- `steps_to(&self, target_position: Coordinates) -> Result<Vec<Coordinates>, RPGXError>`  
   Computes and returns a list of steps to reach the target position from the pawn’s current location.
 
 ---
 
 ## Errors
 
-The movement methods return `MoveError` variants indicating failures such as:
+The movement methods return `RPGXError` variants indicating failures such as:
 
 - `TileNotFound`: The target tile or pawn is missing.
 - `TileBlocked`: Movement is blocked by obstacles.
