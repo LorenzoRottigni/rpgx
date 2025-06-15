@@ -1,49 +1,94 @@
 # Engine
 
-The `Engine` struct manages the timeline of RPG scenes and provides control over scene progression and state history.
+The `Engine` struct represents the core state manager of the RPG system.  
+It maintains a timeline of `Scene`s (like a stack of game states or world instances), enabling dynamic transitions and rewinds across gameplay moments.
 
-## Overview
-
-An `Engine` maintains a timeline of `Scene` states representing the game world at different points in time. It allows navigation through this timeline to support features such as undo/redo, rollback, and branching storylines.
+---
 
 ## Fields
 
 - `timeline: Vec<Scene>`  
-  Stores the sequence of `Scene` states over time.
+  A timeline of game scenes, ordered by when they were pushed into the engine.
 
 - `timenow: usize`  
-  Index pointer to the currently active scene in the timeline.
+  The current index in the timeline, representing the active scene.
+
+---
 
 ## Methods
 
 ### `new(scene: Scene) -> Self`
 
-Creates a new engine starting with the provided initial scene.
+Creates a new engine with the given initial scene.  
+The engine starts with one scene on its timeline and the pointer set to it.
+
+---
 
 ### `get_active_scene(&self) -> Option<&Scene>`
 
-Returns a reference to the currently active scene, or `None` if the timeline is empty.
+Returns an immutable reference to the currently active scene, or `None` if the timeline is empty.
+
+---
 
 ### `get_active_scene_mut(&mut self) -> Option<&mut Scene>`
 
-Returns a mutable reference to the currently active scene.
+Returns a mutable reference to the currently active scene, allowing modifications like pawn movement.
+
+---
 
 ### `push_scene(&mut self, scene: Scene)`
 
-Adds a new scene to the timeline and moves the pointer to this new scene.
+Adds a new scene to the end of the timeline and updates the active pointer to it.  
+Useful when switching maps, progressing story, or entering sub-areas.
+
+---
 
 ### `pop_scene(&mut self)`
 
-Removes the most recent scene from the timeline if there is more than one scene, moving the pointer back accordingly.
+Removes the last scene from the timeline if there is more than one.  
+Also updates `timenow` to point to the new last scene.
+
+---
 
 ### `rollback_to(&mut self, index: usize)`
 
-Rolls back the timeline to a specific index, truncating any scenes after that point and updating the pointer.
+Rolls back the timeline to a specified earlier index.  
+All scenes after the index are removed, and the pointer is updated.
 
-### `rewind_to(&mut self, index: usize) -> Result<(), &'static str>`
+No-op if the index is out of bounds.
 
-Moves the pointer to a specific index in the timeline without truncating it. Returns an error if the index is out of bounds.
+---
+
+### `rewind_to(&mut self, index: usize) -> Result<(), &str>`
+
+Moves the current scene pointer to a past scene in the timeline without removing any entries.  
+Returns an error string if the index is invalid.
+
+---
 
 ### `get_scene_at(&self, index: usize) -> Option<&Scene>`
 
-Returns a reference to the scene at a given index, if it exists.
+Gets an immutable reference to a scene at a specific point in the timeline, useful for review or replay features.
+
+---
+
+## Example
+
+```rust
+let mut engine = Engine::new(initial_scene);
+engine.get_active_scene_mut().unwrap().load_pawn(1);
+
+let next_scene = Scene::new("Dungeon".into(), dungeon_map, None);
+engine.push_scene(next_scene);
+
+engine.pop_scene();
+```
+
+---
+
+## Notes
+
+- The engine timeline is inspired by save-states or undo-redo systems.
+- Scenes can be pushed/popped for forward progression or state rollback.
+- `Engine` provides centralized control over which scene is currently active.
+

@@ -1,52 +1,91 @@
 # Tile
 
-A `Tile` represents a single unit or shape on a 2D grid in the game world. It encapsulates:
+A `Tile` represents a rectangular area on a grid with an associated [`Effect`](effect.md). It is the atomic visual or interactive unit in the map system, used in [`Layer`](layer.md)s and [`Mask`](mask.md)s.
 
-- A unique identifier (`id`)
-- Its spatial location (`pointer`)
-- A shape (`shape`)
-- An [`Effect`] that determines behavior like blocking or status effects
+## Structure
 
----
+```rust
+pub struct Tile {
+    pub area: Rect,
+    pub effect: Effect,
+}
+```
 
-## Fields
+### Fields
 
-- **`id: u32`**  
-  A unique identifier for the tile. Used for tracking or indexing.
+- **`area: Rect`**  
+  A rectangular region defined by an origin (`Coordinates`) and a `Shape` (width and height). This represents where the tile exists on the grid.
 
 - **`effect: Effect`**  
-  Describes gameplay-related metadata for the tile, such as whether it's blocking or applies a condition.
-
-- **`pointer: SingleSelector`**  
-  Starting position (`Coordinates`) for the tile. This usually refers to the top-left corner.
-
-- **`shape: Shape`**  
-  Describes the tile's size in width and height.
+  An [`Effect`](effect.md) that determines the tile’s interactive or visual behavior — such as texture ID, render callback, action, or blocking.
 
 ---
 
 ## Behavior
 
-### `contains(&self, point: Coordinates) -> bool`
+### Tile Area
 
-Checks if a given coordinate lies **within the tile's area**, based on its shape and starting location.
+The `Rect` stored in `Tile::area` defines the exact region the tile covers. Unlike traditional tiles that are always 1×1, a tile in this system can span multiple cells, allowing for flexible composition (e.g. a large trap tile, a wide platform texture, etc.).
 
-### `is_blocking_at(&self, target: Coordinates) -> bool`
+### Tile Effects
 
-Returns `true` if the tile blocks movement at the given coordinate. Blocking depends on:
-
-- Whether `effect.block == true`
-- Whether the optional `effect.shrink` bounds override the full shape
-
-### `offset(&mut self, delta: Coordinates)`
-
-Shifts the tile's position (and any blocking region) by a given delta.
+The `Effect` attached to a tile may contain:
+- An action ID (triggered when a pawn interacts with it)
+- A texture ID (used to render a graphic)
+- A render ID (used to apply custom drawing logic)
+- A blocking `Rect` (to make a portion or the whole tile non-walkable)
 
 ---
 
-## Related Types
+## Methods
 
-- [`Effect`](crate::prelude::Effect)
-- [`Coordinates`](crate::prelude::Coordinates)
-- [`Shape`](crate::prelude::Shape)
-- [`SingleSelector`](crate::prelude::SingleSelector)
+### `fn contains(&self, coord: Coordinates) -> bool`
+
+Returns `true` if the coordinate lies within the tile’s rectangular area.
+
+```rust
+let tile = Tile {
+    area: Rect::new(Coordinates::new(1, 1), Shape::new(2, 2)),
+    effect: Effect::default(),
+};
+
+assert!(tile.contains(Coordinates::new(2, 2))); // Inside
+assert!(!tile.contains(Coordinates::new(3, 3))); // Outside
+```
+
+---
+
+## Example
+
+```rust
+let effect = Effect {
+    action_id: Some(42),
+    block: Some(Rect::new(Coordinates::new(0, 0), Shape::new(1, 1))),
+    ..Default::default()
+};
+
+let tile = Tile {
+    area: Rect::new(Coordinates::new(5, 5), Shape::new(2, 2)),
+    effect,
+};
+
+assert!(tile.contains(Coordinates::new(5, 6)));
+```
+
+---
+
+## Design Notes
+
+- A `Tile` can span arbitrary sizes — it's not restricted to single grid cells.
+- Tiles are composable into `Mask`s and `Layer`s.
+- Blocking areas and interactions are encoded through the `Effect`, allowing one tile to serve multiple gameplay or rendering purposes.
+- Tiles are **data containers** and do not contain logic beyond `contains`.
+
+---
+
+## See Also
+
+- [`Effect`](effect.md): Behavioral or visual data tied to a tile.
+- [`Rect`](rect.md), [`Coordinates`](coordinates.md), [`Shape`](shape.md)
+- [`Mask`](mask.md): A group of related tiles with a shared purpose.
+- [`Layer`](layer.md): A composition of multiple tiles across a 2D space.
