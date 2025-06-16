@@ -13,17 +13,16 @@ impl WasmDirection {
     /// Constructs a WasmDirection from a string like "Up", "Down", "Left", "Right".
     /// Returns None if the string does not match any direction.
     #[wasm_bindgen(constructor)]
-    pub fn new(direction_str: &str) -> Option<WasmDirection> {
+    pub fn new(direction_str: String) -> WasmDirection {
         let dir = match direction_str.to_lowercase().as_str() {
             "up" => Direction::Up,
             "down" => Direction::Down,
             "left" => Direction::Left,
             "right" => Direction::Right,
-            _ => return None,
+            _ => panic!("Invalid direction string"),
         };
-        Some(WasmDirection { inner: dir })
+        WasmDirection { inner: dir }
     }
-
     #[wasm_bindgen(getter)]
     pub fn name(&self) -> String {
         match self.inner {

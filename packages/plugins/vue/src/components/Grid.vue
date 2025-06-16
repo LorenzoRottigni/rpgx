@@ -14,9 +14,9 @@ defineEmits<{
 
 <template>
   <div>
-    <div v-for="(layer, i) in map.getLayers()" :key="'layer-' + i">
+    <div v-for="(layer, i) in map.layers" :key="'layer-' + i">
       <Tile
-        v-for="(tile, j) in layer.tiles"
+        v-for="(tile, j) in layer.render()"
         :key="`layer-${i}-${j}`"
         :tile="tile"
         :layer="layer"
