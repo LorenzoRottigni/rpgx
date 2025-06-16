@@ -1,14 +1,17 @@
-use crate::prelude::{WasmCoordinates, WasmDirection, WasmLayer, WasmShape, WasmTile};
+pub mod effect;
+pub mod layer;
+pub mod mask;
+pub mod tile;
+
 use effect::WasmEffect;
+use layer::WasmLayer;
+use tile::WasmTile;
+
 use rpgx::prelude::Map;
 use wasm_bindgen::prelude::*;
 
-pub mod effect;
-pub mod layer;
-pub mod selector;
-pub mod tile;
+use crate::prelude::{WasmCoordinates, WasmDirection, WasmShape};
 
-/// WASM wrapper for the Map struct.
 #[wasm_bindgen]
 pub struct WasmMap {
     inner: Map,
@@ -16,167 +19,160 @@ pub struct WasmMap {
 
 #[wasm_bindgen]
 impl WasmMap {
-    /// Creates a new map with a name and optional array of WasmLayer
     #[wasm_bindgen(constructor)]
-    pub fn new(name: String, layers: Option<Box<[WasmLayer]>>, spawn: WasmCoordinates) -> WasmMap {
-        let layers_vec = layers
-            .map(|layers_box| {
-                layers_box
-                    .into_vec()
-                    .into_iter()
-                    .map(|wl| wl.into_inner())
-                    .collect()
-            })
-            .unwrap_or_else(Vec::new);
-
-        let map = Map::new(name, layers_vec, spawn.into_inner());
-
-        WasmMap { inner: map }
+    pub fn new(name: String, layers: Vec<WasmLayer>, spawn: &WasmCoordinates) -> WasmMap {
+        let inner_layers = layers.into_iter().map(|l| l.into_inner()).collect();
+        WasmMap {
+            inner: Map::new(name, inner_layers, *spawn.inner()),
+        }
     }
 
-    /// Compose a map from multiple maps and layers.
-    /// maps: Array of tuples (WasmMap, WasmSingleSelector)
-    /// layers: Array of WasmLayer
+    /* TODO #[wasm_bindgen(js_name = compose)]
+    pub fn compose(
+        name: String,
+        maps: Vec<JsValue>, // JS array of [WasmMap, WasmCoordinates]
+        layers: Vec<WasmLayer>,
+        spawn: WasmCoordinates,
+    ) -> Result<WasmMap, JsValue> {
+        let mut rust_maps: Vec<(Map, Coordinates)> = Vec::with_capacity(maps.len());
 
-    // #[wasm_bindgen(js_name = compose)]
-    // pub fn compose(
-    //     name: String,
-    //     map_tuples: Box<[WasmMapSelectorTuple]>,
-    //     layers: Option<Box<[WasmLayer]>>,
-    // ) -> WasmMap {
-    //     let rust_maps: Vec<(Map, SingleSelector)> = map_tuples
-    //         .into_vec()
-    //         .into_iter()
-    //         .map(|tuple| (tuple.map.inner.clone(), tuple.selector.inner.clone()))
-    //         .collect();
-    //
-    //     let layers_vec = layers
-    //         .map(|layers_box| {
-    //             layers_box
-    //                 .into_vec()
-    //                 .into_iter()
-    //                 .map(|wl| wl.into_inner())
-    //                 .collect()
-    //         })
-    //         .unwrap_or_else(Vec::new);
-    //
-    //     let map = Map::compose(name, rust_maps, layers_vec);
-    //
-    //     WasmMap { inner: map }
-    // }
+        for js_val in maps {
+            // Convert JsValue into JS array (tuple expected)
+            let arr = js_val
+                .dyn_into::<Array>()
+                .map_err(|_| JsValue::from_str("Each map entry must be a tuple (array)"))?;
 
-    /// Returns the name of the map
+            if arr.length() != 2 {
+                return Err(JsValue::from_str(
+                    "Each map entry must be a tuple of length 2",
+                ));
+            }
+
+            // Extract first element: WasmMap
+            let wasm_map = arr.get(0);
+
+            // Extract second element: WasmCoordinates
+            let wasm_coord = arr.get(1);
+
+            rust_maps.push((wasm_map, wasm_coord));
+        }
+
+        let inner_layers = layers.into_iter().map(|l| l.into_inner()).collect();
+
+        Ok(WasmMap {
+            inner: Map::compose(name, rust_maps, inner_layers, *spawn.inner()),
+        })
+    }*/
+
     #[wasm_bindgen(getter)]
     pub fn name(&self) -> String {
         self.inner.name.clone()
     }
 
-    /// Returns the base layer if any
-    #[wasm_bindgen(js_name = getBaseLayer)]
-    pub fn get_base_layer(&self) -> Option<WasmLayer> {
-        self.inner.get_base_layer().map(WasmLayer::from_inner)
+    #[wasm_bindgen(getter)]
+    pub fn spawn(&self) -> WasmCoordinates {
+        WasmCoordinates::from_inner(self.inner.spawn)
     }
 
-    /// Returns the shape of the map (shape of the base layer)
-    #[wasm_bindgen(js_name = getShape)]
-    pub fn get_shape(&self) -> WasmShape {
-        WasmShape::from_inner(self.inner.get_shape())
-    }
-
-    /// Returns true if any layer blocks the tile at pointer
-    #[wasm_bindgen(js_name = isBlockingAt)]
-    pub fn is_blocking_at(&self, pointer: &WasmCoordinates) -> bool {
-        self.inner.is_blocking_at(pointer.inner)
-    }
-
-    /// Returns all layers as an array of WasmLayer
-    #[wasm_bindgen(js_name = getLayers)]
-    pub fn get_layers(&self) -> Box<[WasmLayer]> {
+    #[wasm_bindgen(getter)]
+    pub fn layers(&self) -> Vec<WasmLayer> {
         self.inner
             .layers
             .iter()
             .cloned()
             .map(WasmLayer::from_inner)
-            .collect::<Vec<_>>()
-            .into_boxed_slice()
+            .collect()
     }
 
-    /// Loads a layer (adds or reshapes base layer)
+    /// Load a new layer into the map.
     #[wasm_bindgen(js_name = loadLayer)]
-    pub fn load_layer(&mut self, layer: &WasmLayer) {
-        self.inner.load_layer(layer.inner().clone());
+    pub fn load_layer(&mut self, layer: WasmLayer) {
+        self.inner.load_layer(layer.into_inner());
     }
 
-    /// Merges another map into this one at top_left coordinates
+    /// Returns a JS object mapping layer names to WasmLayer instances.
+    #[wasm_bindgen(js_name = layersByName)]
+    pub fn layers_by_name(&self) -> js_sys::Object {
+        // Use the core Map method `layers_by_name` directly, which returns IndexMap<String, Layer>
+        let core_map = self.inner.layers_by_name();
+
+        let obj = js_sys::Object::new();
+        for (name, layer) in core_map.into_iter() {
+            let wasm_layer = WasmLayer::from_inner(layer);
+            js_sys::Reflect::set(&obj, &JsValue::from_str(&name), &JsValue::from(wasm_layer))
+                .unwrap_throw();
+        }
+        obj
+    }
+
+    /// Merge another map at a given offset; optionally update spawn.
     #[wasm_bindgen(js_name = mergeAt)]
     pub fn merge_at(
         &mut self,
-        other: &WasmMap,
-        top_left: &WasmCoordinates,
-        spawn: WasmCoordinates,
+        other: WasmMap,
+        top_left: WasmCoordinates,
+        spawn: Option<WasmCoordinates>,
     ) {
+        let spawn_opt = spawn.map(|s| *s.inner());
         self.inner
-            .merge_at(&other.inner, top_left.inner, Some(spawn.into_inner()));
+            .merge_at(&other.inner, *top_left.inner(), spawn_opt);
     }
 
-    /// Duplicates the map in the given direction, expanding it
+    /// Duplicate this map in a direction; optionally update spawn.
     #[wasm_bindgen(js_name = duplicateToThe)]
-    pub fn duplicate_to_the(&mut self, direction: WasmDirection, spawn: WasmCoordinates) {
+    pub fn duplicate_to_the(&mut self, direction: WasmDirection, spawn: Option<WasmCoordinates>) {
+        let spawn_opt = spawn.map(|s| *s.inner());
         self.inner
-            .duplicate_to_the(direction.into_inner(), Some(spawn.into_inner()));
+            .duplicate_to_the(direction.into_inner(), spawn_opt);
     }
 
-    /// Returns tile at pointer from base layer if any
-    #[wasm_bindgen(js_name = getBaseTile)]
-    pub fn get_base_tile(&self, pointer: &WasmCoordinates) -> Option<WasmTile> {
-        self.inner
-            .get_base_tile(pointer.inner)
-            .map(WasmTile::from_inner)
+    /// Returns true if movement is allowed at the given coordinate.
+    #[wasm_bindgen(js_name = moveAllowed)]
+    pub fn move_allowed(&self, target: &WasmCoordinates) -> bool {
+        self.inner.move_allowed(*target.inner())
     }
 
-    /// Returns stacked tiles at pointer from all layers
+    /// Returns the bounding shape of the map.
+    #[wasm_bindgen(js_name = getShape)]
+    pub fn get_shape(&self) -> WasmShape {
+        WasmShape::from_inner(self.inner.get_shape())
+    }
+
+    /// Returns all tiles at a coordinate from all layers.
     #[wasm_bindgen(js_name = getTilesAt)]
-    pub fn get_tiles_at(&self, pointer: &WasmCoordinates) -> Box<[WasmTile]> {
+    pub fn get_tiles_at(&self, pointer: &WasmCoordinates) -> Vec<WasmTile> {
         self.inner
-            .get_tiles_at(pointer.inner)
+            .get_tiles_at(*pointer.inner())
             .into_iter()
             .map(WasmTile::from_inner)
-            .collect::<Vec<_>>()
-            .into_boxed_slice()
+            .collect()
     }
 
-    /// Returns all effects at pointer
+    /// Returns all effects at a coordinate from all layers.
     #[wasm_bindgen(js_name = getEffectsAt)]
-    pub fn get_effects_at(&self, pointer: &WasmCoordinates) -> js_sys::Array {
-        let arr = js_sys::Array::new();
-        for effect in self.inner.get_effects_at(pointer.inner) {
-            let wasm_effect = WasmEffect::from_effect(effect);
-            arr.push(&wasm_effect.into());
-        }
-        arr
+    pub fn get_effects_at(&self, pointer: &WasmCoordinates) -> Vec<WasmEffect> {
+        self.inner
+            .get_effects_at(*pointer.inner())
+            .into_iter()
+            .map(WasmEffect::from_inner)
+            .collect()
     }
 
-    /// Returns all action IDs present at pointer
+    /// Returns all action IDs at a coordinate from all layers.
     #[wasm_bindgen(js_name = getActionsAt)]
-    pub fn get_actions_at(&self, pointer: &WasmCoordinates) -> Box<[u32]> {
-        self.inner.get_actions_at(pointer.inner).into_boxed_slice()
+    pub fn get_actions_at(&self, pointer: &WasmCoordinates) -> Vec<u32> {
+        self.inner.get_actions_at(*pointer.inner())
     }
 }
 
 impl WasmMap {
+    /// Consume and get the inner Map
     pub fn into_inner(self) -> Map {
         self.inner
     }
 
+    /// Create from an inner Map directly
     pub fn from_inner(inner: Map) -> WasmMap {
         WasmMap { inner }
-    }
-
-    pub fn inner(&self) -> &Map {
-        &self.inner
-    }
-
-    pub fn inner_mut(&mut self) -> &mut Map {
-        &mut self.inner
     }
 }

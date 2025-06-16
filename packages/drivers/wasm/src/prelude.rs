@@ -1,15 +1,11 @@
-pub use crate::common::coordinates::WasmCoordinates;
-pub use crate::common::direction::WasmDirection;
-pub use crate::common::shape::WasmShape;
-pub use crate::engine::WasmEngine;
+pub use crate::eucl::coordinates::WasmCoordinates;
+pub use crate::eucl::delta::WasmDelta;
+pub use crate::eucl::direction::WasmDirection;
+pub use crate::eucl::rect::WasmRect;
+pub use crate::eucl::shape::WasmShape;
+
 pub use crate::map::WasmMap;
 pub use crate::map::effect::WasmEffect;
 pub use crate::map::layer::WasmLayer;
-pub use crate::map::layer::WasmLayerType;
-pub use crate::map::layer::mask::WasmMask;
-pub use crate::map::selector::WasmBlockSelector;
-pub use crate::map::selector::WasmSelector;
-pub use crate::map::selector::WasmSingleSelector;
+pub use crate::map::mask::WasmMask;
 pub use crate::map::tile::WasmTile;
-pub use crate::pawn::WasmPawn;
-pub use crate::scene::WasmScene;
