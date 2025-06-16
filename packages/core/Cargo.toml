@@ -8,6 +8,7 @@ repository = "https://github.com/LorenzoRottigni/rpgx"
 homepage = "https://github.com/LorenzoRottigni/rpgx"
 documentation = "https://docs.rs/rpgx"
 readme = "README.md"
+license = "MIT"
 
 [lib]
 name = "rpgx"
