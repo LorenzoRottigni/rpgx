@@ -72,20 +72,6 @@ Gets an immutable reference to a scene at a specific point in the timeline, usef
 
 ---
 
-## Example
-
-```rust
-let mut engine = Engine::new(initial_scene);
-engine.get_active_scene_mut().unwrap().load_pawn(1);
-
-let next_scene = Scene::new("Dungeon".into(), dungeon_map, None);
-engine.push_scene(next_scene);
-
-engine.pop_scene();
-```
-
----
-
 ## Notes
 
 - The engine timeline is inspired by save-states or undo-redo systems.

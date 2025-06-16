@@ -86,16 +86,6 @@ Errors:
 
 ---
 
-## Example
-```rust
-let mut scene = Scene::new("Overworld".to_string(), map, None);
-scene.load_pawn(1);
-let path = scene.steps_to(Coordinates::new(5, 5))?;
-scene.walk_to(Coordinates::new(5, 5)).await?;
-```
-
----
-
 ## Notes
 
 - `Scene` provides convenience methods that delegate to the underlying `Map` for pathfinding.

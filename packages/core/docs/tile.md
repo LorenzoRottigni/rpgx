@@ -5,6 +5,8 @@ A `Tile` represents a rectangular area on a grid with an associated [`Effect`](e
 ## Structure
 
 ```rust
+use rpgx::prelude::*;
+
 pub struct Tile {
     pub area: Rect,
     pub effect: Effect,
@@ -44,6 +46,8 @@ The `Effect` attached to a tile may contain:
 Returns `true` if the coordinate lies within the tile’s rectangular area.
 
 ```rust
+use rpgx::prelude::*;
+
 let tile = Tile {
     area: Rect::new(Coordinates::new(1, 1), Shape::new(2, 2)),
     effect: Effect::default(),
@@ -58,6 +62,8 @@ assert!(!tile.contains(Coordinates::new(3, 3))); // Outside
 ## Example
 
 ```rust
+use rpgx::prelude::*;
+
 let effect = Effect {
     action_id: Some(42),
     block: Some(Rect::new(Coordinates::new(0, 0), Shape::new(1, 1))),

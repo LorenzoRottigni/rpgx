@@ -36,7 +36,7 @@ This field enables partial blocking, such as only the left half of a tile being 
 Applies a positional delta to the `block` region if it exists. This is useful when moving or translating a tile’s position on the map.
 
 ```rust
-use rpgx::prelude::{Effect, Rect, Coordinates, Shape, Delta};
+use rpgx::prelude::*;
 
 let mut effect = Effect {
     block: Some(Rect::new(Coordinates { x: 2, y: 3 }, Shape { width: 2, height: 2 })),

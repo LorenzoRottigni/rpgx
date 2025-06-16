@@ -29,6 +29,8 @@ The set of tiles that make up the mask. Each tile contains a rectangular `area` 
 Constructs a new mask from a list of rectangular areas. Each rectangle gets assigned the same `Effect`.
 
 ```rust
+use rpgx::prelude::*;
+
 let effect = Effect {
     block: Some(Rect::new(Coordinates::new(0, 0), Shape::new(1, 1))),
     ..Default::default()
@@ -49,6 +51,7 @@ let mask = Mask::new("trap_zones".to_string(), areas, effect);
 Applies a positional offset to every tile's area and its effect’s internal blocking region (if any).
 
 ```rust
+use rpgx::prelude::*;
 mask.offset(Delta::new(1, 1)); // moves everything one tile down and right
 ```
 
@@ -75,6 +78,7 @@ Finds the tile in the mask that contains the given coordinate, if any.
 ## Usage Example
 
 ```rust
+use rpgx::prelude::*;
 let mask = Mask::new(
     "block_zone".to_string(),
     vec![

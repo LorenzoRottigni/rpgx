@@ -2,6 +2,12 @@
 name = "rpgx"
 version = "0.1.0"
 edition = "2024"
+authors = ["Lorenzo Rottigni <lorenzo@rottigni.tech>"]
+description = "Lightweight, modular, and extensible RPG game engine 2D, designed for flexibility, portability, and ease of use."
+repository = "https://github.com/LorenzoRottigni/rpgx"
+homepage = "https://github.com/LorenzoRottigni/rpgx"
+documentation = "https://docs.rs/rpgx"
+readme = "README.md"
 
 [lib]
 name = "rpgx"
