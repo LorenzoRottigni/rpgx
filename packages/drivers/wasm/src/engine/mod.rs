@@ -6,12 +6,12 @@ use js_sys::Array;
 use rpgx::prelude::Engine;
 use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_name = Engine)]
 pub struct WasmEngine {
     inner: Engine,
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_class = Engine)]
 impl WasmEngine {
     /// Create a new engine from an initial scene
     #[wasm_bindgen(constructor)]

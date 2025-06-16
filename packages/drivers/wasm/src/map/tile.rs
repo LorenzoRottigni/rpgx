@@ -3,13 +3,13 @@ use wasm_bindgen::prelude::*;
 
 use crate::prelude::{WasmCoordinates, WasmDelta, WasmEffect, WasmRect};
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_name = Tile)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct WasmTile {
     inner: Tile,
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_class = Tile)]
 impl WasmTile {
     /// Create a new tile from an effect and area
     #[wasm_bindgen(constructor)]
@@ -34,7 +34,7 @@ impl WasmTile {
     }
 
     /// Set the effect of this tile
-    #[wasm_bindgen(setter)]
+    #[wasm_bindgen(setter, js_name = setEffect)]
     pub fn set_effect(&mut self, effect: &WasmEffect) {
         self.inner.effect = effect.inner().clone();
     }
@@ -46,7 +46,7 @@ impl WasmTile {
     }
 
     /// Set the area covered by this tile
-    #[wasm_bindgen(setter)]
+    #[wasm_bindgen(setter, js_name=setArea)]
     pub fn set_area(&mut self, area: &WasmRect) {
         self.inner.area = area.inner().clone();
     }

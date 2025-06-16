@@ -1,13 +1,13 @@
 use rpgx::prelude::{Coordinates, Shape};
 use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_name = Shape)]
 #[derive(Clone, Debug)]
 pub struct WasmShape {
     inner: Shape,
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_class = Shape)]
 impl WasmShape {
     #[wasm_bindgen(constructor)]
     pub fn new(width: u32, height: u32) -> WasmShape {

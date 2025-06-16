@@ -2,12 +2,12 @@ use crate::prelude::WasmCoordinates; // Assuming you have a WasmTile wrapper
 use rpgx::prelude::Pawn;
 use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_name = Pawn)]
 pub struct WasmPawn {
     inner: Pawn,
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_class = Pawn)]
 impl WasmPawn {
     #[wasm_bindgen(constructor)]
     pub fn new(pointer: WasmCoordinates, texture_id: u32) -> WasmPawn {

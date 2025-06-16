@@ -3,12 +3,12 @@ use wasm_bindgen::prelude::*;
 
 use crate::prelude::{WasmCoordinates, WasmDelta, WasmEffect, WasmRect, WasmShape, WasmTile};
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_name = Mask)]
 pub struct WasmMask {
     inner: Mask,
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_class = Mask)]
 impl WasmMask {
     /// Create a new Mask from name, areas, and uniform effect
     #[wasm_bindgen(constructor)]

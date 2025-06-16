@@ -1,13 +1,13 @@
 use rpgx::prelude::Delta;
 use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_name = Delta)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct WasmDelta {
     inner: Delta,
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_class = Delta)]
 impl WasmDelta {
     #[wasm_bindgen(constructor)]
     pub fn new(dx: i32, dy: i32) -> WasmDelta {
@@ -40,7 +40,7 @@ impl WasmDelta {
         }
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = isZero)]
     pub fn is_zero(&self) -> bool {
         self.inner.is_zero()
     }
@@ -50,12 +50,12 @@ impl WasmDelta {
         self.inner.manhattan()
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = isAxisAligned)]
     pub fn is_axis_aligned(&self) -> bool {
         self.inner.is_axis_aligned()
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = isDiagonal)]
     pub fn is_diagonal(&self) -> bool {
         self.inner.is_diagonal()
     }

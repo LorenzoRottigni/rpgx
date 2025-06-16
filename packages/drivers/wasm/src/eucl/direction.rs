@@ -2,13 +2,13 @@ use crate::prelude::WasmDelta;
 use rpgx::prelude::Direction;
 use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_name = Direction)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct WasmDirection {
     inner: Direction,
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_class = Direction)]
 impl WasmDirection {
     /// Constructs a WasmDirection from a string like "Up", "Down", "Left", "Right".
     /// Returns None if the string does not match any direction.

@@ -3,13 +3,13 @@ use wasm_bindgen::prelude::*;
 
 use crate::prelude::{WasmDelta, WasmRect};
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_name = Effect)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub struct WasmEffect {
     inner: Effect,
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_class = Effect)]
 impl WasmEffect {
     #[wasm_bindgen(constructor)]
     pub fn new(

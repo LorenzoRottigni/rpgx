@@ -12,12 +12,12 @@ use wasm_bindgen::prelude::*;
 
 use crate::prelude::{WasmCoordinates, WasmDirection, WasmShape};
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_name = Map)]
 pub struct WasmMap {
     inner: Map,
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_class = Map)]
 impl WasmMap {
     #[wasm_bindgen(constructor)]
     pub fn new(name: String, layers: Vec<WasmLayer>, spawn: &WasmCoordinates) -> WasmMap {

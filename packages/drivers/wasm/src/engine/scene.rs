@@ -5,12 +5,12 @@ use crate::map::WasmMap;
 use rpgx::prelude::Scene;
 use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_name = Scene)]
 pub struct WasmScene {
     inner: Scene,
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_class = Scene)]
 impl WasmScene {
     #[wasm_bindgen(constructor)]
     pub fn new(name: String, map: WasmMap, pawn: Option<WasmPawn>) -> WasmScene {
@@ -23,17 +23,17 @@ impl WasmScene {
         self.inner.name.clone()
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = loadPawn)]
     pub fn load_pawn(&mut self, texture_id: u32) {
         self.inner.load_pawn(texture_id);
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = loadPawnAt)]
     pub fn load_pawn_at(&mut self, pawn: WasmPawn) {
         self.inner.load_pawn_at(pawn.into_inner());
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = moveTo)]
     pub fn move_to(&mut self, target: &WasmCoordinates) -> Result<WasmCoordinates, JsValue> {
         self.inner
             .move_to(target.clone().into_inner())
@@ -41,7 +41,7 @@ impl WasmScene {
             .map_err(|e| JsValue::from_str(&format!("{:?}", e)))
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = stepTo)]
     pub fn step_to(&mut self, direction: WasmDirection) -> Result<WasmCoordinates, JsValue> {
         self.inner
             .step_to(direction.into_inner())
@@ -49,7 +49,7 @@ impl WasmScene {
             .map_err(|e| JsValue::from_str(&format!("{:?}", e)))
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = stepsTo)]
     pub fn steps_to(&self, target: &WasmCoordinates) -> Result<js_sys::Array, JsValue> {
         self.inner
             .steps_to(target.clone().into_inner())
@@ -63,7 +63,7 @@ impl WasmScene {
             .map_err(|e| JsValue::from_str(&format!("{:?}", e)))
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = walkTo)]
     pub async fn walk_to(&mut self, target: WasmCoordinates) -> Result<WasmCoordinates, JsValue> {
         self.inner
             .walk_to(target.into_inner())

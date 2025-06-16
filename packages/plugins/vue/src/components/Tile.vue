@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { WasmTile, WasmLayer, WasmLibrary } from '@rpgx/js'
+import { Tile, Layer, Library } from '@rpgx/js'
 
 const props = defineProps<{
-  tile: WasmTile,
-  layer: WasmLayer,
-  library: WasmLibrary
+  tile: Tile,
+  layer: Layer,
+  library: Library
 }>()
 
 const squareSize = 15
 
 function getTexture(key: number) {
-  const texture = props.library.get_by_id(key)
+  const texture = props.library.getById(key)
   return texture ? `url(${texture})` : ''
 }
 

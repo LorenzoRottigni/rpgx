@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import Tile from './Tile.vue'
-import { WasmMap, WasmLibrary } from '@rpgx/js'
+import { Map, Library } from '@rpgx/js'
 
 defineProps<{
-  map: WasmMap,
-  library: WasmLibrary
+  map: Map,
+  library: Library
 }>()
 
 defineEmits<{

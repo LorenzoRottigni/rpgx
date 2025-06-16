@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useEngine, useLibrary } from './composables/rpgx'
-import { WasmLayer as Layer, WasmLayerType as LayerType, WasmTile as Tile, WasmDirection } from '@rpgx/js';
+import { Layer, Tile, Direction, Coordinates } from '@rpgx/js';
 
 const library = useLibrary()
 const engine = ref(useEngine(library))
@@ -13,23 +13,23 @@ const activeScene = computed(() => {
   return engine.value.getActiveScene()
 })
 
-const map = activeScene.value?.map
-const layers = map?.getLayers()
+const map = activeScene.value?.getMap()
+const layers = map?.layers
 const squareSize = 15;
 
 console.dir(layers)
 
 function getTileStyle(tile: Tile, layer: Layer) {
-  const x = tile.pointer.x;
-  const y = tile.pointer.y;
-  const width = (tile.effect.group ? tile.shape.width : 1) * squareSize;
-  const height = (tile.effect.group ? tile.shape.height : 1) * squareSize;
+  const x = tile.area.origin.x;
+  const y = tile.area.origin.y;
+  const width = tile.area.shape.width * squareSize;
+  const height = tile.area.shape.height * squareSize;
 
   const backgroundImage = tile.effect.textureId
     ? `background-image: ${getTexture(tile.effect.textureId)};`
     : ''
   const zIndex = 10 + layer.z;
-  const pointerEvents = layer.kind === LayerType.Base ? 'auto' : 'none';
+  const pointerEvents = 'auto';
 
   return `
     ${backgroundImage}
@@ -47,7 +47,7 @@ function getTileStyle(tile: Tile, layer: Layer) {
 }
 
 function getTexture(id: number) {
-  const texture = library.get_by_id(id);
+  const texture = library.getById(id);
   if (texture) {
     return `url(${texture})`;
   }
@@ -57,9 +57,9 @@ function getTexture(id: number) {
 const pawnStyle = computed(() => {
   updateFlag.value;
 
-  const x = activeScene.value?.pawn.pointer.x || 0;
-  const y = activeScene.value?.pawn.pointer.y || 0;
-  const textureId = activeScene.value?.pawn.textureId
+  const x = activeScene.value?.getPawn()?.pointer.x || 0;
+  const y = activeScene.value?.getPawn()?.pointer.y || 0;
+  const textureId = activeScene.value?.getPawn()?.textureId
 
   return `
     ${textureId ? `background-image: ${getTexture(textureId)};` : ''}
@@ -75,29 +75,22 @@ const pawnStyle = computed(() => {
   `;
 });
 
-function manageActions(tile: Tile) {
-  const actions = map?.getActionsAt(tile.pointer)
-  actions?.forEach(a => {
-    const action = library.get_by_id(a);
-    action();
+function manageActions(target: Coordinates) {
+  const actions = map?.getActionsAt(target)
+  actions?.forEach((a: number) => {
+    const action = library.getById(a);
+    if (typeof action === 'function') action();
   })
 }
 
-
-
 function onClick(tile: Tile) {
-  console.log('onclick')
   updateFlag.value++
-  // engine.value.move_to(tile.pointer.x, tile.pointer.y);
-  const steps = activeScene.value?.stepsTo(tile.pointer);
-  console.log('steps')
-  console.dir(steps)
+  const steps = activeScene.value?.stepsTo(tile.area.origin);
   if (!steps?.length) return
   for (let i = 0; i < steps.length; i++) {
     const step = steps[i];
     setTimeout(() => {
       const tile = activeScene.value?.moveTo(step);
-      // perche pawn ha .free()?
       if (tile) manageActions(tile)
       updateFlag.value++;
     }, i * 100);
@@ -108,13 +101,13 @@ function onKeyDown(event: KeyboardEvent) {
   console.log('keydown', event.key);
   let tile
   if (event.key === 'ArrowUp' || event.key.toLowerCase() === 'w') {
-    tile = activeScene.value?.stepTo(WasmDirection.Up);
+    tile = activeScene.value?.stepTo(new Direction("Up"));
   } else if (event.key === 'ArrowDown' || event.key.toLowerCase() === 's') {
-    tile = activeScene.value?.stepTo(WasmDirection.Down);
+    tile = activeScene.value?.stepTo(new Direction("Down"));
   } else if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'a') {
-    tile = activeScene.value?.stepTo(WasmDirection.Left);
+    tile = activeScene.value?.stepTo(new Direction("Left"));
   } else if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'd') {
-    tile = activeScene.value?.stepTo(WasmDirection.Right);
+    tile = activeScene.value?.stepTo(new Direction("Right"));
   }
   if (tile) {
     manageActions(tile)
@@ -143,9 +136,9 @@ onMounted(() => {
         :key="'layer-' + layerIndex"
       >
         <div
-          v-for="(tile, tileIndex) in layer.tiles"
+          v-for="(tile, tileIndex) in layer.render()"
           :key="`layer-${layerIndex}-${tileIndex}`"
-          :class="layer.kind === LayerType.Base ? 'base-layer-tile' : 'layer-tile'"
+          :class="'layer-tile'"
           :style="getTileStyle(tile, layer)"
           @click="onClick(tile)"
         ></div>

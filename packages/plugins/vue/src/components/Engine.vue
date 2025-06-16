@@ -2,11 +2,11 @@
 import { computed, onMounted, ref } from 'vue'
 import Grid from './Grid.vue'
 import Pawn from './Pawn.vue'
-import { WasmCoordinates, WasmDirection, WasmEngine, WasmLibrary, WasmTile } from '@rpgx/js'
+import { Coordinates, Direction, Engine, Library, Tile } from '@rpgx/js'
 
 const props = defineProps<{
-  engine: WasmEngine,
-  library: WasmLibrary
+  engine: Engine,
+  library: Library
 }>()
 
 const updateFlag = ref(0)
@@ -26,19 +26,19 @@ const pawn = computed(() => {
   return scene.value?.getPawn()
 })
 
-function manageActions(target: WasmCoordinates) {
+function manageActions(target: Coordinates) {
   const actions = props.engine.getActiveScene()?.getMap().getActionsAt(target)
   if (!actions?.length) return
-  actions.forEach(a => props.library.get_by_id(a)())
+  actions.forEach(a => props.library.getById(a)())
 }
 
-function onClick(tile: WasmTile) {
+function onClick(tile: Tile) {
   updateFlag.value++
-  const steps = props.engine.getActiveScene()?.steps_to(tile.area.origin) || []
+  const steps = props.engine.getActiveScene()?.stepsTo(tile.area.origin) || []
   for (let i = 0; i < steps.length; i++) {
     const step = steps[i]
     setTimeout(() => {
-      const movedTile = props.engine.getActiveScene()?.move_to(step)
+      const movedTile = props.engine.getActiveScene()?.moveTo(step)
       if (movedTile) manageActions(movedTile)
       
       updateFlag.value++
@@ -48,10 +48,10 @@ function onClick(tile: WasmTile) {
 
 function onKeyDown(event: KeyboardEvent) {
   let tile
-  if (event.key === 'ArrowUp' || event.key.toLowerCase() === 'w') tile = props.engine.getActiveScene()?.step_to(new WasmDirection("up"))
-  else if (event.key === 'ArrowDown' || event.key.toLowerCase() === 's') tile = props.engine.getActiveScene()?.step_to(new WasmDirection("down"))
-  else if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'a') tile = props.engine.getActiveScene()?.step_to(new WasmDirection("left"))
-  else if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'd') tile = props.engine.getActiveScene()?.step_to(new WasmDirection("right"))
+  if (event.key === 'ArrowUp' || event.key.toLowerCase() === 'w') tile = props.engine.getActiveScene()?.stepTo(new Direction("up"))
+  else if (event.key === 'ArrowDown' || event.key.toLowerCase() === 's') tile = props.engine.getActiveScene()?.stepTo(new Direction("down"))
+  else if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'a') tile = props.engine.getActiveScene()?.stepTo(new Direction("left"))
+  else if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'd') tile = props.engine.getActiveScene()?.stepTo(new Direction("right"))
 
   if (tile) manageActions(tile)
   updateFlag.value++

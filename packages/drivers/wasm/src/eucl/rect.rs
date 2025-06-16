@@ -2,13 +2,13 @@ use crate::prelude::{WasmCoordinates, WasmShape};
 use rpgx::prelude::Rect;
 use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_name = Rect)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct WasmRect {
     inner: Rect,
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_class = Rect)]
 impl WasmRect {
     #[wasm_bindgen(constructor)]
     pub fn new(origin: &WasmCoordinates, shape: &WasmShape) -> WasmRect {
@@ -17,21 +17,21 @@ impl WasmRect {
         }
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = fromShape)]
     pub fn from_shape(shape: &WasmShape) -> WasmRect {
         WasmRect {
             inner: Rect::from_shape(*shape.inner()),
         }
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = fromOrigin)]
     pub fn from_origin(origin: &WasmCoordinates) -> WasmRect {
         WasmRect {
             inner: Rect::from_origin(origin.inner().clone()),
         }
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = fromXYWH)]
     pub fn from_xywh(x: u32, y: u32, width: u32, height: u32) -> WasmRect {
         WasmRect {
             inner: Rect::from_xywh(x, y, width, height),
@@ -57,7 +57,7 @@ impl WasmRect {
         WasmShape::from_inner(self.inner.shape)
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = asMany)]
     pub fn as_many(&self) -> Vec<WasmRect> {
         self.inner
             .as_many()
@@ -66,7 +66,7 @@ impl WasmRect {
             .collect()
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = asBlock)]
     pub fn as_block(&self) -> Vec<WasmRect> {
         self.inner
             .as_block()
@@ -75,7 +75,7 @@ impl WasmRect {
             .collect()
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = asPerimeter)]
     pub fn as_perimeter(&self, offset: u32, size: u32) -> Vec<WasmRect> {
         self.inner
             .as_perimeter(offset, size)
@@ -84,7 +84,7 @@ impl WasmRect {
             .collect()
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = asBisector)]
     pub fn as_bisector(&self, offset: u32, size: u32) -> Vec<WasmRect> {
         self.inner
             .as_bisector(offset, size)
@@ -93,7 +93,7 @@ impl WasmRect {
             .collect()
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = asCenter)]
     pub fn as_center(&self, offset: u32, size: u32) -> Vec<WasmRect> {
         self.inner
             .as_center(offset, size)
@@ -102,7 +102,7 @@ impl WasmRect {
             .collect()
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = asRhombus)]
     pub fn as_rhombus(&self, dial: u32) -> Vec<WasmRect> {
         self.inner
             .as_rhombus(dial)

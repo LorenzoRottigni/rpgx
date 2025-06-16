@@ -3,12 +3,12 @@ use wasm_bindgen::prelude::*;
 
 use crate::prelude::{WasmCoordinates, WasmDelta, WasmMask, WasmShape, WasmTile};
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_name = Layer)]
 pub struct WasmLayer {
     inner: Layer,
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_class = Layer)]
 impl WasmLayer {
     #[wasm_bindgen(constructor)]
     pub fn new(name: String, masks: Vec<WasmMask>, z: u32) -> WasmLayer {
