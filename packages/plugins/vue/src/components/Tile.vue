@@ -1,28 +1,28 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { WasmTile, WasmLayer, WasmLibrary, WasmLayerType } from '@rpgx/js'
+import { Tile, Layer, Library } from '@rpgx/js'
 
 const props = defineProps<{
-  tile: WasmTile,
-  layer: WasmLayer,
-  library: WasmLibrary
+  tile: Tile,
+  layer: Layer,
+  library: Library
 }>()
 
 const squareSize = 15
 
 function getTexture(key: number) {
-  const texture = props.library.get_by_id(key)
+  const texture = props.library.getById(key)
   return texture ? `url(${texture})` : ''
 }
 
 const style = computed(() => {
   const { tile, layer } = props
-  const x = tile.pointer.x
-  const y = tile.pointer.y
-  const width = (tile.effect.group ? tile.shape.width : 1) * squareSize
-  const height = (tile.effect.group ? tile.shape.height : 1) * squareSize
+  const x = tile.area.origin.x
+  const y = tile.area.origin.y
+  const width = tile.area.shape.width * squareSize
+  const height = tile.area.shape.height * squareSize
   const zIndex = 10 + layer.z
-  const pointerEvents = layer.kind === WasmLayerType.Base ? 'auto' : 'none'
+  const pointerEvents = 'auto'
 
   return `
     background-image: ${tile.effect.textureId ? getTexture(tile.effect.textureId) : ''};

@@ -9,6 +9,3 @@ pub struct Pawn {
     pub pointer: Coordinates,
     pub texture_id: u32,
 }
-
-#[cfg(test)]
-pub mod tests {}

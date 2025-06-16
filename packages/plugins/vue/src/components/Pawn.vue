@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { WasmPawn, WasmLibrary } from '@rpgx/js'
+import { Pawn, Library } from '@rpgx/js'
 
 const props = defineProps<{
-  pawn: WasmPawn,
-  library: WasmLibrary
+  pawn: Pawn,
+  library: Library
 }>()
 
 const squareSize = 15
 
 function getTexture(id: number) {
-  const texture = props.library.get_by_id(id)
+  const texture = props.library.getById(id)
   return texture ? `url(${texture})` : ''
 }
 

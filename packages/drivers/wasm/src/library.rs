@@ -1,12 +1,13 @@
-use std::{any::Any, collections::HashMap};
+use rpgx::library::Library;
+use std::any::Any;
 use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_name = Library)]
 pub struct WasmLibrary {
     inner: Library<Box<dyn Any>>,
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(js_class = Library)]
 impl WasmLibrary {
     #[wasm_bindgen(constructor)]
     pub fn new() -> WasmLibrary {
@@ -23,7 +24,7 @@ impl WasmLibrary {
         self.inner.insert(static_key, Box::new(value));
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = getByKey)]
     pub fn get_by_key(&self, key: &str) -> JsValue {
         match self.inner.get_by_key(key) {
             Some(boxed) => {
@@ -37,7 +38,7 @@ impl WasmLibrary {
         }
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = getById)]
     pub fn get_by_id(&self, id: u32) -> JsValue {
         match self.inner.get_by_id(id) {
             Some(boxed) => {
@@ -51,58 +52,13 @@ impl WasmLibrary {
         }
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = getId)]
     pub fn get_id(&self, key: &str) -> Option<u32> {
         self.inner.get_id(key)
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = getKey)]
     pub fn get_key(&self, id: u32) -> Option<String> {
-        self.inner.get_key(id).map(|s| s.to_string())
-    }
-}
-
-// Original Library type
-pub struct Library<V> {
-    data: HashMap<&'static str, V>,
-    key_to_id: HashMap<&'static str, u32>,
-    id_to_key: HashMap<u32, &'static str>,
-    next_id: u32,
-}
-
-impl<V> Library<V> {
-    pub fn new() -> Self {
-        Self {
-            data: HashMap::new(),
-            key_to_id: HashMap::new(),
-            id_to_key: HashMap::new(),
-            next_id: 1,
-        }
-    }
-
-    pub fn insert(&mut self, key: &'static str, value: V) {
-        if !self.key_to_id.contains_key(&key) {
-            let id = self.next_id;
-            self.key_to_id.insert(key, id);
-            self.id_to_key.insert(id, key);
-            self.next_id += 1;
-        }
-        self.data.insert(key, value);
-    }
-
-    pub fn get_by_key(&self, key: &str) -> Option<&V> {
-        self.data.get(key)
-    }
-
-    pub fn get_by_id(&self, id: u32) -> Option<&V> {
-        self.id_to_key.get(&id).and_then(|key| self.data.get(key))
-    }
-
-    pub fn get_id(&self, key: &str) -> Option<u32> {
-        self.key_to_id.get(key).copied()
-    }
-
-    pub fn get_key(&self, id: u32) -> Option<&'static str> {
-        self.id_to_key.get(&id).copied()
+        self.inner.get_key(id).map(|s| s.into())
     }
 }

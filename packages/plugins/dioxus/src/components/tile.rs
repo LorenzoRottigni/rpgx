@@ -1,15 +1,14 @@
 use dioxus::prelude::*;
-use rpgx::{common::errors::MapError, library::Library, prelude::LayerType};
+use rpgx::{library::Library, prelude::RPGXError};
 use std::any::Any;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct TileProps {
     tile: rpgx::prelude::Tile,
     layer_z: u32,
-    layer_kind: LayerType,
     square_size: u32,
     library: Signal<Library<Box<dyn Any>>>,
-    onclick: EventHandler<Result<rpgx::prelude::Tile, MapError>>,
+    onclick: EventHandler<Result<rpgx::prelude::Tile, RPGXError>>,
 }
 
 #[allow(non_snake_case)]
@@ -29,8 +28,8 @@ pub fn Tile(props: TileProps) -> Element {
         "background-size: cover;".to_string()
     };
 
-    let x = props.tile.pointer.x;
-    let y = props.tile.pointer.y;
+    let x = props.tile.area.origin.x;
+    let y = props.tile.area.origin.y;
 
     let base_style = format!(
         "{background} \
@@ -43,32 +42,36 @@ pub fn Tile(props: TileProps) -> Element {
         z-index: {}; \
         pointer-events: {}; \
         cursor: pointer;",
-        x as u32 * props.square_size,
-        y as u32 * props.square_size,
-        if props.tile.effect.group {
-            props.tile.shape.width as u32
-        } else {
-            1 as u32
-        } * props.square_size,
-        if props.tile.effect.group {
-            props.tile.shape.height as u32
-        } else {
-            1 as u32
-        } * props.square_size,
+        x * props.square_size,
+        y * props.square_size,
+        // if props.tile.effect.group {
+        //     props.tile.area.shape.width
+        // } else {
+        //     1
+        // } * props.square_size,
+        props.tile.area.shape.width * props.square_size,
+        // if props.tile.effect.group {
+        //     props.tile.area.shape.height
+        // } else {
+        //     1
+        // } * props.square_size,
+        props.tile.area.shape.height * props.square_size,
         props.layer_z,
-        if props.layer_kind == LayerType::Base {
-            "auto"
-        } else {
-            "none"
-        }
+        // if props.layer_kind == LayerType::Base {
+        //     "auto"
+        // } else {
+        //     "none"
+        // }
+        "auto"
     );
 
     let onclick_tile = {
         let tile = props.tile.clone();
+        // console::log_1(&"onclick_tile".into());
         move |_| {
-            if props.layer_kind == LayerType::Base {
-                let _ = props.onclick.call(Ok(tile.clone()));
-            }
+            println!("onclick_tile");
+            // console::log_1(&"onclick_tile_emit_props".into());
+            let _ = props.onclick.call(Ok(tile.clone()));
         }
     };
 
@@ -76,7 +79,7 @@ pub fn Tile(props: TileProps) -> Element {
 
     rsx! {
         div {
-            class: if props.layer_kind == LayerType::Base { "base-layer-tile" } else { "layer-tile" },
+            class: "layer-tile",
             style: "{base_style}",
             onclick: onclick_tile,
             {
@@ -94,7 +97,6 @@ pub fn Tile(props: TileProps) -> Element {
                     })
                     .unwrap_or(rsx! {}.unwrap())
             }
-
         }
     }
 }

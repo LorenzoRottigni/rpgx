@@ -2,17 +2,18 @@ use std::collections::{BinaryHeap, HashMap};
 
 use crate::prelude::{Coordinates, Map};
 
+/// A node in the A* search graph.
 #[derive(Eq, PartialEq)]
 struct Node {
     position: Coordinates,
-    cost: i32,     // g(n): Cost from start node to current node
+    cost: i32,     // g(n): Cost from start to current node
     estimate: i32, // f(n): Estimated total cost (g + h)
 }
 
-// Implement ordering for BinaryHeap as a min-heap by estimate (f)
+// Implement ordering for BinaryHeap as a min-heap by `estimate` (f)
 impl Ord for Node {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        // Reverse ordering so the node with smallest estimate is popped first
+        // Reverse the order so the node with the *smallest* estimate is popped first
         other
             .estimate
             .cmp(&self.estimate)
@@ -28,19 +29,31 @@ impl PartialOrd for Node {
 }
 
 impl Map {
-    /// Finds a path from `start` to `goal` coordinates using A* pathfinding.
-    /// Returns `Some(Vec<Coordinates>)` if a path exists, else `None`.
-    pub fn find_path(&self, start: &Coordinates, goal: &Coordinates) -> Option<Vec<Coordinates>> {
-        // Manhattan distance heuristic for grid-based movement
-        fn heuristic(a: Coordinates, b: Coordinates) -> u32 {
-            a.x.abs_diff(b.x) + a.y.abs_diff(b.y)
-        }
+    /// Manhattan distance heuristic used in A* pathfinding.
+    ///
+    /// This version is **bound exclusive**, meaning it returns `distance - 1`
+    /// unless the points are the same, in which case it returns `0`.
+    ///
+    /// For example:
+    /// - `heuristic((0,0), (0,0)) == 0`
+    /// - `heuristic((0,0), (1,0)) == 0`
+    /// - `heuristic((0,0), (1,1)) == 1`
+    pub fn heuristic(a: Coordinates, b: Coordinates) -> u32 {
+        let distance = a.x.abs_diff(b.x) + a.y.abs_diff(b.y);
+        if distance > 0 { distance - 1 } else { 0 }
+    }
 
+    /// Finds a path from `start` to `goal` coordinates using A* pathfinding.
+    ///
+    /// - Uses 4-directional movement (up, down, left, right).
+    /// - Skips any tiles that are blocking.
+    /// - Returns `Some(path)` if a path is found, or `None` if unreachable.
+    pub fn find_path(&self, start: &Coordinates, goal: &Coordinates) -> Option<Vec<Coordinates>> {
         let mut open_set = BinaryHeap::new();
         open_set.push(Node {
             position: *start,
             cost: 0,
-            estimate: heuristic(*start, *goal) as i32,
+            estimate: Self::heuristic(*start, *goal) as i32,
         });
 
         let mut came_from: HashMap<Coordinates, Coordinates> = HashMap::new();
@@ -51,7 +64,7 @@ impl Map {
             let current = current_node.position;
 
             if current == *goal {
-                // Reconstruct path by walking backwards
+                // Reconstruct path
                 let mut path = vec![current];
                 let mut cur = current;
                 while let Some(prev) = came_from.get(&cur) {
@@ -62,7 +75,7 @@ impl Map {
                 return Some(path);
             }
 
-            // Generate valid neighbors (up, down, left, right)
+            // Generate 4-directional neighbors
             let neighbors = [
                 Some(Coordinates {
                     x: current.x + 1,
@@ -86,12 +99,11 @@ impl Map {
             .collect::<Vec<_>>();
 
             for neighbor in neighbors {
-                // Skip if no tile at neighbor or tile is blocking
-                if self.get_base_tile(neighbor).is_none() || self.is_blocking_at(neighbor) {
+                // Skip if blocked
+                if !self.move_allowed(neighbor) {
                     continue;
                 }
 
-                // Tentative cost from start to neighbor
                 let tentative_g_score =
                     g_score.get(&current).unwrap_or(&i32::MAX).saturating_add(1);
 
@@ -103,7 +115,7 @@ impl Map {
                         position: neighbor,
                         cost: tentative_g_score,
                         estimate: tentative_g_score
-                            .saturating_add(heuristic(neighbor, *goal) as i32),
+                            .saturating_add(Self::heuristic(neighbor, *goal) as i32),
                     });
                 }
             }
@@ -112,125 +124,135 @@ impl Map {
         None
     }
 }
-
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::prelude::{Effect, Layer, LayerType, Map, Shape, Tile};
+    use crate::prelude::{Effect, Layer, Mask, Rect, Shape};
 
-    // Helper: create a blocking tile at the given coordinate
-    fn blocking_tile_at(coord: Coordinates) -> Tile {
-        Tile {
-            id: 0,
-            pointer: coord,
-            shape: Shape::from_square(1),
-            effect: Effect {
-                block: true,
-                ..Default::default()
-            },
-        }
+    pub fn get_open_map() -> Map {
+        Map::new(
+            "test".into(),
+            vec![Layer::new(
+                "test".into(),
+                vec![Mask::new(
+                    "test".into(),
+                    Rect::new(Coordinates::default(), Shape::from_square(10)).as_many(),
+                    Effect::default(),
+                )],
+                1,
+            )],
+            Coordinates::default(),
+        )
     }
 
-    // Helper: create a Map with a Block layer containing blocking tiles at specified coordinates
-    fn map_with_layer(blocks: Vec<Coordinates>, width: u32, height: u32) -> Map {
-        let shape = Shape { width, height };
-        let block_tiles = blocks.into_iter().map(blocking_tile_at).collect::<Vec<_>>();
-
-        let block_layer = Layer {
-            name: "block".into(),
-            kind: LayerType::Block,
-            shape,
-            tiles: block_tiles,
-            masks: vec![],
-            z: 1,
-        };
-
+    pub fn get_block_map() -> Map {
         Map::new(
-            "test_map".into(),
-            vec![block_layer],
-            Coordinates { x: 0, y: 0 },
+            "test".into(),
+            vec![Layer::new(
+                "test".into(),
+                vec![
+                    Mask::new(
+                        "test".into(),
+                        Rect::new(Coordinates::default(), Shape::from_square(10)).as_many(),
+                        Effect::default(),
+                    ),
+                    Mask::new(
+                        "test".into(),
+                        Rect::new(Coordinates::new(2, 2), Shape::from_square(4)).as_block(),
+                        Effect {
+                            block: Some(Rect::new(Coordinates::default(), Shape::from_square(4))),
+                            ..Default::default()
+                        },
+                    ),
+                ],
+                1,
+            )],
+            Coordinates::default(),
         )
     }
 
     #[test]
-    fn finds_clear_path() {
-        let map = map_with_layer(vec![], 5, 5);
-        let start = Coordinates { x: 0, y: 0 };
-        let goal = Coordinates { x: 2, y: 2 };
+    pub fn finds_streight_path() {
+        let map = get_open_map();
+        let steps = map.find_path(&Coordinates::default(), &Coordinates::new(6, 0));
 
-        let path = map.find_path(&start, &goal).unwrap();
-        assert_eq!(path.first().unwrap(), &start);
-        assert_eq!(path.last().unwrap(), &goal);
-        assert!(path.len() >= 3);
+        assert_eq!(
+            steps.clone().unwrap().get(0).unwrap().clone(),
+            Coordinates::new(0, 0)
+        );
+        assert_eq!(
+            steps.clone().unwrap().get(4).unwrap().clone(),
+            Coordinates::new(4, 0)
+        );
     }
 
     #[test]
-    fn avoids_blocked_tiles() {
-        // Vertical wall blocking horizontal crossing at x=1
-        let blocked = vec![
-            Coordinates { x: 1, y: 0 },
-            Coordinates { x: 1, y: 1 },
-            Coordinates { x: 1, y: 2 },
-        ];
-        let map = map_with_layer(blocked, 3, 3);
-        let start = Coordinates { x: 0, y: 0 };
-        let goal = Coordinates { x: 2, y: 0 };
+    pub fn finds_path_around_block() {
+        let map = get_block_map();
+        let path = map.find_path(&Coordinates::new(1, 1), &Coordinates::new(6, 2));
 
-        let path = map.find_path(&start, &goal);
-        assert!(path.is_none());
+        assert!(path.is_some(), "Expected a valid path around the block");
+        let path = path.unwrap();
+        assert_eq!(path.first(), Some(&Coordinates::new(1, 1)));
+        assert_eq!(path.last(), Some(&Coordinates::new(6, 2)));
+
+        // Ensure none of the steps cross the blocked area (2..6, 2..6)
+        for step in &path {
+            assert!(
+                step.x < 2 || step.x > 5 || step.y < 2 || step.y > 5,
+                "Path goes through blocked area at: {:?}",
+                step
+            );
+        }
     }
 
     #[test]
-    fn returns_none_if_no_path() {
-        // Completely blocked scenario
-        let blocked = vec![
-            Coordinates { x: 0, y: 1 },
-            Coordinates { x: 1, y: 1 },
-            Coordinates { x: 2, y: 1 },
-        ];
-        let map = map_with_layer(blocked, 3, 3);
-        let start = Coordinates { x: 0, y: 0 };
-        let goal = Coordinates { x: 2, y: 2 };
+    pub fn returns_single_point_if_start_equals_goal() {
+        let map = get_open_map();
+        let coord = Coordinates::new(3, 3);
+        let result = map.find_path(&coord, &coord);
 
-        let path = map.find_path(&start, &goal);
-        assert!(path.is_none());
+        assert_eq!(result, Some(vec![coord]));
     }
 
     #[test]
-    fn handles_start_equals_goal() {
-        let map = map_with_layer(vec![], 3, 3);
-        let start = Coordinates { x: 1, y: 1 };
+    pub fn avoids_block_area_edges_correctly() {
+        let map = get_block_map();
 
-        let path = map.find_path(&start, &start).unwrap();
-        assert_eq!(path, vec![start]);
+        // Attempt to walk along the edge of the block (just outside the 2..6 box)
+        let result = map.find_path(&Coordinates::new(1, 1), &Coordinates::new(6, 1));
+
+        assert!(result.is_some(), "Should be able to walk around block edge");
+        for step in result.unwrap() {
+            assert!(
+                step.x < 2 || step.x > 5 || step.y < 2 || step.y > 5,
+                "Step {:?} enters blocked area",
+                step
+            );
+        }
     }
 
     #[test]
-    fn path_respects_blocking_tiles() {
-        let blocked = vec![Coordinates { x: 1, y: 1 }];
-        let map = map_with_layer(blocked, 3, 3);
-        let start = Coordinates { x: 0, y: 0 };
-        let goal = Coordinates { x: 2, y: 2 };
+    pub fn can_path_in_full_unblocked_area() {
+        let map = get_open_map();
+        let result = map.find_path(&Coordinates::new(0, 0), &Coordinates::new(9, 9));
+        assert!(result.is_some());
 
-        let path = map.find_path(&start, &goal).unwrap();
-
-        // Path should not include the blocking tile
-        assert!(!path.contains(&Coordinates { x: 1, y: 1 }));
+        let steps = result.unwrap();
+        assert_eq!(steps.first().unwrap(), &Coordinates::new(0, 0));
+        assert_eq!(steps.last().unwrap(), &Coordinates::new(9, 9));
     }
 
     #[test]
-    fn no_path_when_start_or_goal_out_of_bounds() {
-        let map = map_with_layer(vec![], 3, 3);
-        let start = Coordinates { x: 10, y: 10 };
-        let goal = Coordinates { x: 2, y: 2 };
+    pub fn heuristic_returns_zero_for_same_point() {
+        let a = Coordinates::new(2, 2);
+        assert_eq!(Map::heuristic(a, a), 0);
+    }
 
-        // No tile at start coordinate, should return None
-        assert!(map.find_path(&start, &goal).is_none());
-
-        let start = Coordinates { x: 1, y: 1 };
-        let goal = Coordinates { x: 20, y: 20 };
-
-        // No tile at goal coordinate, should return None
-        assert!(map.find_path(&start, &goal).is_none());
+    #[test]
+    pub fn heuristic_returns_distance_minus_one() {
+        let a = Coordinates::new(0, 0);
+        let b = Coordinates::new(3, 4); // distance = 7
+        assert_eq!(Map::heuristic(a, b), 6);
     }
 }

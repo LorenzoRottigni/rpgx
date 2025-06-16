@@ -1,183 +1,225 @@
-use crate::{
-    common::delta::Delta,
-    prelude::{Coordinates, Effect, Shape, SingleSelector},
-};
+use std::fmt;
+
+use crate::prelude::{Coordinates, Delta, Effect, Rect};
 
 #[doc = include_str!("../../docs/tile.md")]
-/// Represents a single tile on the grid with unique identifier, spatial information, and effects applied.
+/// Represents a single tile on the grid with an associated effect and
+/// a rectangular area that it covers.
 ///
-/// See also:
-/// - [`Effect`](crate::prelude::Effect)
-/// - [`Coordinates`](crate::prelude::Coordinates)
-/// - [`Shape`](crate::prelude::Shape)
-/// - [`SingleSelector`](crate::prelude::SingleSelector)
+/// The tile’s area defines the bounds on the grid (inclusive at top-left,
+/// exclusive at bottom-right).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Tile {
-    /// Unique ID for the tile.
-    pub id: u32,
-
     /// Effect applied to this tile (e.g., blocking, status changes).
     pub effect: Effect,
 
-    /// Top-left coordinate where the tile begins.
-    pub pointer: SingleSelector,
-
-    /// Shape of the tile (its size on the grid).
-    pub shape: Shape,
+    /// Rectangular area covered by this tile on the grid.
+    pub area: Rect,
 }
 
 impl Tile {
-    /// Creates a new tile from the given ID, effect, pointer, and shape.
-    pub fn new(id: u32, effect: Effect, pointer: SingleSelector, shape: Shape) -> Self {
-        Self {
-            id,
-            effect,
-            pointer,
-            shape,
-        }
-    }
-
-    /// Returns true if the given point lies within the tile's shape.
-    ///
-    /// Uses [`Shape`] and [`pointer`](Self::pointer) to compute bounds.
-    pub fn contains(&self, point: Coordinates) -> bool {
-        if point.x < self.pointer.x || point.y < self.pointer.y {
-            return false;
-        }
-        let relative_point = Delta {
-            dx: point.x as i32 - self.pointer.x as i32,
-            dy: point.y as i32 - self.pointer.y as i32,
-        };
-        self.shape.delta_in_bounds(relative_point)
-    }
-
-    /// Returns true if the tile blocks at a specific coordinate.
-    ///
-    /// Blocking is defined by [`Effect::block`] and optional [`Effect::shrink`] region.
-    pub fn is_blocking_at(&self, target: Coordinates) -> bool {
-        if !self.effect.block {
-            return false;
-        }
-
-        self.effect.shrink_contains(target) && self.contains(target)
-    }
-
-    /// Offsets the tile and any effect shrink bounds by the given delta.
+    /// Creates a new `Tile` with the given effect and area.
     ///
     /// # Parameters
-    ///
-    /// * `delta` - The coordinate offset to apply to the tile's pointer and effect bounds.
-    pub fn offset(&mut self, delta: Coordinates) {
-        self.pointer += delta;
-        if let Some((start, end)) = self.effect.shrink {
-            self.effect.shrink = Some((start + delta, end + delta));
+    /// - `effect`: The effect to apply to this tile.
+    /// - `area`: The rectangular grid area this tile occupies.
+    pub fn new(effect: Effect, area: Rect) -> Self {
+        Self { effect, area }
+    }
+
+    pub fn from_area(area: Rect) -> Self {
+        Self {
+            effect: Effect::default(),
+            area,
         }
+    }
+
+    pub fn apply(&mut self, effect: Effect) {
+        self.effect = effect
+    }
+
+    /// Returns `true` if the tile blocks movement or interaction at the
+    /// specified coordinate.
+    ///
+    /// Blocking is defined by the presence of a blocking region inside the
+    /// tile's effect (`effect.block`), and the coordinate must be inside
+    /// both the tile's area and the blocking rectangle.
+    ///
+    /// # Parameters
+    /// - `target`: The coordinate to check.
+    pub fn is_blocking_at(&self, target: Coordinates) -> bool {
+        if let Some(block_area) = self.effect.block {
+            self.area.contains(target) && block_area.contains(target)
+        } else {
+            false
+        }
+    }
+
+    /// Offsets the tile's area and any blocking region within the effect
+    /// by the given delta.
+    ///
+    /// The offset clamps the origin of both rectangles to zero minimum.
+    ///
+    /// # Parameters
+    /// - `delta`: The delta to offset by.
+    pub fn offset(&mut self, delta: Delta) {
+        self.area.offset(delta);
+
+        if let Some(block_area) = &mut self.effect.block {
+            block_area.offset(delta);
+        }
+    }
+
+    /// Translates the tile by the given delta (alias for [`offset`]).
+    ///
+    /// # Parameters
+    /// - `delta`: The delta to translate by.
+    pub fn translate(&mut self, delta: Delta) {
+        self.offset(delta)
+    }
+
+    /// Returns `true` if the tile's area contains the specified coordinate.
+    ///
+    /// # Parameters
+    /// - `coord`: The coordinate to check.
+    pub fn contains(&self, coord: Coordinates) -> bool {
+        self.area.contains(coord)
+    }
+}
+
+impl fmt::Display for Tile {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "Tile(effect: {:?}, area: x={} y={} w={} h={})",
+            self.effect,
+            self.area.origin.x,
+            self.area.origin.y,
+            self.area.shape.width,
+            self.area.shape.height
+        )
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::prelude::{Coordinates, Effect, Shape, SingleSelector};
+    use crate::prelude::{Coordinates, Delta, Effect, Rect, Shape};
 
-    fn basic_effect(block: bool, shrink: Option<(Coordinates, Coordinates)>) -> Effect {
+    fn effect_with_block(origin: Coordinates, shape: Shape) -> Effect {
         Effect {
-            block,
-            shrink,
+            block: Some(Rect::new(origin, shape)),
             ..Default::default()
         }
     }
 
     #[test]
-    fn test_contains_inside_and_outside() {
+    fn contains_returns_true_inside_and_false_outside() {
         let tile = Tile::new(
-            1,
-            basic_effect(false, None),
-            SingleSelector { x: 10, y: 20 },
-            Shape::from_rectangle(3, 3),
+            Effect::default(),
+            Rect::new(
+                Coordinates { x: 1, y: 1 },
+                Shape {
+                    width: 3,
+                    height: 3,
+                },
+            ),
         );
-
-        // Inside tile bounds
-        assert!(tile.contains(Coordinates { x: 10, y: 20 }));
-        assert!(tile.contains(Coordinates { x: 12, y: 22 }));
-
-        // Outside tile bounds
-        assert!(!tile.contains(Coordinates { x: 9, y: 20 }));
-        assert!(!tile.contains(Coordinates { x: 13, y: 23 }));
+        // inside bounds, inclusive top-left, exclusive bottom-right
+        assert!(tile.contains(Coordinates { x: 1, y: 1 }));
+        assert!(tile.contains(Coordinates { x: 3, y: 3 }));
+        assert!(!tile.contains(Coordinates { x: 4, y: 4 }));
+        assert!(!tile.contains(Coordinates { x: 0, y: 0 }));
     }
 
     #[test]
-    fn test_is_blocking_at_without_block() {
-        let tile = Tile::new(
-            1,
-            basic_effect(false, None),
-            SingleSelector { x: 0, y: 0 },
-            Shape::from_square(2),
+    fn is_blocking_at_respects_block_area_and_tile_area() {
+        let effect = effect_with_block(
+            Coordinates { x: 2, y: 2 },
+            Shape {
+                width: 2,
+                height: 2,
+            },
         );
+        let tile = Tile::new(
+            effect,
+            Rect::new(
+                Coordinates { x: 1, y: 1 },
+                Shape {
+                    width: 4,
+                    height: 4,
+                },
+            ),
+        );
+
+        // Inside both tile area and block area
+        assert!(tile.is_blocking_at(Coordinates { x: 2, y: 2 }));
+        assert!(tile.is_blocking_at(Coordinates { x: 3, y: 3 }));
+
+        // Inside tile area but outside block area
         assert!(!tile.is_blocking_at(Coordinates { x: 1, y: 1 }));
-    }
 
-    #[test]
-    fn test_is_blocking_at_with_block_no_shrink() {
-        let tile = Tile::new(
-            1,
-            basic_effect(true, None),
-            SingleSelector { x: 5, y: 5 },
-            Shape::from_square(2),
-        );
-
-        // Inside tile and block enabled
-        assert!(tile.is_blocking_at(Coordinates { x: 5, y: 5 }));
-        assert!(tile.is_blocking_at(Coordinates { x: 6, y: 6 }));
-
-        // Outside tile bounds
-        assert!(!tile.is_blocking_at(Coordinates { x: 7, y: 7 }));
-    }
-
-    #[test]
-    fn test_is_blocking_at_with_shrink() {
-        // Effect shrink region from (6,6) to (7,7)
-        let shrink_start = Coordinates { x: 6, y: 6 };
-        let shrink_end = Coordinates { x: 7, y: 7 };
-
-        let tile = Tile::new(
-            1,
-            basic_effect(true, Some((shrink_start, shrink_end))),
-            SingleSelector { x: 5, y: 5 },
-            Shape::from_square(3),
-        );
-
-        // Inside shrink region and tile bounds
-        assert!(tile.is_blocking_at(Coordinates { x: 6, y: 6 }));
-        assert!(tile.is_blocking_at(Coordinates { x: 7, y: 7 }));
-
-        // Inside tile but outside shrink region
+        // Outside tile area
         assert!(!tile.is_blocking_at(Coordinates { x: 5, y: 5 }));
-
-        // Outside tile
-        assert!(!tile.is_blocking_at(Coordinates { x: 8, y: 8 }));
     }
 
     #[test]
-    fn test_offset_moves_tile_and_shrink() {
-        let shrink_start = Coordinates { x: 1, y: 1 };
-        let shrink_end = Coordinates { x: 2, y: 2 };
+    fn offset_and_translate_shift_area_and_block() {
         let mut tile = Tile::new(
-            1,
-            basic_effect(true, Some((shrink_start, shrink_end))),
-            SingleSelector { x: 0, y: 0 },
-            Shape::from_square(3),
+            effect_with_block(
+                Coordinates { x: 0, y: 0 },
+                Shape {
+                    width: 2,
+                    height: 2,
+                },
+            ),
+            Rect::new(
+                Coordinates { x: 1, y: 1 },
+                Shape {
+                    width: 3,
+                    height: 3,
+                },
+            ),
         );
 
-        tile.offset(Coordinates { x: 5, y: 5 });
+        tile.offset(Delta { dx: 2, dy: 3 });
+        assert_eq!(tile.area.origin, Coordinates { x: 3, y: 4 });
+        assert_eq!(
+            tile.effect.block.unwrap().origin,
+            Coordinates { x: 2, y: 3 }
+        );
 
-        // Tile pointer updated
-        assert_eq!(tile.pointer.x, 5);
-        assert_eq!(tile.pointer.y, 5);
+        tile.translate(Delta { dx: -1, dy: -1 });
+        assert_eq!(tile.area.origin, Coordinates { x: 2, y: 3 });
+        assert_eq!(
+            tile.effect.block.unwrap().origin,
+            Coordinates { x: 1, y: 2 }
+        );
 
-        // Shrink region updated by offset
-        let (new_start, new_end) = tile.effect.shrink.expect("Shrink should be Some");
-        assert_eq!(new_start, Coordinates { x: 6, y: 6 });
-        assert_eq!(new_end, Coordinates { x: 7, y: 7 });
+        // Offset clamps to zero
+        tile.offset(Delta { dx: -10, dy: -10 });
+        assert_eq!(tile.area.origin, Coordinates { x: 0, y: 0 });
+        assert_eq!(
+            tile.effect.block.unwrap().origin,
+            Coordinates { x: 0, y: 0 }
+        );
+    }
+
+    #[test]
+    fn display_outputs_correct_format() {
+        let effect = Effect::default();
+        let tile = Tile::new(
+            effect,
+            Rect::new(
+                Coordinates { x: 5, y: 6 },
+                Shape {
+                    width: 7,
+                    height: 8,
+                },
+            ),
+        );
+        let display = format!("{}", tile);
+        assert!(display.contains("effect:"));
+        assert!(display.contains("area: x=5 y=6 w=7 h=8"));
     }
 }

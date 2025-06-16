@@ -3,10 +3,10 @@ use std::any::Any;
 use dioxus::prelude::*;
 use futures_util::stream::StreamExt;
 use log::error;
-use rpgx::common::coordinates::Coordinates;
-use rpgx::common::direction::Direction;
 use rpgx::library::Library;
 use rpgx::prelude::Engine;
+use rpgx::prelude::{Coordinates, Direction};
+use web_sys::console;
 
 #[derive(Clone, Debug)]
 pub enum Command {
@@ -37,6 +37,7 @@ pub fn use_controller(
                 let result: Result<(), Box<dyn std::error::Error>> = async {
                     match command {
                         Command::WalkTo(target) => {
+                            console::log_1(&format!("walk_to: {:?}", target).into());
                             let steps = engine.read().get_active_scene().unwrap().map.find_path(
                                 &engine
                                     .read()
@@ -48,6 +49,7 @@ pub fn use_controller(
                                     .pointer,
                                 &target,
                             );
+                            console::log_1(&format!("got steps: {:?}", steps).into());
                             match steps {
                                 None => {
                                     error!("Path not found");
@@ -55,6 +57,19 @@ pub fn use_controller(
                                 }
                                 Some(steps) => {
                                     for step in steps {
+                                        console::log_1(&format!("moving_step: {:?}", step).into());
+                                        console::log_1(
+                                            &format!(
+                                                "move_allowed: {:?}",
+                                                engine
+                                                    .write()
+                                                    .get_active_scene_mut()
+                                                    .unwrap()
+                                                    .map
+                                                    .move_allowed(step)
+                                            )
+                                            .into(),
+                                        );
                                         sleep_ms(100).await;
                                         engine
                                             .write()
@@ -74,14 +89,14 @@ pub fn use_controller(
                         }
                         Command::Step(direction) => {
                             let mut _engine = engine.write();
-                            if let Ok(tile) =
+                            if let Ok(pointer) =
                                 _engine.get_active_scene_mut().unwrap().step_to(direction)
                             {
                                 _engine
                                     .get_active_scene()
                                     .unwrap()
                                     .map
-                                    .get_actions_at(tile.pointer)
+                                    .get_actions_at(pointer)
                                     .into_iter()
                                     .for_each(|action_id| {
                                         if let Some(boxed) = library.read().get_by_id(action_id) {

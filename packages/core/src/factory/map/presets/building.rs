@@ -1,34 +1,19 @@
-use crate::prelude::{Coordinates, Effect, Layer, LayerType, Map, Mask, Selector, Shape};
+use crate::prelude::{Coordinates, Effect, Layer, Map, Mask, Rect, Shape};
 
 pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
-    // let base_layer = Layer::base("base".to_string(), shape, vec![]);
     let building_layer = Layer::new(
         "buildings".to_string(),
-        LayerType::Block,
-        shape,
-        vec![Mask {
-            name: "logo".to_string(),
-            effect: Effect {
+        vec![Mask::new(
+            "logo".to_string(),
+            // Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
+            vec![Rect::new(Coordinates { x: 0, y: 0 }, shape)],
+            Effect {
                 texture_id: Some(texture_id),
-                block: true,
-                group: true,
-                shrink: Some((
-                    Coordinates { x: 1, y: 1 },
-                    Coordinates {
-                        x: shape.width - 2,
-                        y: shape.height - 2,
-                    },
-                )),
+                block: Some(Rect::new(Coordinates { x: 1, y: 1 }, shape - 2)),
+                // group: true,
                 ..Default::default()
             },
-            selector: Selector::Block((
-                Coordinates { x: 0, y: 0 },
-                Coordinates {
-                    x: shape.width,
-                    y: shape.height,
-                },
-            )),
-        }],
+        )],
         5,
     );
 
@@ -42,98 +27,77 @@ pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
     };
     let bottom_y = shape.height - 1;
 
+    // Use Rect here instead of tuple
+    let action_rect = Rect::new(
+        Coordinates {
+            x: start_x,
+            y: bottom_y,
+        },
+        Shape {
+            width: end_x - start_x,
+            height: 1,
+        },
+    );
+
     let action_layer = Layer::new(
         "actions".to_string(),
-        LayerType::Action,
-        shape,
-        vec![Mask {
-            name: "action_test".to_string(),
-            effect: Effect {
+        vec![Mask::new(
+            "action_test".to_string(),
+            // Selector::Block(action_rect),
+            action_rect.as_many(),
+            Effect {
                 action_id: Some(action_id),
                 ..Default::default()
             },
-            selector: Selector::Block((
-                Coordinates {
-                    x: start_x,
-                    y: bottom_y,
-                },
-                Coordinates {
-                    x: end_x,
-                    y: bottom_y + 1,
-                },
-            )),
-        }],
+        )],
         6,
     );
 
     Map::new(
         "base".to_string(),
-        vec![
-            // base_layer.clone(),
-            building_layer.clone(),
-            action_layer.clone(),
-        ],
+        vec![building_layer.clone(), action_layer.clone()],
         Coordinates::default(),
     )
 }
 
 pub fn building_1x1(shape: Shape, texture_id: u32, action_id: u32) -> Map {
-    // let base_layer = Layer::base("base".to_string(), shape, vec![]);
     let building_layer = Layer::new(
         "buildings".to_string(),
-        LayerType::Block,
-        shape,
-        vec![Mask {
-            name: "logo".to_string(),
-            effect: Effect {
+        vec![Mask::new(
+            "logo".to_string(),
+            // Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
+            vec![Rect::new(Coordinates { x: 0, y: 0 }, shape)],
+            Effect {
                 texture_id: Some(texture_id),
-                block: true,
-                group: true,
-                shrink: Some((
-                    Coordinates { x: 0, y: 0 },
-                    Coordinates {
-                        x: shape.width,
-                        y: shape.height,
-                    },
-                )),
+                block: Some(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
+                // group: true,
                 ..Default::default()
             },
-            selector: Selector::Block((
-                Coordinates { x: 0, y: 0 },
-                Coordinates {
-                    x: shape.width,
-                    y: shape.height,
-                },
-            )),
-        }],
+        )],
         5,
     );
 
-    let start_x = 0;
-    let end_x = 1;
     let bottom_y = shape.height - 1;
+
+    let action_rect = Rect::new(
+        Coordinates { x: 0, y: bottom_y },
+        Shape {
+            width: 1,
+            height: 2,
+        },
+    );
 
     let action_layer = Layer::new(
         "actions".to_string(),
-        LayerType::Action,
-        shape,
-        vec![Mask {
-            name: "action_test".to_string(),
-            effect: Effect {
+        vec![Mask::new(
+            "action_test".to_string(),
+            // Selector::Block(action_rect),
+            action_rect.as_many(),
+            Effect {
                 action_id: Some(action_id),
                 ..Default::default()
             },
-            selector: Selector::Block((
-                Coordinates {
-                    x: start_x,
-                    y: bottom_y,
-                },
-                Coordinates {
-                    x: end_x,
-                    y: bottom_y + 1,
-                },
-            )),
-        }],
+        )],
         6,
     );
 
@@ -145,34 +109,25 @@ pub fn building_1x1(shape: Shape, texture_id: u32, action_id: u32) -> Map {
 }
 
 pub fn building_3x2(shape: Shape, texture_id: u32, action_id: u32) -> Map {
-    // let base_layer = Layer::base("base".to_string(), shape, vec![]);
     let building_layer = Layer::new(
         "buildings".to_string(),
-        LayerType::Block,
-        shape,
-        vec![Mask {
-            name: "logo".to_string(),
-            effect: Effect {
+        vec![Mask::new(
+            "logo".to_string(),
+            // Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
+            vec![Rect::new(Coordinates { x: 0, y: 0 }, shape)],
+            Effect {
                 texture_id: Some(texture_id),
-                block: true,
-                group: true,
-                shrink: Some((
+                block: Some(Rect::new(
                     Coordinates { x: 1, y: 1 },
-                    Coordinates {
-                        x: shape.width - 1,
-                        y: shape.height - 1,
+                    Shape {
+                        width: shape.width.saturating_sub(1),
+                        height: shape.height.saturating_sub(1),
                     },
                 )),
+                // group: true,
                 ..Default::default()
             },
-            selector: Selector::Block((
-                Coordinates { x: 0, y: 0 },
-                Coordinates {
-                    x: shape.width,
-                    y: shape.height,
-                },
-            )),
-        }],
+        )],
         5,
     );
 
@@ -186,27 +141,28 @@ pub fn building_3x2(shape: Shape, texture_id: u32, action_id: u32) -> Map {
     };
     let bottom_y = shape.height - 1;
 
+    let action_rect = Rect::new(
+        Coordinates {
+            x: start_x,
+            y: bottom_y,
+        },
+        Shape {
+            width: end_x - start_x,
+            height: 2,
+        },
+    );
+
     let action_layer = Layer::new(
         "actions".to_string(),
-        LayerType::Action,
-        shape,
-        vec![Mask {
-            name: "action_test".to_string(),
-            effect: Effect {
+        vec![Mask::new(
+            "action_test".to_string(),
+            // Selector::Block(action_rect),
+            action_rect.as_many(),
+            Effect {
                 action_id: Some(action_id),
                 ..Default::default()
             },
-            selector: Selector::Block((
-                Coordinates {
-                    x: start_x,
-                    y: bottom_y,
-                },
-                Coordinates {
-                    x: end_x,
-                    y: bottom_y + 1,
-                },
-            )),
-        }],
+        )],
         6,
     );
 

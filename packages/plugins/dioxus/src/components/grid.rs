@@ -1,7 +1,7 @@
 use std::any::Any;
 
 use dioxus::prelude::*;
-use rpgx::{common::errors::MapError, engine::Engine, library::Library, prelude::LayerType};
+use rpgx::{engine::Engine, library::Library, prelude::RPGXError};
 
 use crate::components::tile::Tile;
 
@@ -10,7 +10,7 @@ pub struct GridProps {
     pub engine: Signal<Engine>,
     pub library: Signal<Library<Box<dyn Any>>>,
     pub square_size: u32,
-    pub onclick: EventHandler<Result<rpgx::prelude::Tile, MapError>>,
+    pub onclick: EventHandler<Result<rpgx::prelude::Tile, RPGXError>>,
 }
 
 #[allow(non_snake_case)]
@@ -23,11 +23,10 @@ pub fn Grid(props: GridProps) -> Element {
                     .map
                     .layers
                     .iter()
-                    .filter(|layer| layer.kind != LayerType::Texture)
                     .enumerate()
                     .flat_map(|(layer_index, layer)| {
                         layer
-                            .tiles
+                            .render()
                             .iter()
                             .enumerate()
                             .map(move |(i, tile)| {
@@ -36,13 +35,14 @@ pub fn Grid(props: GridProps) -> Element {
                                         key: "{layer_index}-{i}",
                                         tile: tile.clone(),
                                         layer_z: layer.z,
-                                        layer_kind: layer.kind,
+                                        // layer_kind: layer.kind,
                                         square_size: props.square_size,
                                         library: props.library.clone(),
                                         onclick: props.onclick.clone(),
                                     }
                                 }
                             })
+                            .collect::<Vec<_>>()
                     })
             }
         }

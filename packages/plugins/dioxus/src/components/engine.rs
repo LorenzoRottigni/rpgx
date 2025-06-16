@@ -2,8 +2,8 @@ use std::any::Any;
 
 use dioxus::prelude::*;
 use rpgx::{
-    common::errors::MapError,
     library::Library,
+    prelude::RPGXError,
     prelude::{Direction, Tile},
 };
 
@@ -24,8 +24,8 @@ pub fn Engine(props: EngineProps) -> Element {
     let engine = props.engine.clone();
     let controller = use_controller(engine.clone(), props.library.clone());
 
-    let onclick = move |tile: Tile| -> Result<(), MapError> {
-        controller.send(Command::WalkTo(tile.pointer));
+    let onclick = move |tile: Tile| -> Result<(), RPGXError> {
+        controller.send(Command::WalkTo(tile.area.origin));
         Ok(())
     };
 
@@ -98,7 +98,7 @@ pub fn Engine(props: EngineProps) -> Element {
                 engine: engine.clone(),
                 library: props.library.clone(),
                 square_size: props.square_size,
-                onclick: EventHandler::new(move |tile: Result<Tile, MapError>| {
+                onclick: EventHandler::new(move |tile: Result<Tile, RPGXError>| {
                     if let Ok(tile) = tile {
                         let _ = onclick(tile);
                     }

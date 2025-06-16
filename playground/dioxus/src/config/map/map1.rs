@@ -2,8 +2,7 @@ use std::any::Any;
 
 use rpgx::{
     library::Library,
-    map::Map,
-    prelude::{Coordinates, Effect, Layer, LayerType, Mask, Selector, Shape},
+    prelude::{Coordinates, Effect, Layer, Map, Mask, Rect, Shape},
 };
 
 pub fn use_map1(library: &Library<Box<dyn Any>>) -> Map {
@@ -16,10 +15,11 @@ pub fn use_map1(library: &Library<Box<dyn Any>>) -> Map {
         library.get_id("building_1").unwrap(),
         library.get_id("consolelog").unwrap(),
     );
+    println!("length: {:?}", single_map.get_shape());
     single_map.load_layer(rpgx::factory::layer::presets::ground::ground_layer(
         Shape {
-            width: 6,
-            height: 8,
+            width: 4,
+            height: 6,
         },
         library.get_id("floor_1").unwrap(),
     ));
@@ -39,20 +39,28 @@ pub fn use_map1(library: &Library<Box<dyn Any>>) -> Map {
     ));
     single_map.load_layer(Layer::new(
         "sign".into(),
-        LayerType::Block,
-        Shape {
-            width: 6,
-            height: 8,
-        },
-        vec![Mask {
-            name: "sign".into(),
-            effect: Effect {
+        vec![Mask::new(
+            "sign".into(),
+            // Selector::Block(Rect::new(
+            //     Coordinates { x: 1, y: 1 },
+            //     Shape {
+            //         width: 3,
+            //         height: 3,
+            //     },
+            // )),
+            vec![Rect::new(
+                Coordinates { x: 1, y: 1 },
+                Shape {
+                    width: 3,
+                    height: 3,
+                },
+            )],
+            Effect {
                 render_id: library.get_id("sign"),
-                group: true,
+                // group: true,
                 ..Default::default()
             },
-            selector: Selector::Block((Coordinates { x: 0, y: 0 }, Coordinates { x: 2, y: 2 })),
-        }],
+        )],
         8,
     ));
 
@@ -77,6 +85,5 @@ pub fn use_map1(library: &Library<Box<dyn Any>>) -> Map {
         Coordinates { x: 32, y: 0 },
         Some(Coordinates { x: 10, y: 10 }),
     );
-
     map
 }

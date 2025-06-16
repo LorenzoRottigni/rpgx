@@ -1,33 +1,50 @@
 # Effect
 
-`Effect` represents visual and interactive properties applied to a [`Tile`](./tile.md) or UI element.
+The `Effect` struct defines the visual and interactive properties that can be applied to a [`Tile`](tile.md) or other UI/grid elements. These properties include optional identifiers for actions, textures, rendering callbacks, and movement-blocking regions.
+
+## Purpose
+
+Effects are used to enrich tiles with behavior and visuals:
+- Mark tiles as blocking (e.g., walls or obstacles).
+- Associate tiles with actions or triggers (e.g., interactive elements).
+- Attach rendering or texture information for display purposes.
 
 ## Fields
 
-- `action_id: Option<u32>`  
-  Optional ID linking the tile to an action.
+### `action_id: Option<u32>`
 
-- `texture_id: Option<u32>`  
-  Optional ID for a texture attached to the tile.
+Optional ID representing an action associated with the tile. This could correspond to interactive behaviors, scripts, or event triggers (e.g., open chest, start cutscene).
 
-- `render_id: Option<u32>`  
-  Optional ID for a rendering callback associated with the tile.
+### `texture_id: Option<u32>`
 
-- `block: bool`  
-  Indicates if the tile blocks movement or interaction.
+Optional ID for the visual texture to render on the tile.
 
-- `group: bool`  
-  Marks if the tile belongs to a group of contiguous tiles.
+### `render_id: Option<u32>`
 
-- `shrink: Option<BlockSelector>`  
-  Optional bounding box limiting the blocking region on the tile.
+Optional ID used to delegate rendering to a custom callback or render handler. Useful for dynamic effects like animations or conditional visuals.
+
+### `block: Option<Rect>`
+
+An optional rectangular area (in tile-local coordinates) that blocks movement or interaction. When set, only the portion of the tile within this region is considered impassable.
+
+This field enables partial blocking, such as only the left half of a tile being a wall, or the center of a large tile being impassable.
 
 ## Methods
 
-- `shrink_contains(&self, point: Coordinates) -> bool`  
-  Returns whether a given coordinate is within the `shrink` region, if defined.  
-  If no shrink is defined, always returns `true`.
+### `offset(delta: Delta)`
 
----
+Applies a positional delta to the `block` region if it exists. This is useful when moving or translating a tile’s position on the map.
 
-See also: [`Tile`](./tile.md), [`Coordinates`](./coordinates.md), [`Shape`](./shape.md), [`BlockSelector`](./block_selector.md)
+```rust
+use rpgx::prelude::{Effect, Rect, Coordinates, Shape, Delta};
+
+let mut effect = Effect {
+    block: Some(Rect::new(Coordinates { x: 2, y: 3 }, Shape { width: 2, height: 2 })),
+    ..Default::default()
+};
+
+// Shift the blocking region by (1, 1)
+effect.offset(Delta { dx: 1, dy: 1 });
+
+assert_eq!(effect.block.unwrap().origin, Coordinates { x: 3, y: 4 });
+```
