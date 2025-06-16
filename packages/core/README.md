@@ -1,6 +1,8 @@
-# RPGX Core
+# RPGX
 
-RPGX Core is the foundational Rust crate powering the RPGX game engine. It provides a modular, extensible architecture for grid-based RPGs, including layered maps, tile effects, pathfinding, and entity movement logic.
+<img src="https://s3.rottigni.tech/rpgx/rpgx_logo_transparent.webp" alt="RPGX Logo" width="400" />
+
+RPGX is a lightweight, modular, and extensible 2D RPG game engine written in Rust, designed for flexibility and ease of use. It provides a rich grid-based architecture with layered maps, tile effects, pathfinding, and entity movement logic.
 
 ## Features
 
@@ -13,29 +15,21 @@ RPGX Core is the foundational Rust crate powering the RPGX game engine. It provi
 
 ## Getting Started
 
-Add RPGX Core to your Rust project:
+Add RPGX to your Rust project:
 
-```toml
-[dependencies]
-rpgx = { git = "https://github.com/LorenzoRottigni/rpgx", package = "rpgx" }
+```bash
+cargo add rpgx
 ```
 
-## Example
+## Glossary
 
-```rust
-use rpgx::prelude::*;
-
-let map = Map::new("demo", 10, 10);
-let pawn = Pawn::new("hero", (0, 0));
-let mut engine = Engine::new(map, pawn);
-
-engine.move_to((5, 5)).unwrap();
-```
-
-## Documentation
-
-- [API Reference](https://github.com/LorenzoRottigni/rpgx/tree/master/packages/core)
-- [Main Project README](../../README.md)
+- [Effect](./packages/core/docs/effect.md)
+- [Tile](./packages/core/docs/tile.md)
+- [Mask](./packages/core/docs/mask.md)
+- [Layer](./packages/core/docs/layer.md)
+- [Map](./packages/core/docs/map.md)
+- [Scene](./packages/core/docs/scene.md)
+- [Engine](./packages/core/docs/engine.md)
 
 ## Contributing
 
