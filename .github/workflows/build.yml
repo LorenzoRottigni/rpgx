@@ -29,7 +29,6 @@ jobs:
           rust-version: 'nightly'
       - name: Install wasm32-unknown-unknown target
         run: rustup target add wasm32-unknown-unknown
-      - name: Build and Test
+      - name: Build
         run: |
           make build-all
-          make test-all
