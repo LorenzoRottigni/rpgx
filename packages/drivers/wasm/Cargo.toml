@@ -2,6 +2,13 @@
 name = "rpgx-wasm"
 version = "0.1.0"
 edition = "2024"
+authors = ["Lorenzo Rottigni <lorenzo@rottigni.tech>"]
+description = "Wasm driver for the RPGX engine"
+repository = "https://github.com/LorenzoRottigni/rpgx"
+homepage = "https://github.com/LorenzoRottigni/rpgx"
+documentation = "https://docs.rs/rpgx-wasm"
+readme = "README.md"
+license = "MIT"
 
 [dependencies]
 js-sys = "0.3.77"
