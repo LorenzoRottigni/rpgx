@@ -44,7 +44,7 @@ push-remote = "origin"
 push-options = []
 
 # If multiple crates share versions, this enforces that (can be true or a subset string)
-shared-version = false
+shared-version = true
 
 # List of crates owners to verify or add on crates.io
 owners = []
