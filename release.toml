@@ -1,10 +1,88 @@
+# Enable release process for this crate/workspace
 release = true
+
+# Publish crate(s) to registry (default crates.io)
 publish = true
+
+# Push commits and tags to remote
 push = true
+
+# Create git tag for the version
 tag = true
 
-consolidate-commits = true
+# Commit message for the version bump commit (pre-release)
+pre-release-commit-message = "chore(release): prepare {crate_name} {version}"
+
+# Annotated tag message template (empty disables annotated tags)
+tag-message = "Release {crate_name} {version}"
+
+# Prefix for git tags, overrides default (e.g. "v" or "myproject-")
+# tag-prefix = "v"
+
+# Custom git tag name template (defaults to {prefix}v{version})
+# tag-name = "{prefix}v{version}"
+
+# Sign git tags with GPG
 sign-tag = false
 
-pre-release-commit-message = "chore(release): prepare {crate_name} {version}"
-tag-message = "Release {crate_name} {version}"
+# Sign git commits with GPG
+sign-commit = false
+
+# Consolidate all version bump commits into a single commit (recommended for workspaces)
+consolidate-commits = true
+
+# Verify crate builds before publishing
+verify = true
+
+# Specify the cargo registry to publish to (default crates.io)
+# registry = "my-private-registry"
+
+# Git remote to push tags/commits to (default 'origin')
+push-remote = "origin"
+
+# Additional options to pass to git push (example: ["--follow-tags"])
+push-options = []
+
+# If multiple crates share versions, this enforces that (can be true or a subset string)
+shared-version = false
+
+# List of crates owners to verify or add on crates.io
+owners = []
+
+# Enable cargo publish feature flags
+enable-features = []
+
+# Enable all features on cargo publish (requires rust 1.33+)
+enable-all-features = false
+
+# Target triple to use for verification builds
+# target = "x86_64-unknown-linux-gnu"
+
+# Dependency version policy for path dependencies within workspace:
+# Options: "upgrade", "fix", "error", "warn", "ignore"
+dependent-version = "upgrade"
+
+# Metadata policy regarding Cargo.toml metadata field:
+# Options: "optional", "required", "ignore", "persistent"
+metadata = "optional"
+
+# Previous tag to compare changes against, defaults to last released tag
+# prev-tag-name = "v1.2.3"
+
+# Allowed git branches for releasing (list of glob patterns)
+allow-branch = ["main", "master", "release/*"]
+
+# Pre-release hook command(s) to run before release commit (abort if non-zero exit)
+# pre-release-hook = ["./scripts/check.sh"]
+
+# Pre-release replacements for custom files (example)
+# pre-release-replacements = [
+#   { file = "README.md", search = "version = \".*\"", replace = "version = \"{version}\"" }
+# ]
+
+# Rate limits for crates.io publish requests
+rate-limit.new-packages = 5
+rate-limit.existing-packages = 30
+
+# Certificate source for HTTPS requests ("webpki" or "native")
+certs-source = "webpki"
