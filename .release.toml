@@ -14,3 +14,5 @@ tag-message = "Release {{crate_name}} {{version}}"
 
 # Optional but helpful for cyclic dependencies
 publish-order = ["rpgx", "rpgx-wasm", "rpgx-dioxus"]
+
+exclude = ["rpgx-spaceship"]
