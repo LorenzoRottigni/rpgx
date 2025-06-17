@@ -1,4 +1,4 @@
-name: Build and Test
+name: Run Builds
 
 on:
   push:
@@ -23,20 +23,13 @@ jobs:
             libgdk-pixbuf2.0-dev \
             libpango1.0-dev \
             pkg-config
-
       - name: Set up Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          rust-version: '1.56'
-
-      - name: Install wasm32 target
+          rust-version: 'nightly'
+      - name: Install wasm32-unknown-unknown target
         run: rustup target add wasm32-unknown-unknown
-
-      - name: Install wasm-bindgen-cli
-        run: |
-          cargo install wasm-bindgen-cli --locked
-
-      - name: Run Builds and Tests
+      - name: Build and Test
         run: |
           make build-all
           make test-all
