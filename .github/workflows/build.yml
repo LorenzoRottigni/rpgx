@@ -20,13 +20,22 @@ jobs:
             libsoup2.4-dev \
             libgdk-pixbuf2.0-dev \
             libpango1.0-dev \
-            pkg-config
+            pkg-config \
+            build-essential \
+            libssl-dev
+
       - name: Set up Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           rust-version: 'nightly'
+
       - name: Install wasm32-unknown-unknown target
         run: rustup target add wasm32-unknown-unknown
+
+      - name: Install wasm-bindgen-cli
+        run: |
+          cargo install wasm-bindgen-cli --locked
+
       - name: Build
         run: |
           make build-all
