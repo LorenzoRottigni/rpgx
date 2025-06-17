@@ -116,18 +116,23 @@ fmt: ## Format code
 
 # === Publish ===
 publish-core:
-	cargo publish -p rpgx
+	@echo "⚠️ Use 'publish-all' to release the entire workspace instead of individual crates"
 
 publish-wasm-driver:
-	cargo publish -p rpgx-wasm
+	@echo "⚠️ Use 'publish-all' to release the entire workspace instead of individual crates"
 
 publish-js-driver:
 	cd packages/drivers/js && npm publish --access public
 
 publish-dioxus-plugin:
-	cargo publish -p rpgx-dioxus
+	@echo "⚠️ Use 'publish-all' to release the entire workspace instead of individual crates"
 
 publish-vue-plugin:
 	cd packages/plugins/vue && npm publish --access public
 
-publish-all: publish-core publish-wasm-driver publish-js-driver publish-dioxus-plugin publish-vue-plugin ## Publish all crates and packages
+publish-all:
+	@echo "🚀 Releasing entire Rust workspace (excluding rpgx-spaceship)..."
+	cargo release patch --execute --workspace --exclude rpgx-spaceship
+	@echo "🚀 Publishing JS packages..."
+	cd packages/drivers/js && npm publish --access public
+	cd packages/plugins/vue && npm publish --access public
