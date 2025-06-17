@@ -20,8 +20,8 @@
     "vue": "^3.5.13"
   },
   "devDependencies": {
-    "@rpgx/js": "file:../../packages/drivers/js",
-    "@rpgx/vue": "file:../../packages/plugins/vue",
+    "@rpgx/js": "0.1.0",
+    "@rpgx/vue": "0.1.0",
     "@tsconfig/node22": "^22.0.1",
     "@types/node": "^22.15.19",
     "@vitejs/plugin-vue": "^5.2.3",
