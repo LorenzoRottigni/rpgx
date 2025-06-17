@@ -12,9 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Rust
+      - name: Set up Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          rust-version: '1.56'
-      - name: Run Builds
-        run: make build-all
+          rust-version: 'nightly'
+      - name: Install wasm32-unknown-unknown target
+        run: rustup target add wasm32-unknown-unknown
+      - name: Build and Test
+        run: |
+          make build-all
+          make test-all
