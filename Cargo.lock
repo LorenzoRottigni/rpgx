@@ -3535,6 +3535,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "rpgx"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "360709ae3fcd224f3bc91854bfad619a45c3a9c7397e802a28867edb972cd1a5"
+dependencies = [
+ "indexmap 2.9.0",
+]
+
+[[package]]
 name = "rpgx-dioxus"
 version = "0.1.0"
 dependencies = [
@@ -3545,7 +3554,7 @@ dependencies = [
  "gloo-timers",
  "js-sys",
  "log",
- "rpgx",
+ "rpgx 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio",
  "wasm-bindgen",
  "web-sys",
@@ -3560,7 +3569,7 @@ dependencies = [
  "futures-util",
  "gloo-timers",
  "log",
- "rpgx",
+ "rpgx 0.1.1",
  "rpgx-dioxus",
  "web-sys",
 ]
@@ -3570,7 +3579,7 @@ name = "rpgx-wasm"
 version = "0.1.0"
 dependencies = [
  "js-sys",
- "rpgx",
+ "rpgx 0.1.1",
  "wasm-bindgen",
  "wasm-bindgen-futures",
 ]

@@ -2,6 +2,13 @@
 name = "rpgx-dioxus"
 version = "0.1.0"
 edition = "2024"
+authors = ["Lorenzo Rottigni <lorenzo@rottigni.tech>"]
+description = "Dioxus plugin for the RPGX engine"
+repository = "https://github.com/LorenzoRottigni/rpgx"
+homepage = "https://github.com/LorenzoRottigni/rpgx"
+documentation = "https://docs.rs/rpgx-dioxus"
+readme = "README.md"
+license = "MIT"
 
 [lib]
 name = "rpgx_dioxus"
@@ -13,7 +20,8 @@ crate-type = ["rlib"]
 dioxus = { version = "0.6.3", features = ["router", "fullstack"] }
 dioxus-logger = "0.6.2"
 futures-util = "0.3.31"
-rpgx = { path = "../../core" }
+# rpgx = { path = "../../core" }
+rpgx = { version = "0.1.1" }
 log = "0.4.27"
 
 # --- Web-only dependencies ---

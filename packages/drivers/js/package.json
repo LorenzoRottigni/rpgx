@@ -12,9 +12,6 @@
   "files": [
     "pkg"
   ],
-  "scripts": {
-    "build": "echo \"No build step required\""
-  },
   "sideEffects": false,
   "license": "MIT"
 }
