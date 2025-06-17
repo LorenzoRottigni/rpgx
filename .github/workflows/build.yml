@@ -3,9 +3,7 @@ name: Run Builds
 on:
   push:
     branches:
-      - master
-    tags:
-      - 'v*'
+      - '**'
 
 jobs:
   build:
