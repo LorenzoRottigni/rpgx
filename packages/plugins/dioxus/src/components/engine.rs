@@ -9,7 +9,7 @@ use rpgx::{
 
 use crate::{
     components::{grid::Grid, pawn::Pawn},
-    controller::{Command, use_controller},
+    controller::{use_controller, Command},
 };
 
 #[derive(PartialEq, Props, Clone)]
@@ -73,16 +73,15 @@ pub fn Engine(props: EngineProps) -> Element {
 
         #[cfg(feature = "web")]
         {
-            let _ = js_sys::eval(js_code);
+            document::eval(js_code); // desktop & web
         }
 
         #[cfg(feature = "desktop")]
         {
-            use dioxus_desktop::use_webview;
-
-            if let Some(webview) = use_webview() {
-                let _ = webview.eval(js_code);
-            }
+            spawn(async move {
+                let eval = document::eval(js_code);
+                let _ = eval.await; // wait for execution
+            });
         }
     });
 

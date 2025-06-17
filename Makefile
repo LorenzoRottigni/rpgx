@@ -98,11 +98,11 @@ build-vue-plugin:
 
 build-dioxus-web-playground: install-dioxus-cli
 	@echo "🚀 Building Dioxus Web Application..."
-	cd playground/dioxus && dx build --platform web
+	cd playground/dioxus && dx build --platform web --features web
 
 build-dioxus-desktop-playground: install-dioxus-cli
 	@echo "🚀 Building Dioxus Desktop Application..."
-	cd playground/dioxus && dx build --platform desktop
+	cd playground/dioxus && dx build --platform desktop --features desktop
 
 build-all: build-core build-wasm-driver build-js-driver build-vue-plugin build-vue-playground build-dioxus-web-playground build-dioxus-desktop-playground ## Build all targets
 
