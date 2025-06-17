@@ -29,11 +29,12 @@ jobs:
         with:
           rust-version: '1.56'
 
-      - name: Install WebAssembly target
+      - name: Install wasm32 target
         run: rustup target add wasm32-unknown-unknown
 
-      - name: Install wasm-bindgen CLI
-        run: cargo install wasm-bindgen-cli --locked
+      - name: Install wasm-bindgen-cli
+        run: |
+          cargo install wasm-bindgen-cli --locked
 
       - name: Run Builds and Tests
         run: |
