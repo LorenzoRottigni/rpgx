@@ -9,7 +9,7 @@ use rpgx::{
 
 use crate::{
     components::{grid::Grid, pawn::Pawn},
-    controller::{use_controller, Command},
+    controller::{Command, use_controller},
 };
 
 #[derive(PartialEq, Props, Clone)]
@@ -55,7 +55,7 @@ pub fn Engine(props: EngineProps) -> Element {
     use_effect(move || {
         let _ = engine(); // cause the effect to re-run when engine changes
 
-        let js_code = r#"
+        let _js_code = r#"
             (() => {
                 console.log('trigger update');
                 const container = document.querySelector('#scroll-container');
@@ -73,13 +73,13 @@ pub fn Engine(props: EngineProps) -> Element {
 
         #[cfg(feature = "web")]
         {
-            document::eval(js_code); // desktop & web
+            document::eval(_js_code); // desktop & web
         }
 
         #[cfg(feature = "desktop")]
         {
             spawn(async move {
-                let eval = document::eval(js_code);
+                let eval = document::eval(_js_code);
                 let _ = eval.await; // wait for execution
             });
         }

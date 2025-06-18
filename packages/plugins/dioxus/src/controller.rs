@@ -13,15 +13,15 @@ pub enum Command {
     Step(Direction),
 }
 
-pub async fn sleep_ms(ms: u64) {
+pub async fn sleep_ms(_ms: u64) {
     #[cfg(feature = "web")]
     {
-        gloo_timers::future::TimeoutFuture::new(ms as u32).await;
+        gloo_timers::future::TimeoutFuture::new(_ms as u32).await;
     }
 
     #[cfg(feature = "desktop")]
     {
-        tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
+        tokio::time::sleep(std::time::Duration::from_millis(_ms)).await;
     }
 }
 
