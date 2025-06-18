@@ -3,7 +3,7 @@
 	clean-core clean-vue-playground clean-dioxus-playground clean-all \
 	test-core test-wasm-driver test-all \
 	build-core build-wasm-driver build-js-driver build-vue-playground build-vue-plugin \
-	build-dioxus-web-playground build-dioxus-desktop-playground build-all \
+	build-dioxus-web-playground build-dioxus-desktop-playground build-dioxus-plugin build-all \
 	publish-core publish-wasm-driver publish-js-driver publish-dioxus-plugin publish-vue-plugin publish-all \
 	install-dioxus-cli check fmt help
 
@@ -85,16 +85,20 @@ build-js-driver:
 	cargo build --target $(WASM_TARGET) --release -p rpgx-wasm
 	wasm-bindgen $(WASM_BIN) --out-dir $(WASM_OUT_DRIVER_JS) --target bundler
 
-build-vue-playground:
-	@echo "🚀 Building Vue.js playground..."
-	@$(MAKE) build-js-driver
-	@$(MAKE) build-vue-plugin
-	cd playground/vuejs && npm install && npm run build
+build-dioxus-plugin:
+	@echo "🔧 Building Dioxus plugin..."
+	cargo build --release -p rpgx-dioxus
 
 build-vue-plugin:
 	@echo "🔧 Building Vue.js driver plugin..."
 	@$(MAKE) build-js-driver
 	cd packages/plugins/vue && npm install && npm run build
+
+build-vue-playground:
+	@echo "🚀 Building Vue.js playground..."
+	@$(MAKE) build-js-driver
+	@$(MAKE) build-vue-plugin
+	cd playground/vuejs && npm install && npm run build
 
 build-dioxus-web-playground: install-dioxus-cli
 	@echo "🚀 Building Dioxus Web Application..."
@@ -104,7 +108,7 @@ build-dioxus-desktop-playground: install-dioxus-cli
 	@echo "🚀 Building Dioxus Desktop Application..."
 	cd playground/dioxus && dx build --platform desktop --features desktop
 
-build-all: build-core build-wasm-driver build-js-driver build-vue-plugin build-vue-playground build-dioxus-web-playground build-dioxus-desktop-playground ## Build all targets
+build-all: build-core build-wasm-driver build-js-driver build-dioxus-plugin build-vue-plugin build-vue-playground build-dioxus-web-playground build-dioxus-desktop-playground ## Build all targets
 
 # === Linting & Formatting ===
 check: ## Run cargo check and clippy
