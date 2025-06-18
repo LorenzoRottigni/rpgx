@@ -1,4 +1,4 @@
-use crate::prelude::{Coordinates, Delta, Mask, Shape, Tile};
+use crate::prelude::{Coordinates, Delta, Effect, Mask, Shape, Tile};
 
 #[doc = include_str!("../../docs/layer.md")]
 /// A `Layer` is a logical or visual overlay composed of [`Mask`]s that apply [`Effect`]s to specific tiles.
@@ -13,39 +13,63 @@ pub struct Layer {
     pub masks: Vec<Mask>,
     /// Z-index for stacking and rendering order
     pub z: u32,
+    /// Offset applied at rendering time to all masks in the layer
+    pub offset: Delta,
 }
 
 impl Layer {
     /// Creates a new layer with a name, masks, and z-index.
     pub fn new(name: String, masks: Vec<Mask>, z: u32) -> Self {
-        Self { name, masks, z }
+        Self {
+            name,
+            masks,
+            z,
+            offset: Delta::default(),
+        }
     }
 
     /// Returns the first tile that contains the given coordinates.
     ///
     /// Checks all tiles in all masks. Supports tiles with shape larger than 1×1.
-    pub fn get_tile_at(&self, pointer: Coordinates) -> Option<Tile> {
+    // pub fn get_tile_at(&self, pointer: Coordinates) -> Option<Tile> {
+    //     self.masks
+    //         .iter()
+    //         .flat_map(|mask| mask.tiles.iter().cloned())
+    //         .find(|tile| {
+    //             if pointer.x >= tile.area.origin.x && pointer.y >= tile.area.origin.y {
+    //                 let local = Coordinates {
+    //                     x: pointer.x - tile.area.origin.x,
+    //                     y: pointer.y - tile.area.origin.y,
+    //                 };
+    //                 tile.area.shape.in_bounds(local)
+    //             } else {
+    //                 false
+    //             }
+    //         })
+    // }
+
+    pub fn contains(&self, target: &Coordinates) -> bool {
         self.masks
             .iter()
-            .flat_map(|mask| mask.tiles.iter().cloned())
-            .find(|tile| {
-                if pointer.x >= tile.area.origin.x && pointer.y >= tile.area.origin.y {
-                    let local = Coordinates {
-                        x: pointer.x - tile.area.origin.x,
-                        y: pointer.y - tile.area.origin.y,
-                    };
-                    tile.area.shape.in_bounds(local)
+            .any(|mask| mask.rects.iter().any(|rect| rect.contains(target)))
+    }
+
+    pub fn get_effects_at(&self, target: &Coordinates) -> Vec<Effect> {
+        self.masks
+            .iter()
+            .filter_map(|mask| {
+                if mask.contains(target) {
+                    Some(mask.effect)
                 } else {
-                    false
+                    None
                 }
             })
+            .collect()
     }
 
     /// Checks if any tile in the layer blocks movement at the given coordinate.
     pub fn is_blocking_at(&self, target: &Coordinates) -> bool {
-        self.masks
-            .iter()
-            .any(|mask| mask.tiles.iter().any(|tile| tile.is_blocking_at(*target)))
+        self.masks.iter().any(|mask| mask.is_blocking_at(target))
     }
 
     /// Returns the individual shapes of all masks in the layer.
@@ -62,16 +86,26 @@ impl Layer {
     pub fn render(&self) -> Vec<Tile> {
         self.masks
             .iter()
-            .flat_map(|mask| mask.tiles.iter().cloned())
+            .flat_map(|mask| {
+                let mut mask = mask.clone();
+                mask.offset = mask.offset + self.offset;
+                mask.render()
+            })
             .collect()
     }
 
-    /// Offsets all tiles in the layer by the given delta.
-    pub fn offset(&mut self, delta: Delta) {
-        for mask in &mut self.masks {
-            mask.offset(delta);
-        }
-    }
+    // pub fn translate(&self, delta: Delta) -> Self {
+    //     let mut layer = self.clone();
+    //     layer.offset = layer.offset + delta;
+    //     layer
+    // }
+
+    ///// Offsets all tiles in the layer by the given delta.
+    // pub fn offset(&mut self, delta: Delta) {
+    //     for mask in &mut self.masks {
+    //         mask.offset(delta);
+    //     }
+    // }
 }
 
 #[cfg(test)]
@@ -95,7 +129,7 @@ mod tests {
         Layer::new("layer".into(), vec![mask], 0)
     }
 
-    #[test]
+    /* #[test]
     fn test_get_tile_at_hit() {
         let layer = simple_layer();
         assert!(layer.get_tile_at(Coordinates::new(1, 1)).is_some());
@@ -105,7 +139,7 @@ mod tests {
     fn test_get_tile_at_miss() {
         let layer = simple_layer();
         assert!(layer.get_tile_at(Coordinates::new(3, 3)).is_none());
-    }
+    }*/
 
     #[test]
     fn test_is_blocking_at_true() {
@@ -127,7 +161,7 @@ mod tests {
         assert_eq!(shape.height, 2);
     }
 
-    #[test]
+    /* #[test]
     fn test_offset_layer() {
         let mut layer = simple_layer();
         layer.offset(Delta::new(2, 3));
@@ -135,7 +169,7 @@ mod tests {
         assert!(shape.width >= 2);
         assert!(shape.height >= 2);
         assert!(layer.get_tile_at(Coordinates::new(2, 3)).is_some());
-    }
+    } */
 
     #[test]
     fn test_render_tiles() {

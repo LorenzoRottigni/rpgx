@@ -28,4 +28,10 @@ impl Effect {
             block_rect.offset(delta);
         }
     }
+
+    pub fn translate(&self, delta: Delta) -> Self {
+        let mut effect = *self;
+        effect.offset(delta);
+        effect
+    }
 }
