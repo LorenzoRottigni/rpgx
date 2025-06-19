@@ -1,3 +1,4 @@
+use rpgx::traits::{Bounded, Shaped};
 use std::any::Any;
 
 use rpgx::{
@@ -15,7 +16,7 @@ pub fn use_map1(library: &Library<Box<dyn Any>>) -> Map {
         library.get_id("building_1").unwrap(),
         library.get_id("consolelog").unwrap(),
     );
-    println!("length: {:?}", single_map.get_shape());
+    println!("length: {:?}", single_map.get_bounding_rect().shape);
     single_map.load_layer(rpgx::factory::layer::presets::ground::ground_layer(
         Shape {
             width: 4,
@@ -63,7 +64,6 @@ pub fn use_map1(library: &Library<Box<dyn Any>>) -> Map {
         )],
         8,
     ));
-
     let mut map = single_map.clone();
     map.merge_at(&single_map.clone(), Coordinates { x: 8, y: 0 }, None);
     map.merge_at(&single_map.clone(), Coordinates { x: 0, y: 10 }, None);

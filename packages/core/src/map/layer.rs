@@ -1,4 +1,7 @@
-use crate::prelude::{Coordinates, Delta, Effect, Mask, Shape, Tile};
+use crate::{
+    prelude::{Coordinates, Delta, Effect, Mask, Rect, Shape, Tile},
+    traits::{Bounded, Grid, Renderable, Shaped, Spatial},
+};
 
 #[doc = include_str!("../../docs/layer.md")]
 /// A `Layer` is a logical or visual overlay composed of [`Mask`]s that apply [`Effect`]s to specific tiles.
@@ -15,6 +18,67 @@ pub struct Layer {
     pub z: u32,
     /// Offset applied at rendering time to all masks in the layer
     pub offset: Delta,
+}
+
+impl Renderable for Layer {
+    fn render(&self) -> Vec<Tile> {
+        self.masks
+            .iter()
+            .flat_map(|mask| {
+                let mut mask = mask.clone();
+                mask.offset = mask.offset + self.offset;
+                mask.render()
+            })
+            .collect()
+    }
+}
+
+impl Bounded for Layer {
+    fn get_bounding_rect(&self) -> Rect {
+        if self.masks.is_empty() {
+            return Rect::default();
+        }
+
+        // Collect all mask bounds, translated by self.offset
+        let translated_bounds: Vec<Rect> = self
+            .masks
+            .iter()
+            .map(|mask| {
+                let mut bounds = mask.get_bounding_rect();
+                bounds.origin = (bounds.origin + self.offset).unwrap();
+                bounds
+            })
+            .collect();
+
+        // Compute the bounding rect of all translated bounds
+        Rect::bounding_rect(&translated_bounds)
+    }
+}
+
+impl Spatial for Layer {
+    fn contains(&self, target: &Coordinates) -> bool {
+        self.masks.iter().any(|mask| mask.contains(target))
+    }
+}
+
+impl Grid for Layer {
+    fn get_actions_at(&self, target: &Coordinates) -> Vec<u32> {
+        self.masks
+            .iter()
+            .flat_map(|mask| mask.get_actions_at(target))
+            .collect()
+    }
+
+    fn is_blocking_at(&self, target: &Coordinates) -> bool {
+        self.masks.iter().any(|mask| mask.is_blocking_at(target))
+    }
+
+    fn get_effects_at(&self, target: &Coordinates) -> Vec<Effect> {
+        self.masks
+            .iter()
+            .flat_map(|mask| mask.get_effects_at(target))
+            .collect()
+    }
 }
 
 impl Layer {
@@ -48,11 +112,11 @@ impl Layer {
     //         })
     // }
 
-    pub fn contains(&self, target: &Coordinates) -> bool {
-        self.masks
-            .iter()
-            .any(|mask| mask.rects.iter().any(|rect| rect.contains(target)))
-    }
+    // pub fn contains(&self, target: &Coordinates) -> bool {
+    //     self.masks
+    //         .iter()
+    //         .any(|mask| mask.rects.iter().any(|rect| rect.contains(target)))
+    // }
 
     pub fn get_effects_at(&self, target: &Coordinates) -> Vec<Effect> {
         self.masks
@@ -72,27 +136,27 @@ impl Layer {
         self.masks.iter().any(|mask| mask.is_blocking_at(target))
     }
 
-    /// Returns the individual shapes of all masks in the layer.
-    pub fn get_shapes(&self) -> Vec<Shape> {
-        self.masks.iter().map(|mask| mask.get_shape()).collect()
-    }
+    // /// Returns the individual shapes of all masks in the layer.
+    // pub fn get_shapes(&self) -> Vec<Shape> {
+    //     self.masks.iter().map(|mask| mask.get_shape()).collect()
+    // }
+    //
+    // /// Returns the overall bounding shape of all masks.
+    // pub fn get_shape(&self) -> Shape {
+    //     Shape::bounding_shape(&self.get_shapes())
+    // }
 
-    /// Returns the overall bounding shape of all masks.
-    pub fn get_shape(&self) -> Shape {
-        Shape::bounding_shape(&self.get_shapes())
-    }
-
-    /// Returns all tiles in the layer, flattened.
-    pub fn render(&self) -> Vec<Tile> {
-        self.masks
-            .iter()
-            .flat_map(|mask| {
-                let mut mask = mask.clone();
-                mask.offset = mask.offset + self.offset;
-                mask.render()
-            })
-            .collect()
-    }
+    // /// Returns all tiles in the layer, flattened.
+    // pub fn render(&self) -> Vec<Tile> {
+    //     self.masks
+    //         .iter()
+    //         .flat_map(|mask| {
+    //             let mut mask = mask.clone();
+    //             mask.offset = mask.offset + self.offset;
+    //             mask.render()
+    //         })
+    //         .collect()
+    // }
 
     // pub fn translate(&self, delta: Delta) -> Self {
     //     let mut layer = self.clone();
@@ -156,7 +220,7 @@ mod tests {
     #[test]
     fn test_get_shapes_and_shape() {
         let layer = simple_layer();
-        let shape = layer.get_shape();
+        let shape = layer.get_bounding_rect().shape;
         assert_eq!(shape.width, 2);
         assert_eq!(shape.height, 2);
     }

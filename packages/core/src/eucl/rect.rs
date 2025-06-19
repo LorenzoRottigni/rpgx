@@ -3,7 +3,10 @@ use std::{
     ops::{Add, Sub},
 };
 
-use crate::prelude::{Coordinates, Delta, Shape};
+use crate::{
+    prelude::{Coordinates, Delta, Shape},
+    traits::Spatial,
+};
 
 /// Errors related to [`Rect`] construction and manipulation.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -25,10 +28,48 @@ pub struct Rect {
     pub shape: Shape,
 }
 
+impl Spatial for Rect {
+    fn contains(&self, target: &Coordinates) -> bool {
+        let x = target.x;
+        let y = target.y;
+        let ox = self.origin.x;
+        let oy = self.origin.y;
+        let w = self.shape.width;
+        let h = self.shape.height;
+
+        x >= ox && x < ox + w && y >= oy && y < oy + h
+    }
+}
+
 impl Rect {
     /// Creates a new `Rect` with the given origin and shape.
     pub fn new(origin: Coordinates, shape: Shape) -> Self {
         Self { origin, shape }
+    }
+
+    /// Returns the smallest Rect that contains all the given Rects.
+    pub fn bounding_rect(rects: &[Rect]) -> Rect {
+        if rects.is_empty() {
+            return Rect::default();
+        }
+
+        let min_x = rects.iter().map(|r| r.origin.x).min().unwrap();
+        let min_y = rects.iter().map(|r| r.origin.y).min().unwrap();
+        let max_x = rects
+            .iter()
+            .map(|r| r.origin.x + r.shape.width)
+            .max()
+            .unwrap();
+        let max_y = rects
+            .iter()
+            .map(|r| r.origin.y + r.shape.height)
+            .max()
+            .unwrap();
+
+        Rect::new(
+            Coordinates::new(min_x, min_y),
+            Shape::from_rectangle(max_x - min_x, max_y - min_y),
+        )
     }
 
     /// Creates a `Rect` with the given shape at origin (0, 0).
@@ -67,14 +108,14 @@ impl Rect {
             let Coordinates { x, y } = rect.origin;
             min_x = min_x.min(x);
             min_y = min_y.min(y);
-            max_x = max_x.max(x);
-            max_y = max_y.max(y);
+            max_x = max_x.max(x + rect.shape.width);
+            max_y = max_y.max(y + rect.shape.height);
         }
 
         let origin = Coordinates { x: min_x, y: min_y };
         let shape = Shape {
-            width: max_x - min_x + 1,
-            height: max_y - min_y + 1,
+            width: max_x - min_x,
+            height: max_y - min_y,
         };
 
         Ok(Rect { origin, shape })
@@ -397,6 +438,7 @@ impl Rect {
 }
 
 impl Rect {
+    /*
     /// Returns the top-left corner of the rectangle (equal to `origin`).
     pub fn top_left(&self) -> Coordinates {
         self.origin
@@ -424,7 +466,7 @@ impl Rect {
             x: self.origin.x + self.shape.width.saturating_sub(1),
             y: self.origin.y + self.shape.height.saturating_sub(1),
         }
-    }
+    }*/
 
     /// Returns the center point of the rectangle using integer division.
     ///
@@ -434,19 +476,6 @@ impl Rect {
             x: self.origin.x + self.shape.width / 2,
             y: self.origin.y + self.shape.height / 2,
         }
-    }
-
-    /// Returns `true` if the given coordinates fall within the bounds of the rectangle.
-    ///
-    /// Bounds are inclusive at the top-left and exclusive at the bottom-right.
-    pub fn contains(&self, pt: &Coordinates) -> bool {
-        let x = pt.x;
-        let y = pt.y;
-        let ox = self.origin.x;
-        let oy = self.origin.y;
-        let w = self.shape.width;
-        let h = self.shape.height;
-        x >= ox && x < ox + w && y >= oy && y < oy + h
     }
 
     /// Returns an iterator over all coordinates contained in this rectangle.
@@ -613,7 +642,7 @@ mod tests {
         assert_eq!(rect.origin, Coordinates { x: 0, y: 0 });
     }
 
-    #[test]
+    /* #[test]
     pub fn computes_center() {
         let rect = Rect::new(
             Coordinates { x: 2, y: 4 },
@@ -650,7 +679,7 @@ mod tests {
         assert_eq!(rect.top_right(), Coordinates { x: 7, y: 7 });
         assert_eq!(rect.bottom_left(), Coordinates { x: 3, y: 10 });
         assert_eq!(rect.bottom_right(), Coordinates { x: 7, y: 10 });
-    }
+    } */
 
     #[test]
     pub fn iterates_all_points() {

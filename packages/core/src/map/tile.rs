@@ -1,6 +1,7 @@
 use std::fmt;
 
-use crate::prelude::{Coordinates, Delta, Effect, Rect};
+use crate::prelude::{Coordinates, Effect, Rect};
+use crate::traits::{Grid, Spatial};
 
 #[doc = include_str!("../../docs/tile.md")]
 /// Represents a single tile on the grid with an associated effect and
@@ -15,6 +16,38 @@ pub struct Tile {
 
     /// Rectangular area covered by this tile on the grid.
     pub area: Rect,
+}
+
+impl Spatial for Tile {
+    fn contains(&self, target: &Coordinates) -> bool {
+        self.area.contains(target)
+    }
+}
+
+impl Grid for Tile {
+    fn is_blocking_at(&self, target: &Coordinates) -> bool {
+        self.area.contains(target)
+            && self
+                .effect
+                .block
+                .map_or(false, |block| block.contains(target))
+    }
+
+    fn get_actions_at(&self, target: &Coordinates) -> Vec<u32> {
+        if self.contains(target) {
+            self.effect.action_id.into_iter().collect()
+        } else {
+            vec![]
+        }
+    }
+
+    fn get_effects_at(&self, target: &Coordinates) -> Vec<Effect> {
+        if self.contains(target) {
+            vec![self.effect]
+        } else {
+            vec![]
+        }
+    }
 }
 
 impl Tile {
@@ -38,53 +71,53 @@ impl Tile {
         self.effect = effect
     }
 
-    /// Returns `true` if the tile blocks movement or interaction at the
-    /// specified coordinate.
-    ///
-    /// Blocking is defined by the presence of a blocking region inside the
-    /// tile's effect (`effect.block`), and the coordinate must be inside
-    /// both the tile's area and the blocking rectangle.
-    ///
-    /// # Parameters
-    /// - `target`: The coordinate to check.
-    pub fn is_blocking_at(&self, target: Coordinates) -> bool {
-        if let Some(block_area) = self.effect.block {
-            self.area.contains(target) && block_area.contains(target)
-        } else {
-            false
-        }
-    }
+    // /// Returns `true` if the tile blocks movement or interaction at the
+    // /// specified coordinate.
+    // ///
+    // /// Blocking is defined by the presence of a blocking region inside the
+    // /// tile's effect (`effect.block`), and the coordinate must be inside
+    // /// both the tile's area and the blocking rectangle.
+    // ///
+    // /// # Parameters
+    // /// - `target`: The coordinate to check.
+    // pub fn is_blocking_at(&self, target: Coordinates) -> bool {
+    //     if let Some(block_area) = self.effect.block {
+    //         self.area.contains(&target) && block_area.contains(&target)
+    //     } else {
+    //         false
+    //     }
+    // }
 
-    /// Offsets the tile's area and any blocking region within the effect
-    /// by the given delta.
-    ///
-    /// The offset clamps the origin of both rectangles to zero minimum.
-    ///
-    /// # Parameters
-    /// - `delta`: The delta to offset by.
-    pub fn offset(&mut self, delta: Delta) {
-        self.area.offset(delta);
+    // /// Offsets the tile's area and any blocking region within the effect
+    // /// by the given delta.
+    // ///
+    // /// The offset clamps the origin of both rectangles to zero minimum.
+    // ///
+    // /// # Parameters
+    // /// - `delta`: The delta to offset by.
+    // pub fn offset(&mut self, delta: Delta) {
+    //     self.area.offset(delta);
+    //
+    //     if let Some(block_area) = &mut self.effect.block {
+    //         block_area.offset(delta);
+    //     }
+    // }
 
-        if let Some(block_area) = &mut self.effect.block {
-            block_area.offset(delta);
-        }
-    }
+    // /// Translates the tile by the given delta (alias for [`offset`]).
+    // ///
+    // /// # Parameters
+    // /// - `delta`: The delta to translate by.
+    // pub fn translate(&mut self, delta: Delta) {
+    //     self.offset(delta)
+    // }
 
-    /// Translates the tile by the given delta (alias for [`offset`]).
-    ///
-    /// # Parameters
-    /// - `delta`: The delta to translate by.
-    pub fn translate(&mut self, delta: Delta) {
-        self.offset(delta)
-    }
-
-    /// Returns `true` if the tile's area contains the specified coordinate.
-    ///
-    /// # Parameters
-    /// - `coord`: The coordinate to check.
-    pub fn contains(&self, coord: Coordinates) -> bool {
-        self.area.contains(coord)
-    }
+    // /// Returns `true` if the tile's area contains the specified coordinate.
+    // ///
+    // /// # Parameters
+    // /// - `coord`: The coordinate to check.
+    // pub fn contains(&self, coord: Coordinates) -> bool {
+    //     self.area.contains(coord)
+    // }
 }
 
 impl fmt::Display for Tile {
@@ -104,7 +137,7 @@ impl fmt::Display for Tile {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::prelude::{Coordinates, Delta, Effect, Rect, Shape};
+    use crate::prelude::{Coordinates, Effect, Rect, Shape};
 
     fn effect_with_block(origin: Coordinates, shape: Shape) -> Effect {
         Effect {
@@ -126,10 +159,10 @@ mod tests {
             ),
         );
         // inside bounds, inclusive top-left, exclusive bottom-right
-        assert!(tile.contains(Coordinates { x: 1, y: 1 }));
-        assert!(tile.contains(Coordinates { x: 3, y: 3 }));
-        assert!(!tile.contains(Coordinates { x: 4, y: 4 }));
-        assert!(!tile.contains(Coordinates { x: 0, y: 0 }));
+        assert!(tile.contains(&Coordinates { x: 1, y: 1 }));
+        assert!(tile.contains(&Coordinates { x: 3, y: 3 }));
+        assert!(!tile.contains(&Coordinates { x: 4, y: 4 }));
+        assert!(!tile.contains(&Coordinates { x: 0, y: 0 }));
     }
 
     #[test]
@@ -153,17 +186,17 @@ mod tests {
         );
 
         // Inside both tile area and block area
-        assert!(tile.is_blocking_at(Coordinates { x: 2, y: 2 }));
-        assert!(tile.is_blocking_at(Coordinates { x: 3, y: 3 }));
+        assert!(tile.is_blocking_at(&Coordinates { x: 2, y: 2 }));
+        assert!(tile.is_blocking_at(&Coordinates { x: 3, y: 3 }));
 
         // Inside tile area but outside block area
-        assert!(!tile.is_blocking_at(Coordinates { x: 1, y: 1 }));
+        assert!(!tile.is_blocking_at(&Coordinates { x: 1, y: 1 }));
 
         // Outside tile area
-        assert!(!tile.is_blocking_at(Coordinates { x: 5, y: 5 }));
+        assert!(!tile.is_blocking_at(&Coordinates { x: 5, y: 5 }));
     }
 
-    #[test]
+    /* #[test]
     fn offset_and_translate_shift_area_and_block() {
         let mut tile = Tile::new(
             effect_with_block(
@@ -203,7 +236,7 @@ mod tests {
             tile.effect.block.unwrap().origin,
             Coordinates { x: 0, y: 0 }
         );
-    }
+    } */
 
     #[test]
     fn display_outputs_correct_format() {

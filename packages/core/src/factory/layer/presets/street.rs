@@ -1,7 +1,8 @@
 use crate::prelude::{Coordinates, Effect, Layer, Map, Mask, Rect, Shape};
+use crate::traits::{Bounded, Shaped};
 
 pub fn street_around(map: &mut Map, texture_id: u32) {
-    let inner_shape = map.get_shape();
+    let inner_shape = map.get_bounding_rect().shape;
     let outer_width = inner_shape.width + 2;
     let outer_height = inner_shape.height + 2;
 

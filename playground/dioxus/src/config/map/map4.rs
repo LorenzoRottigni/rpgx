@@ -1,3 +1,4 @@
+use rpgx::traits::{Bounded, Shaped};
 use std::any::Any;
 
 use rpgx::{
@@ -81,7 +82,10 @@ pub fn use_map4(library: &Library<Box<dyn Any>>) -> Map {
         "portal".into(),
         vec![Mask::new(
             "portal".into(),
-            vec![Rect::from_many(Rect::from_shape(map.get_shape()).as_center(0, 2)).unwrap()],
+            vec![
+                Rect::from_many(Rect::from_shape(map.get_bounding_rect().shape).as_center(0, 2))
+                    .unwrap(),
+            ],
             Effect {
                 texture_id: library.get_id("portal_1"),
                 ..Default::default()

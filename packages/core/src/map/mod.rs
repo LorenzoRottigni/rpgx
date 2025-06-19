@@ -1,4 +1,7 @@
-use crate::prelude::{Coordinates, Delta, Direction, Effect, Layer, Shape, Tile};
+use crate::{
+    prelude::{Coordinates, Delta, Direction, Effect, Layer, Rect, Shape, Tile},
+    traits::{Bounded, Grid, Renderable, Shaped, Spatial},
+};
 use indexmap::IndexMap;
 
 pub mod effect;
@@ -20,6 +23,60 @@ pub struct Map {
     pub offset: Delta,
 }
 
+impl Renderable for Map {
+    fn render(&self) -> Vec<Tile> {
+        let mut layers = self.layers.clone();
+
+        // Sort layers by z-index (ascending; adjust to descending if needed)
+        layers.sort_by_key(|layer| layer.z);
+
+        layers
+            .into_iter()
+            .flat_map(|mut layer| {
+                layer.offset = layer.offset + self.offset;
+                layer.render()
+            })
+            .collect()
+    }
+}
+
+impl Bounded for Map {
+    fn get_bounding_rect(&self) -> Rect {
+        let rects: Vec<Rect> = self
+            .layers
+            .iter()
+            .map(|layer| layer.get_bounding_rect())
+            .collect();
+        Rect::bounding_rect(&rects)
+    }
+}
+
+impl Spatial for Map {
+    fn contains(&self, target: &Coordinates) -> bool {
+        self.layers.iter().any(|layer| layer.contains(target))
+    }
+}
+
+impl Grid for Map {
+    fn get_effects_at(&self, target: &Coordinates) -> Vec<Effect> {
+        self.layers
+            .iter()
+            .flat_map(|layer| layer.get_effects_at(target))
+            .collect()
+    }
+
+    fn get_actions_at(&self, target: &Coordinates) -> Vec<u32> {
+        self.layers
+            .iter()
+            .flat_map(|layer| layer.get_actions_at(target))
+            .collect()
+    }
+
+    fn is_blocking_at(&self, target: &Coordinates) -> bool {
+        self.layers.iter().any(|layer| layer.is_blocking_at(target))
+    }
+}
+
 impl Map {
     /// Creates a new map with the given name, layers, and spawn location.
     ///
@@ -32,17 +89,6 @@ impl Map {
             spawn,
             offset: Delta::default(),
         }
-    }
-
-    pub fn render(&self) -> Vec<Vec<Tile>> {
-        self.layers
-            .iter()
-            .map(|layer| {
-                let mut layer = layer.clone();
-                layer.offset = layer.offset + self.offset;
-                layer.render()
-            })
-            .collect()
     }
 
     /// Composes a new map by merging multiple maps at specified top-left offsets,
@@ -67,12 +113,13 @@ impl Map {
 
     /// Loads a new layer into the map, offsetting existing layers if needed to fit.
     ///
-    /// If the new layer is larger than the current bounding shape, existing layers
+    /// If the new layer is larger than the current bounding rect, existing layers
     /// are offset by the necessary amount to make room.
-    pub fn load_layer(&mut self, layer: Layer /* , offset: Coordinates */) {
-        let current_shape = self.get_shape();
-        let target_shape = layer.get_shape();
+    pub fn load_layer(&mut self, layer: Layer) {
+        let current_shape = self.get_bounding_rect().shape;
+        let target_shape = layer.get_bounding_rect().shape;
 
+        // Compute delta with -1 to avoid excessive shifting
         let dx = (target_shape.width as i32) - (current_shape.width as i32) - 1;
         let dy = (target_shape.height as i32) - (current_shape.height as i32) - 1;
 
@@ -83,7 +130,7 @@ impl Map {
 
         if offset.dx > 0 || offset.dy > 0 {
             for existing_layer in &mut self.layers {
-                existing_layer.offset = offset;
+                existing_layer.offset = existing_layer.offset + offset;
             }
         }
 
@@ -119,15 +166,29 @@ impl Map {
     ///
     /// Optionally updates the spawn coordinate.
     pub fn duplicate_to_the(&mut self, direction: Direction, spawn: Option<Coordinates>) {
-        let shape = self.get_shape();
+        let bounding_rect = self.get_bounding_rect();
         let top_left = match direction {
-            Direction::Up | Direction::Down => Coordinates {
-                x: 0,
-                y: shape.height,
+            Direction::Up => Coordinates {
+                x: bounding_rect.origin.x,
+                y: bounding_rect
+                    .origin
+                    .y
+                    .saturating_sub(bounding_rect.shape.height),
             },
-            Direction::Left | Direction::Right => Coordinates {
-                x: shape.width,
-                y: 0,
+            Direction::Down => Coordinates {
+                x: bounding_rect.origin.x,
+                y: bounding_rect.origin.y + bounding_rect.shape.height,
+            },
+            Direction::Left => Coordinates {
+                x: bounding_rect
+                    .origin
+                    .x
+                    .saturating_sub(bounding_rect.shape.width),
+                y: bounding_rect.origin.y,
+            },
+            Direction::Right => Coordinates {
+                x: bounding_rect.origin.x + bounding_rect.shape.width,
+                y: bounding_rect.origin.y,
             },
         };
         self.merge_at(&self.clone(), top_left, spawn);
@@ -143,38 +204,6 @@ impl Map {
                 .layers
                 .iter()
                 .all(|layer| !layer.is_blocking_at(&target))
-    }
-
-    /// Returns the bounding shape covering all layers.
-    ///
-    /// If there are no layers, returns an empty shape.
-    pub fn get_shape(&self) -> Shape {
-        let shapes: Vec<Shape> = self.layers.iter().map(|l| l.get_shape()).collect();
-        Shape::bounding_shape(&shapes)
-    }
-
-    /// Returns all tiles present at the given coordinates, from all layers.
-    // pub fn get_tiles_at(&self, pointer: Coordinates) -> Vec<Tile> {
-    //     self.layers
-    //         .iter()
-    //         .flat_map(|layer| layer.get_tile_at(pointer))
-    //         .collect()
-    // }
-
-    /// Returns all effects present at the given coordinates, from all layers.
-    pub fn get_effects_at(&self, target: &Coordinates) -> Vec<Effect> {
-        self.layers
-            .iter()
-            .flat_map(|layer| layer.get_effects_at(target))
-            .collect()
-    }
-
-    /// Returns all action IDs present at the given coordinates, from all layers.
-    pub fn get_actions_at(&self, target: Coordinates) -> Vec<u32> {
-        self.get_effects_at(&target)
-            .iter()
-            .filter_map(|e| e.action_id)
-            .collect()
     }
 }
 

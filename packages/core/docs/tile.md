@@ -53,8 +53,8 @@ let tile = Tile {
     effect: Effect::default(),
 };
 
-assert!(tile.contains(Coordinates::new(2, 2))); // Inside
-assert!(!tile.contains(Coordinates::new(3, 3))); // Outside
+assert!(tile.contains(&Coordinates::new(2, 2))); // Inside
+assert!(!tile.contains(&Coordinates::new(3, 3))); // Outside
 ```
 
 ---
@@ -75,7 +75,7 @@ let tile = Tile {
     effect,
 };
 
-assert!(tile.contains(Coordinates::new(5, 6)));
+assert!(tile.contains(&Coordinates::new(5, 6)));
 ```
 
 ---
