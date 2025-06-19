@@ -26,21 +26,25 @@ pub fn Grid(props: GridProps) -> Element {
                     .enumerate()
                     .flat_map(|(layer_index, layer)| {
                         layer
-                            .render()
+                            .masks
                             .iter()
-                            .enumerate()
-                            .map(move |(i, tile)| {
-                                rsx! {
-                                    Tile {
-                                        key: "{layer_index}-{i}",
-                                        tile: tile.clone(),
-                                        layer_z: layer.z,
-                                        // layer_kind: layer.kind,
-                                        square_size: props.square_size,
-                                        library: props.library.clone(),
-                                        onclick: props.onclick.clone(),
-                                    }
-                                }
+                            .flat_map(move |mask| {
+                                mask.tiles
+                                    .iter()
+                                    .enumerate()
+                                    .flat_map(move |(i, tile)| {
+                                        rsx! {
+                                            Tile {
+                                                key: "{layer_index}-{i}",
+                                                tile: tile.clone(),
+                                                layer_z: layer.z,
+                                                // layer_kind: layer.kind,
+                                                square_size: props.square_size,
+                                                library: props.library.clone(),
+                                                onclick: props.onclick.clone(),
+                                            }
+                                        }
+                                    })
                             })
                             .collect::<Vec<_>>()
                     })

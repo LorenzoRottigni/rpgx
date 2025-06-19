@@ -1,4 +1,7 @@
-use crate::prelude::{Coordinates, Delta, Mask, Shape, Tile};
+use crate::{
+    prelude::{Coordinates, Delta, Mask, Shape, Tile},
+    traits::{Grid, Shaped, Shiftable},
+};
 
 #[doc = include_str!("../../docs/layer.md")]
 /// A `Layer` is a logical or visual overlay composed of [`Mask`]s that apply [`Effect`]s to specific tiles.
@@ -20,57 +23,80 @@ impl Layer {
     pub fn new(name: String, masks: Vec<Mask>, z: u32) -> Self {
         Self { name, masks, z }
     }
+}
 
-    /// Returns the first tile that contains the given coordinates.
-    ///
-    /// Checks all tiles in all masks. Supports tiles with shape larger than 1×1.
-    pub fn get_tile_at(&self, pointer: Coordinates) -> Option<Tile> {
-        self.masks
-            .iter()
-            .flat_map(|mask| mask.tiles.iter().cloned())
-            .find(|tile| {
-                if pointer.x >= tile.area.origin.x && pointer.y >= tile.area.origin.y {
-                    let local = Coordinates {
-                        x: pointer.x - tile.area.origin.x,
-                        y: pointer.y - tile.area.origin.y,
-                    };
-                    tile.area.shape.in_bounds(local)
-                } else {
-                    false
-                }
-            })
+impl Shaped for Layer {
+    /// Returns the overall bounding shape of all masks.
+    fn get_shape(&self) -> Shape {
+        let shapes: Vec<Shape> = self.masks.iter().map(|mask| mask.get_shape()).collect();
+        Shape::bounding_shape(&shapes)
+    }
+}
+
+impl Shiftable for Layer {
+    /// Offsets all tiles in the layer by the given delta.
+    fn offset(&mut self, delta: Delta) {
+        for mask in &mut self.masks {
+            mask.offset(delta);
+        }
     }
 
+    fn translate(&self, delta: Delta) -> Self {
+        let mut new_layer = self.clone();
+        new_layer.offset(delta);
+        new_layer
+    }
+}
+
+impl Grid for Layer {
     /// Checks if any tile in the layer blocks movement at the given coordinate.
-    pub fn is_blocking_at(&self, target: &Coordinates) -> bool {
+    fn is_blocking_at(&self, target: &Coordinates) -> bool {
         self.masks
             .iter()
             .any(|mask| mask.tiles.iter().any(|tile| tile.is_blocking_at(*target)))
     }
 
-    /// Returns the individual shapes of all masks in the layer.
-    pub fn get_shapes(&self) -> Vec<Shape> {
-        self.masks.iter().map(|mask| mask.get_shape()).collect()
+    /// Checks if movement is allowed at the given coordinate.
+    fn move_allowed(&self, target: Coordinates) -> bool {
+        self.contains(target) && !self.is_blocking_at(&target)
     }
 
-    /// Returns the overall bounding shape of all masks.
-    pub fn get_shape(&self) -> Shape {
-        Shape::bounding_shape(&self.get_shapes())
+    /// Checks if the layer contains a tile at the specified coordinate.
+    fn contains(&self, coord: Coordinates) -> bool {
+        self.masks.iter().any(|mask| mask.contains(coord))
     }
 
-    /// Returns all tiles in the layer, flattened.
-    pub fn render(&self) -> Vec<Tile> {
+    fn get_tiles_at(&self, pointer: Coordinates) -> Vec<Tile> {
         self.masks
             .iter()
-            .flat_map(|mask| mask.tiles.iter().cloned())
+            .flat_map(|mask| mask.get_tiles_at(pointer))
             .collect()
     }
 
-    /// Offsets all tiles in the layer by the given delta.
-    pub fn offset(&mut self, delta: Delta) {
-        for mask in &mut self.masks {
-            mask.offset(delta);
-        }
+    /// Returns all actions available at the specified coordinate.
+    fn get_actions_at(&self, pointer: Coordinates) -> Vec<u32> {
+        self.masks
+            .iter()
+            .flat_map(|mask| {
+                mask.get_tiles_at(pointer)
+                    .iter()
+                    .filter_map(|tile| tile.effect.action_id)
+                    .collect::<Vec<_>>()
+            })
+            .collect::<Vec<_>>()
+    }
+
+    /// Returns all effects present at the specified coordinate.
+    fn get_effects_at(&self, pointer: Coordinates) -> Vec<crate::prelude::Effect> {
+        self.masks
+            .iter()
+            .flat_map(|mask| {
+                mask.get_tiles_at(pointer)
+                    .iter()
+                    .map(|tile| tile.effect.clone())
+                    .collect::<Vec<_>>()
+            })
+            .collect()
     }
 }
 
@@ -93,18 +119,6 @@ mod tests {
         let tile = dummy_tile(0, 0, 2, 2);
         let mask = Mask::new("test".into(), vec![tile.area], tile.effect);
         Layer::new("layer".into(), vec![mask], 0)
-    }
-
-    #[test]
-    fn test_get_tile_at_hit() {
-        let layer = simple_layer();
-        assert!(layer.get_tile_at(Coordinates::new(1, 1)).is_some());
-    }
-
-    #[test]
-    fn test_get_tile_at_miss() {
-        let layer = simple_layer();
-        assert!(layer.get_tile_at(Coordinates::new(3, 3)).is_none());
     }
 
     #[test]
@@ -134,13 +148,5 @@ mod tests {
         let shape = layer.get_shape();
         assert!(shape.width >= 2);
         assert!(shape.height >= 2);
-        assert!(layer.get_tile_at(Coordinates::new(2, 3)).is_some());
-    }
-
-    #[test]
-    fn test_render_tiles() {
-        let layer = simple_layer();
-        let tiles = layer.render();
-        assert_eq!(tiles.len(), 1);
     }
 }

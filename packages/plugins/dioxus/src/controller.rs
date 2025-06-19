@@ -6,6 +6,7 @@ use log::error;
 use rpgx::library::Library;
 use rpgx::prelude::Engine;
 use rpgx::prelude::{Coordinates, Direction};
+use rpgx::traits::Grid;
 
 #[derive(Clone, Debug)]
 pub enum Command {

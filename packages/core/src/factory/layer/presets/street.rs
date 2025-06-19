@@ -1,4 +1,4 @@
-use crate::prelude::{Coordinates, Effect, Layer, Map, Mask, Rect, Shape};
+use crate::prelude::*;
 
 pub fn street_around(map: &mut Map, texture_id: u32) {
     let inner_shape = map.get_shape();

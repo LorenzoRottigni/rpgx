@@ -1,9 +1,6 @@
 use std::any::Any;
 
-use rpgx::{
-    library::Library,
-    prelude::{Coordinates, Effect, Layer, Map, Mask, Rect, Shape},
-};
+use rpgx::{library::Library, prelude::*};
 
 pub fn use_map4(library: &Library<Box<dyn Any>>) -> Map {
     let layer1 = Layer::new(

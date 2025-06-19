@@ -1,6 +1,9 @@
 use std::fmt;
 
-use crate::prelude::{Coordinates, Delta, Effect, Rect};
+use crate::{
+    prelude::{Coordinates, Delta, Effect, Rect},
+    traits::Shiftable,
+};
 
 #[doc = include_str!("../../docs/tile.md")]
 /// Represents a single tile on the grid with an associated effect and
@@ -15,6 +18,33 @@ pub struct Tile {
 
     /// Rectangular area covered by this tile on the grid.
     pub area: Rect,
+}
+
+impl Shiftable for Tile {
+    /// Offsets the tile's area and any blocking region within the effect
+    /// by the given delta.
+    ///
+    /// The offset clamps the origin of both rectangles to zero minimum.
+    ///
+    /// # Parameters
+    /// - `delta`: The delta to offset by.
+    fn offset(&mut self, delta: Delta) {
+        self.area.offset(delta);
+
+        if let Some(block_area) = &mut self.effect.block {
+            block_area.offset(delta);
+        }
+    }
+
+    /// Translates the tile by the given delta (alias for [`offset`]).
+    ///
+    /// # Parameters
+    /// - `delta`: The delta to translate by.
+    fn translate(&self, delta: Delta) -> Self {
+        let mut new_tile = *self;
+        new_tile.offset(delta);
+        new_tile
+    }
 }
 
 impl Tile {
@@ -53,29 +83,6 @@ impl Tile {
         } else {
             false
         }
-    }
-
-    /// Offsets the tile's area and any blocking region within the effect
-    /// by the given delta.
-    ///
-    /// The offset clamps the origin of both rectangles to zero minimum.
-    ///
-    /// # Parameters
-    /// - `delta`: The delta to offset by.
-    pub fn offset(&mut self, delta: Delta) {
-        self.area.offset(delta);
-
-        if let Some(block_area) = &mut self.effect.block {
-            block_area.offset(delta);
-        }
-    }
-
-    /// Translates the tile by the given delta (alias for [`offset`]).
-    ///
-    /// # Parameters
-    /// - `delta`: The delta to translate by.
-    pub fn translate(&mut self, delta: Delta) {
-        self.offset(delta)
     }
 
     /// Returns `true` if the tile's area contains the specified coordinate.

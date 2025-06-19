@@ -1,9 +1,6 @@
 use std::any::Any;
 
-use rpgx::{
-    library::Library,
-    prelude::{Coordinates, Effect, Layer, Map, Mask, Rect, Shape},
-};
+use rpgx::{library::Library, prelude::*};
 
 pub fn use_map1(library: &Library<Box<dyn Any>>) -> Map {
     println!("loading render id: {:?}", library.get_id("sign"));

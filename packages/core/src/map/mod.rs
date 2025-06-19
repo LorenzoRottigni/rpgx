@@ -1,4 +1,7 @@
-use crate::prelude::{Coordinates, Delta, Direction, Effect, Layer, Shape, Tile};
+use crate::{
+    prelude::{Coordinates, Delta, Direction, Effect, Layer, Shape, Tile},
+    traits::{Grid, Shaped, Shiftable},
+};
 use indexmap::IndexMap;
 
 pub mod effect;
@@ -16,6 +19,55 @@ pub struct Map {
     pub layers: Vec<Layer>,
     /// Default spawn coordinates for pawns/players
     pub spawn: Coordinates,
+}
+
+impl Shaped for Map {
+    /// Returns the bounding shape covering all layers in the map.
+    fn get_shape(&self) -> Shape {
+        let shapes: Vec<Shape> = self.layers.iter().map(|l| l.get_shape()).collect();
+        Shape::bounding_shape(&shapes)
+    }
+}
+
+impl Grid for Map {
+    /// Checks if any layer contains a tile at the specified coordinate.
+    fn contains(&self, coord: Coordinates) -> bool {
+        self.layers.iter().any(|layer| layer.contains(coord))
+    }
+
+    /// Returns all tiles at the specified coordinate from all layers.
+    fn get_tiles_at(&self, pointer: Coordinates) -> Vec<Tile> {
+        self.layers
+            .iter()
+            .flat_map(|layer| layer.get_tiles_at(pointer))
+            .collect()
+    }
+
+    /// Checks if any layer blocks movement at the specified coordinate.
+    fn is_blocking_at(&self, target: &Coordinates) -> bool {
+        self.layers.iter().any(|layer| layer.is_blocking_at(target))
+    }
+
+    /// Checks if movement is allowed at the specified coordinate.
+    fn move_allowed(&self, target: Coordinates) -> bool {
+        self.contains(target) && !self.is_blocking_at(&target)
+    }
+
+    /// Returns all effects present at the specified coordinate from all layers.
+    fn get_effects_at(&self, pointer: Coordinates) -> Vec<Effect> {
+        self.layers
+            .iter()
+            .flat_map(|layer| layer.get_effects_at(pointer))
+            .collect()
+    }
+
+    /// Returns all action IDs present at the specified coordinate from all layers.
+    fn get_actions_at(&self, pointer: Coordinates) -> Vec<u32> {
+        self.layers
+            .iter()
+            .flat_map(|layer| layer.get_actions_at(pointer))
+            .collect()
+    }
 }
 
 impl Map {
@@ -115,57 +167,6 @@ impl Map {
             },
         };
         self.merge_at(&self.clone(), top_left, spawn);
-    }
-
-    /// Returns true if movement onto the specified coordinate is allowed.
-    ///
-    /// A coordinate is allowed if at least one layer has a tile there,
-    /// and no layer is blocking at that coordinate.
-    pub fn move_allowed(&self, target: Coordinates) -> bool {
-        self.layers
-            .iter()
-            .any(|layer| layer.get_tile_at(target).is_some())
-            && self
-                .layers
-                .iter()
-                .all(|layer| !layer.is_blocking_at(&target))
-    }
-
-    /// Returns the bounding shape covering all layers.
-    ///
-    /// If there are no layers, returns an empty shape.
-    pub fn get_shape(&self) -> Shape {
-        let shapes: Vec<Shape> = self.layers.iter().map(|l| l.get_shape()).collect();
-        Shape::bounding_shape(&shapes)
-    }
-
-    /// Returns all tiles present at the given coordinates, from all layers.
-    pub fn get_tiles_at(&self, pointer: Coordinates) -> Vec<Tile> {
-        self.layers
-            .iter()
-            .flat_map(|layer| layer.get_tile_at(pointer))
-            .collect()
-    }
-
-    /// Returns all effects present at the given coordinates, from all layers.
-    pub fn get_effects_at(&self, pointer: Coordinates) -> Vec<Effect> {
-        self.layers
-            .iter()
-            .flat_map(|layer| layer.get_tile_at(pointer).map(|tile| tile.effect))
-            .collect()
-    }
-
-    /// Returns all action IDs present at the given coordinates, from all layers.
-    pub fn get_actions_at(&self, pointer: Coordinates) -> Vec<u32> {
-        self.layers
-            .clone()
-            .into_iter()
-            .flat_map(|layer| {
-                layer
-                    .get_tile_at(pointer)
-                    .and_then(|tile| tile.effect.action_id)
-            })
-            .collect()
     }
 }
 
