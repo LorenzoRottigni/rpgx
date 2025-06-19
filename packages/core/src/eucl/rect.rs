@@ -5,7 +5,7 @@ use std::{
 
 use crate::{
     prelude::{Coordinates, Delta, Shape},
-    traits::Spatial,
+    traits::{Shift, Spatial},
 };
 
 /// Errors related to [`Rect`] construction and manipulation.
@@ -495,12 +495,12 @@ impl Rect {
     }
 }
 
-impl Rect {
+impl Shift for Rect {
     /// Offsets the rectangle’s origin by the given delta.
     ///
     /// The result is clamped to non-negative values (0, 0 minimum).
     ///
-    pub fn offset(&mut self, delta: Delta) {
+    fn offset(&mut self, delta: Delta) {
         let new_x = self.origin.x as i32 + delta.dx;
         let new_y = self.origin.y as i32 + delta.dy;
 
@@ -509,7 +509,7 @@ impl Rect {
     }
 
     /// Returns a new `Rect` translated by the given `Delta`, clamped at zero.
-    pub fn translate(&self, delta: Delta) -> Self {
+    fn translate(&self, delta: Delta) -> Self {
         let mut rect = *self;
         rect.offset(delta);
         rect

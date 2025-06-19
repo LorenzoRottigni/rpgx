@@ -1,7 +1,6 @@
 use std::any::Any;
 
 use dioxus::prelude::*;
-use rpgx::prelude::Tile;
 use rpgx::traits::Renderable;
 use rpgx::{engine::Engine, library::Library, prelude::RPGXError};
 
@@ -30,8 +29,7 @@ pub fn Grid(props: GridProps) -> Element {
                         Tile {
                             key: "tile-{i}",
                             tile: tile.clone(),
-                            layer_z: i as u32 + 1, // layer.z,
-                            // layer_kind: layer.kind,
+                            layer_z: i as u32 + 1,
                             square_size: props.square_size,
                             library: props.library.clone(),
                             onclick: props.onclick.clone(),
@@ -45,31 +43,3 @@ pub fn Grid(props: GridProps) -> Element {
         }
     }
 }
-
-/* {
-    scene
-        .map
-        .layers
-        .iter()
-        .enumerate()
-        .flat_map(|(layer_index, layer)| {
-            layer
-                .render()
-                .iter()
-                .enumerate()
-                .map(move |(i, tile)| {
-                    rsx! {
-                        Tile {
-                            key: "{layer_index}-{i}",
-                            tile: tile.clone(),
-                            layer_z: layer.z,
-                            // layer_kind: layer.kind,
-                            square_size: props.square_size,
-                            library: props.library.clone(),
-                            onclick: props.onclick.clone(),
-                        }
-                    }
-                })
-                .collect::<Vec<_>>()
-        })
-} */

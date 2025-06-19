@@ -1,6 +1,6 @@
 use crate::{
-    prelude::{Coordinates, Delta, Direction, Effect, Layer, Rect, Shape, Tile},
-    traits::{Bounded, Grid, Renderable, Shaped, Spatial},
+    prelude::{Coordinates, Delta, Direction, Effect, Layer, Rect, Tile},
+    traits::{Bounded, Grid, Renderable, Spatial},
 };
 use indexmap::IndexMap;
 
@@ -255,8 +255,8 @@ mod tests {
         let blocked = vec![Coordinates::new(1, 1)];
         let map = build_test_map(&blocked);
 
-        assert!(map.move_allowed(Coordinates::new(0, 0))); // empty but tile missing? depends on layers
-        assert!(!map.move_allowed(Coordinates::new(1, 1))); // blocked tile
+        assert!(map.move_allowed(Coordinates::new(0, 0)));
+        assert!(!map.move_allowed(Coordinates::new(1, 1)));
     }
 
     #[test]
@@ -279,20 +279,4 @@ mod tests {
 
         assert_eq!(dup.layers.len(), map.layers.len() * 2);
     }
-
-    // #[test]
-    // fn test_get_tiles_effects_actions() {
-    //     let blocked = vec![Coordinates::new(1, 1)];
-    //     let map = build_test_map(&blocked);
-    //     let coord = Coordinates::new(1, 1);
-    //
-    //     let tiles = map.get_tiles_at(coord);
-    //     assert!(!tiles.is_empty());
-    //
-    //     let effects = map.get_effects_at(coord);
-    //     assert!(!effects.is_empty());
-    //
-    //     let actions = map.get_actions_at(coord);
-    //     assert!(actions.is_empty()); // No actions set in blocking tiles
-    // }
 }

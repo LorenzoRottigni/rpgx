@@ -1,4 +1,7 @@
-use crate::prelude::{Delta, Rect};
+use crate::{
+    prelude::{Delta, Rect},
+    traits::Shift,
+};
 
 #[doc = include_str!("../../docs/effect.md")]
 /// Visual and interactive properties applied to a [`super::tile::Tile`] or UI element.
@@ -22,14 +25,14 @@ pub struct Effect {
     pub block: Option<Rect>,
 }
 
-impl Effect {
-    pub fn offset(&mut self, delta: Delta) {
+impl Shift for Effect {
+    fn offset(&mut self, delta: Delta) {
         if let Some(ref mut block_rect) = self.block {
             block_rect.offset(delta);
         }
     }
 
-    pub fn translate(&self, delta: Delta) -> Self {
+    fn translate(&self, delta: Delta) -> Self {
         let mut effect = *self;
         effect.offset(delta);
         effect

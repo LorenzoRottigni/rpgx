@@ -2,7 +2,7 @@ use std::vec;
 
 use crate::{
     prelude::{Coordinates, Delta, Effect, Rect, Shape, Tile},
-    traits::{Bounded, Grid, Renderable, Spatial},
+    traits::{Bounded, Grid, Renderable, Shift, Spatial},
 };
 
 #[derive(Clone, Debug)]
@@ -14,6 +14,18 @@ pub struct Mask {
     pub effect: Effect,
     /// Offset applied at rendering time to all tiles in the mask.
     pub offset: Delta,
+}
+
+impl Mask {
+    /// Creates a new mask with a given name, rectangular areas, and uniform effect.
+    pub fn new(name: String, rects: Vec<Rect>, effect: Effect) -> Self {
+        Self {
+            name,
+            rects,
+            effect,
+            offset: Delta::default(),
+        }
+    }
 }
 
 impl Renderable for Mask {
@@ -60,33 +72,6 @@ impl Bounded for Mask {
     }
 }
 
-/* impl Shaped for Mask {
-    fn get_shapes(&self) -> Vec<Shape> {
-        self.rects.iter().map(|rect| rect.shape).collect()
-    }
-
-    fn get_shape(&self) -> Shape {
-        if self.rects.is_empty() {
-            return Shape::default();
-        }
-
-        let max_x = self
-            .rects
-            .iter()
-            .map(|r| r.origin.x + r.shape.width)
-            .max()
-            .unwrap();
-        let max_y = self
-            .rects
-            .iter()
-            .map(|r| r.origin.y + r.shape.height)
-            .max()
-            .unwrap();
-
-        Shape::from_rectangle(max_x, max_y)
-    }
-} */
-
 impl Spatial for Mask {
     fn contains(&self, target: &Coordinates) -> bool {
         self.rects.iter().any(|rect| rect.contains(target))
@@ -121,70 +106,6 @@ impl Grid for Mask {
             vec![]
         }
     }
-}
-
-impl Mask {
-    /// Creates a new mask with a given name, rectangular areas, and uniform effect.
-    pub fn new(name: String, rects: Vec<Rect>, effect: Effect) -> Self {
-        // let tiles = areas
-        //     .into_iter()
-        //     .map(|area| Tile { area, effect })
-        //     .collect();
-
-        Self {
-            name,
-            rects,
-            effect,
-            offset: Delta::default(),
-        }
-    }
-
-    // /// Offsets all tiles in the mask and their effects by the specified delta.
-    // pub fn offset(&mut self, delta: Delta) {
-    //     for tile in &mut self.tiles {
-    //         tile.area.offset(delta);
-    //         tile.effect.offset(delta);
-    //     }
-    // }
-
-    // /// Computes the bounding shape of all tiles.
-    // pub fn get_shape(&self) -> Shape {
-    //     if self.rects.is_empty() {
-    //         return Shape::default();
-    //     }
-    //
-    //     let (max_x, max_y) = self.rects.iter().fold((0, 0), |(mx, my), rect| {
-    //         let x_end = rect.origin.x + rect.shape.width;
-    //         let y_end = rect.origin.y + rect.shape.height;
-    //         (mx.max(x_end), my.max(y_end))
-    //     });
-    //
-    //     Shape::from_rectangle(max_x, max_y)
-    // }
-
-    // /// Returns true if any tile contains the given coordinate.
-    // pub fn contains(&self, coord: &Coordinates) -> bool {
-    //     self.rects.iter().any(|rect| rect.contains(&coord))
-    // }
-
-    // pub fn translate(&self, delta: Delta) -> Self {
-    //     let mut mask = self.clone();
-    //     mask.offset = mask.offset + delta;
-    //     mask
-    // }
-
-    // /// Returns the tile at the specified coordinate, if any.
-    // pub fn tile_at(&self, coord: Coordinates) -> Option<Tile> {
-    //     if let Some(rect) = self.rects.iter().find(|rect| rect.contains(coord)) {
-    //         let effect = self.effect.clone();
-    //         Some(Tile {
-    //             area: rect.clone(),
-    //             effect,
-    //         })
-    //     } else {
-    //         None
-    //     }
-    // }
 }
 
 #[cfg(test)]
@@ -250,41 +171,4 @@ mod tests {
         assert_eq!(mask.get_bounding_rect().shape.width, 4);
         assert_eq!(mask.get_bounding_rect().shape.height, 6);
     }
-
-    /*#[test]
-    fn mask_get_shape_returns_correct_bounds() {
-        let tiles = vec![
-            Rect::new(Coordinates::new(1, 1), Shape::new(2, 2)), // ends at x=3
-            Rect::new(Coordinates::new(4, 3), Shape::new(4, 1)), // ends at x=8
-        ];
-        let mask = Mask::new("shape_mask".to_string(), tiles.clone(), Effect::default());
-
-        let shape = mask.get_bounding_rect().shape;
-        assert_eq!(shape.width, 7); // 4 + 3
-        assert_eq!(shape.height, 4); // max(1+2, 3+1)
-    }
-
-    #[test]
-    fn mask_contains_and_tile_at_work() {
-        let tile = Rect::new(Coordinates::new(5, 5), Shape::new(2, 2));
-        let mut mask = Mask::new(
-            "lookup_mask".to_string(),
-            vec![tile.clone()],
-            Effect::default(),
-        );
-
-        mask.offset = Delta::new(1, 1);
-
-        let check_inside = Coordinates::new(6, 6); // Originally (5,5) → offset by (1,1)
-        let check_outside = Coordinates::new(8, 8); // Outside
-
-        assert!(mask.contains(check_inside));
-        assert!(!mask.contains(check_outside));
-
-        let found = mask.tile_at(check_inside);
-        assert!(found.is_some());
-        assert_eq!(found.unwrap().area, tile); // tile_at ignores offset
-
-        assert!(mask.tile_at(check_outside).is_none());
-    } */
 }

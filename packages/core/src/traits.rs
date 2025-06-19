@@ -1,4 +1,4 @@
-use crate::prelude::{Coordinates, Effect, Rect, Tile};
+use crate::prelude::{Coordinates, Delta, Effect, Rect, Tile};
 
 pub trait Renderable {
     fn render(&self) -> Vec<Tile>;
@@ -27,4 +27,9 @@ pub trait Grid {
     fn get_effects_at(&self, target: &Coordinates) -> Vec<Effect>;
     fn get_actions_at(&self, target: &Coordinates) -> Vec<u32>;
     fn is_blocking_at(&self, target: &Coordinates) -> bool;
+}
+
+pub trait Shift {
+    fn translate(&self, delta: Delta) -> Self;
+    fn offset(&mut self, delta: Delta);
 }
