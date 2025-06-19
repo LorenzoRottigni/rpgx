@@ -1,11 +1,31 @@
 use rpgx::prelude::*;
 use wasm_bindgen::prelude::*;
 
-use crate::prelude::{WasmCoordinates, WasmDelta, WasmMask, WasmShape, WasmTile};
+use crate::{
+    prelude::{WasmCoordinates, WasmDelta, WasmMask, WasmShape, WasmTile},
+    traits::WasmWrapper,
+};
 
 #[wasm_bindgen(js_name = Layer)]
 pub struct WasmLayer {
     inner: Layer,
+}
+
+impl WasmWrapper<Layer> for WasmLayer {
+    /// Get a reference to the inner Layer
+    fn inner(&self) -> &Layer {
+        &self.inner
+    }
+
+    /// Consume WasmLayer and return the inner Layer
+    fn into_inner(self) -> Layer {
+        self.inner
+    }
+
+    /// Create WasmLayer from inner Layer directly
+    fn from_inner(inner: Layer) -> WasmLayer {
+        WasmLayer { inner }
+    }
 }
 
 #[wasm_bindgen(js_class = Layer)]
@@ -65,22 +85,5 @@ impl WasmLayer {
     #[wasm_bindgen]
     pub fn offset(&mut self, delta: &WasmDelta) {
         self.inner.offset(*delta.inner());
-    }
-}
-
-impl WasmLayer {
-    /// Get a reference to the inner Layer
-    pub fn inner(&self) -> &Layer {
-        &self.inner
-    }
-
-    /// Consume WasmLayer and return the inner Layer
-    pub fn into_inner(self) -> Layer {
-        self.inner
-    }
-
-    /// Create WasmLayer from inner Layer directly
-    pub fn from_inner(inner: Layer) -> WasmLayer {
-        WasmLayer { inner }
     }
 }

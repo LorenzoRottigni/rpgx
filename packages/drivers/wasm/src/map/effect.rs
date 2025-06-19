@@ -1,12 +1,32 @@
 use rpgx::prelude::Effect;
 use wasm_bindgen::prelude::*;
 
-use crate::prelude::{WasmDelta, WasmRect};
+use crate::{
+    prelude::{WasmDelta, WasmRect},
+    traits::WasmWrapper,
+};
 
 #[wasm_bindgen(js_name = Effect)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub struct WasmEffect {
     inner: Effect,
+}
+
+impl WasmWrapper<Effect> for WasmEffect {
+    /// Get a reference to the inner Effect
+    fn inner(&self) -> &Effect {
+        &self.inner
+    }
+
+    /// Consume WasmEffect and return the inner Effect
+    fn into_inner(self) -> Effect {
+        self.inner
+    }
+
+    /// Create WasmEffect from inner Effect directly
+    fn from_inner(inner: Effect) -> Self {
+        WasmEffect { inner }
+    }
 }
 
 #[wasm_bindgen(js_class = Effect)]
@@ -72,16 +92,5 @@ impl WasmEffect {
     #[wasm_bindgen]
     pub fn offset(&mut self, delta: &WasmDelta) {
         self.inner.offset(*delta.inner());
-    }
-}
-
-impl WasmEffect {
-    // Internal Rust accessors
-    pub fn from_inner(inner: Effect) -> Self {
-        WasmEffect { inner }
-    }
-
-    pub fn inner(&self) -> &Effect {
-        &self.inner
     }
 }

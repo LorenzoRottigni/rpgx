@@ -1,7 +1,7 @@
 pub mod pawn;
 pub mod scene;
 
-use crate::engine::scene::WasmScene;
+use crate::{engine::scene::WasmScene, traits::WasmWrapper};
 use js_sys::Array;
 use rpgx::prelude::Engine;
 use wasm_bindgen::prelude::*;
@@ -9,6 +9,20 @@ use wasm_bindgen::prelude::*;
 #[wasm_bindgen(js_name = Engine)]
 pub struct WasmEngine {
     inner: Engine,
+}
+
+impl WasmWrapper<Engine> for WasmEngine {
+    fn into_inner(self) -> Engine {
+        self.inner
+    }
+
+    fn from_inner(inner: Engine) -> WasmEngine {
+        WasmEngine { inner }
+    }
+
+    fn inner(&self) -> &Engine {
+        &self.inner
+    }
 }
 
 #[wasm_bindgen(js_class = Engine)]
@@ -90,15 +104,5 @@ impl WasmEngine {
     #[wasm_bindgen(js_name = getCurrentIndex)]
     pub fn get_current_index(&self) -> usize {
         self.inner.timenow
-    }
-}
-
-impl WasmEngine {
-    pub fn into_inner(self) -> Engine {
-        self.inner
-    }
-
-    pub fn from_inner(inner: Engine) -> WasmEngine {
-        WasmEngine { inner }
     }
 }

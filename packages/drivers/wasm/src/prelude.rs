@@ -9,3 +9,5 @@ pub use crate::map::effect::WasmEffect;
 pub use crate::map::layer::WasmLayer;
 pub use crate::map::mask::WasmMask;
 pub use crate::map::tile::WasmTile;
+
+pub use crate::traits::*;

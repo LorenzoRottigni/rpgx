@@ -2,12 +2,27 @@ use crate::engine::pawn::WasmPawn;
 use crate::eucl::coordinates::WasmCoordinates;
 use crate::eucl::direction::WasmDirection;
 use crate::map::WasmMap;
+use crate::traits::WasmWrapper;
 use rpgx::prelude::Scene;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(js_name = Scene)]
 pub struct WasmScene {
     inner: Scene,
+}
+
+impl WasmWrapper<Scene> for WasmScene {
+    fn into_inner(self) -> Scene {
+        self.inner
+    }
+
+    fn from_inner(inner: Scene) -> WasmScene {
+        WasmScene { inner }
+    }
+
+    fn inner(&self) -> &Scene {
+        &self.inner
+    }
 }
 
 #[wasm_bindgen(js_class = Scene)]
@@ -80,15 +95,5 @@ impl WasmScene {
     #[wasm_bindgen(js_name = getPawn)]
     pub fn get_pawn(&self) -> Option<WasmPawn> {
         self.inner.pawn.clone().map(WasmPawn::from_inner)
-    }
-}
-
-impl WasmScene {
-    pub fn into_inner(self) -> Scene {
-        self.inner
-    }
-
-    pub fn from_inner(inner: Scene) -> WasmScene {
-        WasmScene { inner }
     }
 }

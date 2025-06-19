@@ -1,10 +1,26 @@
 use rpgx::prelude::Delta;
 use wasm_bindgen::prelude::*;
 
+use crate::traits::WasmWrapper;
+
 #[wasm_bindgen(js_name = Delta)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct WasmDelta {
     inner: Delta,
+}
+
+impl WasmWrapper<Delta> for WasmDelta {
+    fn from_inner(inner: Delta) -> Self {
+        WasmDelta { inner }
+    }
+
+    fn inner(&self) -> &Delta {
+        &self.inner
+    }
+
+    fn into_inner(self) -> Delta {
+        self.inner
+    }
 }
 
 #[wasm_bindgen(js_class = Delta)]
@@ -77,20 +93,5 @@ impl WasmDelta {
     #[wasm_bindgen]
     pub fn neg(&self) -> WasmDelta {
         WasmDelta { inner: -self.inner }
-    }
-}
-
-// Internal Rust API
-impl WasmDelta {
-    pub fn from_inner(inner: Delta) -> Self {
-        WasmDelta { inner }
-    }
-
-    pub fn inner(&self) -> &Delta {
-        &self.inner
-    }
-
-    pub fn into_inner(self) -> Delta {
-        self.inner
     }
 }

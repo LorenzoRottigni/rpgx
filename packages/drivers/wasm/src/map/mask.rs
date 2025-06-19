@@ -1,11 +1,31 @@
 use rpgx::prelude::*;
 use wasm_bindgen::prelude::*;
 
-use crate::prelude::{WasmCoordinates, WasmDelta, WasmEffect, WasmRect, WasmShape, WasmTile};
+use crate::{
+    prelude::{WasmCoordinates, WasmDelta, WasmEffect, WasmRect, WasmShape, WasmTile},
+    traits::WasmWrapper,
+};
 
 #[wasm_bindgen(js_name = Mask)]
 pub struct WasmMask {
     inner: Mask,
+}
+
+impl WasmWrapper<Mask> for WasmMask {
+    /// Get a reference to the inner Mask (Rust struct)
+    fn inner(&self) -> &Mask {
+        &self.inner
+    }
+
+    /// Consume WasmMask and return the inner Mask
+    fn into_inner(self) -> Mask {
+        self.inner
+    }
+
+    /// Create WasmMask from inner Mask directly
+    fn from_inner(inner: Mask) -> WasmMask {
+        WasmMask { inner }
+    }
 }
 
 #[wasm_bindgen(js_class = Mask)]
@@ -63,22 +83,5 @@ impl WasmMask {
             .cloned()
             .map(WasmTile::from_inner)
             .collect()
-    }
-}
-
-impl WasmMask {
-    /// Get a reference to the inner Mask (Rust struct)
-    pub fn inner(&self) -> &Mask {
-        &self.inner
-    }
-
-    /// Consume WasmMask and return the inner Mask
-    pub fn into_inner(self) -> Mask {
-        self.inner
-    }
-
-    /// Create WasmMask from inner Mask directly
-    pub fn from_inner(inner: Mask) -> WasmMask {
-        WasmMask { inner }
     }
 }

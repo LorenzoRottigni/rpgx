@@ -1,12 +1,29 @@
-use rpgx::prelude::*;
+use rpgx::{prelude::Tile, traits::Shiftable};
 use wasm_bindgen::prelude::*;
 
-use crate::prelude::{WasmCoordinates, WasmDelta, WasmEffect, WasmRect};
+use crate::{
+    prelude::{WasmCoordinates, WasmDelta, WasmEffect, WasmRect},
+    traits::WasmWrapper,
+};
 
 #[wasm_bindgen(js_name = Tile)]
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct WasmTile {
     inner: Tile,
+}
+
+impl WasmWrapper<Tile> for WasmTile {
+    fn from_inner(inner: Tile) -> Self {
+        WasmTile { inner }
+    }
+
+    fn inner(&self) -> &Tile {
+        &self.inner
+    }
+
+    fn into_inner(self) -> Tile {
+        self.inner
+    }
 }
 
 #[wasm_bindgen(js_class = Tile)]
@@ -85,20 +102,5 @@ impl WasmTile {
     #[wasm_bindgen(js_name = toString)]
     pub fn to_string(&self) -> String {
         format!("{}", self.inner)
-    }
-}
-
-// Internal Rust API
-impl WasmTile {
-    pub fn from_inner(inner: Tile) -> Self {
-        WasmTile { inner }
-    }
-
-    pub fn inner(&self) -> &Tile {
-        &self.inner
-    }
-
-    pub fn into_inner(self) -> Tile {
-        self.inner
     }
 }

@@ -10,11 +10,30 @@ use tile::WasmTile;
 use rpgx::prelude::*;
 use wasm_bindgen::prelude::*;
 
-use crate::prelude::{WasmCoordinates, WasmDirection, WasmShape};
+use crate::{
+    prelude::{WasmCoordinates, WasmDirection, WasmShape},
+    traits::WasmWrapper,
+};
 
 #[wasm_bindgen(js_name = Map)]
 pub struct WasmMap {
     inner: Map,
+}
+
+impl WasmWrapper<Map> for WasmMap {
+    /// Consume and get the inner Map
+    fn into_inner(self) -> Map {
+        self.inner
+    }
+
+    /// Create from an inner Map directly
+    fn from_inner(inner: Map) -> WasmMap {
+        WasmMap { inner }
+    }
+
+    fn inner(&self) -> &Map {
+        &self.inner
+    }
 }
 
 #[wasm_bindgen(js_class = Map)]
@@ -162,17 +181,5 @@ impl WasmMap {
     #[wasm_bindgen(js_name = getActionsAt)]
     pub fn get_actions_at(&self, pointer: &WasmCoordinates) -> Vec<u32> {
         self.inner.get_actions_at(*pointer.inner())
-    }
-}
-
-impl WasmMap {
-    /// Consume and get the inner Map
-    pub fn into_inner(self) -> Map {
-        self.inner
-    }
-
-    /// Create from an inner Map directly
-    pub fn from_inner(inner: Map) -> WasmMap {
-        WasmMap { inner }
     }
 }

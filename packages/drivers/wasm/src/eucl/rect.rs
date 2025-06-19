@@ -1,4 +1,7 @@
-use crate::prelude::{WasmCoordinates, WasmShape};
+use crate::{
+    prelude::{WasmCoordinates, WasmShape},
+    traits::WasmWrapper,
+};
 use rpgx::prelude::Rect;
 use wasm_bindgen::prelude::*;
 
@@ -6,6 +9,20 @@ use wasm_bindgen::prelude::*;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct WasmRect {
     inner: Rect,
+}
+
+impl WasmWrapper<Rect> for WasmRect {
+    fn from_inner(inner: Rect) -> Self {
+        WasmRect { inner }
+    }
+
+    fn inner(&self) -> &Rect {
+        &self.inner
+    }
+
+    fn into_inner(self) -> Rect {
+        self.inner
+    }
 }
 
 #[wasm_bindgen(js_class = Rect)]
@@ -148,20 +165,5 @@ impl WasmRect {
         self.inner
             .intersection(&other.inner)
             .map(|r| WasmRect { inner: r })
-    }
-}
-
-// Internal Rust API
-impl WasmRect {
-    pub fn from_inner(inner: Rect) -> Self {
-        WasmRect { inner }
-    }
-
-    pub fn inner(&self) -> &Rect {
-        &self.inner
-    }
-
-    pub fn into_inner(self) -> Rect {
-        self.inner
     }
 }
