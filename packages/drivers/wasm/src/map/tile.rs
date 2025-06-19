@@ -1,4 +1,4 @@
-use rpgx::prelude::Tile;
+use rpgx::prelude::*;
 use wasm_bindgen::prelude::*;
 
 use crate::prelude::{WasmCoordinates, WasmDelta, WasmEffect, WasmRect};

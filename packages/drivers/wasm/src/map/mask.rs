@@ -1,4 +1,4 @@
-use rpgx::prelude::Mask;
+use rpgx::prelude::*;
 use wasm_bindgen::prelude::*;
 
 use crate::prelude::{WasmCoordinates, WasmDelta, WasmEffect, WasmRect, WasmShape, WasmTile};
@@ -56,10 +56,13 @@ impl WasmMask {
 
     /// Get the tile at coordinate, or null if none
     #[wasm_bindgen(js_name = tileAt)]
-    pub fn tile_at(&self, coord: &WasmCoordinates) -> Option<WasmTile> {
+    pub fn get_tiles_at(&self, coord: &WasmCoordinates) -> Vec<WasmTile> {
         self.inner
-            .tile_at(*coord.inner())
-            .map(|tile| WasmTile::from_inner(*tile))
+            .get_tiles_at(*coord.inner())
+            .iter()
+            .cloned()
+            .map(WasmTile::from_inner)
+            .collect()
     }
 }
 

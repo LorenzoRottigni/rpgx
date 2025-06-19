@@ -7,7 +7,7 @@ use effect::WasmEffect;
 use layer::WasmLayer;
 use tile::WasmTile;
 
-use rpgx::prelude::Map;
+use rpgx::prelude::*;
 use wasm_bindgen::prelude::*;
 
 use crate::prelude::{WasmCoordinates, WasmDirection, WasmShape};

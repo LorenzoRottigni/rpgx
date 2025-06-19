@@ -1,4 +1,4 @@
-use rpgx::prelude::Layer;
+use rpgx::prelude::*;
 use wasm_bindgen::prelude::*;
 
 use crate::prelude::{WasmCoordinates, WasmDelta, WasmMask, WasmShape, WasmTile};
@@ -40,10 +40,13 @@ impl WasmLayer {
 
     /// Returns the first tile at the given coordinate or null if none.
     #[wasm_bindgen(js_name = getTileAt)]
-    pub fn get_tile_at(&self, coord: &WasmCoordinates) -> Option<WasmTile> {
+    pub fn get_tiles_at(&self, coord: &WasmCoordinates) -> Vec<WasmTile> {
         self.inner
-            .get_tile_at(*coord.inner())
+            .get_tiles_at(*coord.inner())
+            .iter()
+            .cloned()
             .map(WasmTile::from_inner)
+            .collect()
     }
 
     /// Returns true if any tile blocks movement at the coordinate.
@@ -52,30 +55,10 @@ impl WasmLayer {
         self.inner.is_blocking_at(coord.inner())
     }
 
-    /// Returns shapes of all masks.
-    #[wasm_bindgen(js_name = getShapes)]
-    pub fn get_shapes(&self) -> Vec<WasmShape> {
-        self.inner
-            .get_shapes()
-            .into_iter()
-            .map(WasmShape::from_inner)
-            .collect()
-    }
-
     /// Returns overall bounding shape of the layer.
     #[wasm_bindgen(js_name = getShape)]
     pub fn get_shape(&self) -> WasmShape {
         WasmShape::from_inner(self.inner.get_shape())
-    }
-
-    /// Returns all tiles flattened.
-    #[wasm_bindgen]
-    pub fn render(&self) -> Vec<WasmTile> {
-        self.inner
-            .render()
-            .into_iter()
-            .map(WasmTile::from_inner)
-            .collect()
     }
 
     /// Offset all tiles by delta.

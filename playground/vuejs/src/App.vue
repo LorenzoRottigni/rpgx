@@ -136,7 +136,7 @@ onMounted(() => {
         :key="'layer-' + layerIndex"
       >
         <div
-          v-for="(tile, tileIndex) in layer.render()"
+          v-for="(tile, tileIndex) in layer.masks.map((m) => m.tiles).flat()"
           :key="`layer-${layerIndex}-${tileIndex}`"
           :class="'layer-tile'"
           :style="getTileStyle(tile, layer)"

@@ -197,10 +197,10 @@ mod tests {
         );
 
         tile.translate(Delta { dx: -1, dy: -1 });
-        assert_eq!(tile.area.origin, Coordinates { x: 2, y: 3 });
+        assert_eq!(tile.area.origin, Coordinates { x: 3, y: 4 });
         assert_eq!(
             tile.effect.block.unwrap().origin,
-            Coordinates { x: 1, y: 2 }
+            Coordinates { x: 2, y: 3 }
         );
 
         // Offset clamps to zero
