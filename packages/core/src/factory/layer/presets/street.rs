@@ -1,12 +1,23 @@
-use crate::prelude::*;
+use crate::{
+    factory::builder::{Builder, RenderTarget},
+    prelude::*,
+};
 
 pub fn street_around(map: &mut Map, texture_id: u32) {
-    let inner_shape = map.get_shape();
-    let outer_width = inner_shape.width + 2;
-    let outer_height = inner_shape.height + 2;
+    // let inner_shape = map.get_shape();
+    // let outer_width = inner_shape.width + 2;
+    // let outer_height = inner_shape.height + 2;
+    //
+    // let mut edge_coords = Vec::new();
 
-    let mut edge_coords = Vec::new();
-
+    Builder::render(
+        Rect::new(Coordinates { x: 0, y: 0 }, map.get_shape()),
+        RenderTarget::Many,
+    )
+    .with_effect(Effect {
+        texture_id: Some(texture_id),
+        ..Default::default()
+    });
     // Top and Bottom edges
     for x in 0..outer_width {
         edge_coords.push(Coordinates { x: x, y: 0 });
