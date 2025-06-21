@@ -21,16 +21,14 @@ pub fn Grid(props: GridProps) -> Element {
                     .map
                     .layers
                     .iter()
-                    .enumerate()
-                    .flat_map(|(layer_index, layer)| {
+                    .flat_map(|layer| {
                         layer
                             .masks
                             .iter()
                             .flat_map(move |mask| {
                                 mask.tiles
                                     .iter()
-                                    .enumerate()
-                                    .flat_map(move |(i, tile)| {
+                                    .flat_map(move |tile| {
                                         let background = if let Some(texture_id) = mask.get_texture() {
                                         if let Some(asset) = props
                                             .library

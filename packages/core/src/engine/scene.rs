@@ -1,7 +1,6 @@
 use crate::{
     errors::RPGXError,
     prelude::{Coordinates, Direction, Map, Pawn},
-    traits::Grid,
 };
 
 #[doc = include_str!("../../docs/scene.md")]

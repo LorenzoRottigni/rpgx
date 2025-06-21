@@ -1,6 +1,6 @@
 use crate::{
     prelude::{Coordinates, Delta, Effect, Rect, Shape},
-    traits::{Grid, Shaped, Shiftable},
+    traits::{Shaped, Shiftable},
 };
 
 impl Mask {
@@ -58,6 +58,11 @@ impl Shiftable for Mask {
 }
 
 impl Mask {
+    /// Checks if the mask contains the specified coordinate.
+    pub fn contains(&self, coord: &Coordinates) -> bool {
+        self.tiles.iter().any(|tile| tile.contains(coord))
+    }
+
     pub fn is_blocking_at(&self, target: &Coordinates) -> bool {
         self.effects.iter().any(|effect| match effect {
             Effect::Block(rect) => rect.contains(target),
@@ -88,30 +93,6 @@ impl Mask {
             _ => None,
         })
     }
-}
-
-impl Grid for Mask {
-    /// Checks if the mask contains the specified coordinate.
-    fn contains(&self, coord: &Coordinates) -> bool {
-        self.tiles.iter().any(|tile| tile.contains(coord))
-    }
-
-    //  /// Returns all tiles at the specified coordinate.
-    //  fn get_tiles_at(&self, pointer: Coordinates) -> Vec<Rect> {
-    //      self.tiles
-    //          .iter()
-    //          .filter(|tile| tile.contains(pointer))
-    //          .cloned()
-    //          .collect()
-    //  }
-    //
-    //  /// Checks if any tile blocks movement at the specified coordinate.
-
-    //
-    //  /// Checks if movement is allowed at the specified coordinate.
-    //  fn move_allowed(&self, target: Coordinates) -> bool {
-    //      self.contains(target) && !self.is_blocking_at(&target)
-    //  }
 }
 
 #[cfg(test)]

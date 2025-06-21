@@ -1,6 +1,6 @@
 use crate::{
     prelude::{Coordinates, Delta, Direction, Layer, Shape},
-    traits::{Grid, Shaped, Shiftable},
+    traits::{Shaped, Shiftable},
 };
 use indexmap::IndexMap;
 
@@ -29,47 +29,6 @@ impl Shaped for Map {
     }
 }
 
-impl Grid for Map {
-    /// Checks if any layer contains a tile at the specified coordinate.
-    fn contains(&self, coord: &Coordinates) -> bool {
-        self.layers.iter().any(|layer| layer.contains(coord))
-    }
-
-    // /// Returns all tiles at the specified coordinate from all layers.
-    // fn get_tiles_at(&self, pointer: Coordinates) -> Vec<Tile> {
-    //     self.layers
-    //         .iter()
-    //         .flat_map(|layer| layer.get_tiles_at(pointer))
-    //         .collect()
-    // }
-    //
-    // /// Checks if any layer blocks movement at the specified coordinate.
-    // fn is_blocking_at(&self, target: &Coordinates) -> bool {
-    //     self.layers.iter().any(|layer| layer.is_blocking_at(target))
-    // }
-    //
-    // /// Checks if movement is allowed at the specified coordinate.
-    // fn move_allowed(&self, target: Coordinates) -> bool {
-    //     self.contains(target) && !self.is_blocking_at(&target)
-    // }
-    //
-    // /// Returns all effects present at the specified coordinate from all layers.
-    // fn get_effects_at(&self, pointer: Coordinates) -> Vec<Effect> {
-    //     self.layers
-    //         .iter()
-    //         .flat_map(|layer| layer.get_effects_at(pointer))
-    //         .collect()
-    // }
-    //
-    // /// Returns all action IDs present at the specified coordinate from all layers.
-    // fn get_actions_at(&self, pointer: Coordinates) -> Vec<u32> {
-    //     self.layers
-    //         .iter()
-    //         .flat_map(|layer| layer.get_actions_at(pointer))
-    //         .collect()
-    // }
-}
-
 impl Map {
     /// Creates a new map with the given name, layers, and spawn location.
     ///
@@ -81,6 +40,10 @@ impl Map {
             layers,
             spawn,
         }
+    }
+
+    pub fn contains(&self, coord: &Coordinates) -> bool {
+        self.layers.iter().any(|layer| layer.contains(coord))
     }
 
     pub fn is_blocking_at(&self, target: &Coordinates) -> bool {

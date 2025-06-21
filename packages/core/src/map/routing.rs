@@ -1,9 +1,6 @@
 use std::collections::{BinaryHeap, HashMap};
 
-use crate::{
-    prelude::{Coordinates, Map},
-    traits::Grid,
-};
+use crate::prelude::{Coordinates, Map};
 
 /// A node in the A* search graph.
 #[derive(Eq, PartialEq)]
@@ -170,10 +167,6 @@ pub mod tests {
                             Coordinates::new(1, 1),
                             Shape::from_square(2),
                         ))],
-                        // Effect {
-                        //     block: Some(Rect::new(Coordinates::default(), Shape::from_square(4))),
-                        //     ..Default::default()
-                        // },
                     ),
                 ],
                 1,
