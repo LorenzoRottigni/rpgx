@@ -6,10 +6,7 @@ pub fn ground_layer(shape: Shape, texture_id: u32) -> Layer {
         "street_border".to_string(),
         // Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
         Rect::new(Coordinates { x: 0, y: 0 }, shape).into_many(),
-        Effect {
-            texture_id: Some(texture_id),
-            ..Default::default()
-        },
+        vec![Effect::Texture(texture_id)],
     );
 
     Layer::new("street".to_string(), vec![mask], 1)

@@ -1,5 +1,5 @@
 use crate::{
-    prelude::{Coordinates, Delta, Mask, Shape},
+    prelude::{Coordinates, Delta, Effect, Mask, Shape},
     traits::{Grid, Shaped, Shiftable},
 };
 
@@ -56,11 +56,11 @@ impl Layer {
     pub fn get_actions_at(&self, target: &Coordinates) -> Vec<u32> {
         self.masks
             .iter()
-            .filter_map(|mask| {
+            .flat_map(|mask| {
                 if mask.contains(target) {
-                    mask.effect.action_id
+                    mask.get_actions()
                 } else {
-                    None
+                    vec![]
                 }
             })
             .collect()
@@ -128,7 +128,7 @@ mod tests {
         let mask = Mask::new(
             "test".into(),
             vec![Rect::from_shape(Shape::new(2, 2))],
-            Effect::default(),
+            vec![],
         );
         Layer::new("layer".into(), vec![mask], 0)
     }

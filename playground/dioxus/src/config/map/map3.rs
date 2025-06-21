@@ -1,4 +1,4 @@
-use std::any::Any;
+use std::{any::Any, vec};
 
 use rpgx::{
     library::Library,
@@ -43,10 +43,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
                 "default_floor".to_string(),
                 // Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
                 Rect::new(Coordinates { x: 0, y: 0 }, shape).into_many(),
-                Effect {
-                    texture_id: Some(library.get_id("floor_1").unwrap()),
-                    ..Default::default()
-                },
+                vec![Effect::Texture(library.get_id("floor_1").unwrap())],
             ),
             Mask::new(
                 "floor_alt".to_string(),
@@ -54,10 +51,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
                     .iter()
                     .map(|c| Rect::new(*c, Shape::from_square(1)))
                     .collect(),
-                Effect {
-                    texture_id: library.get_id("floor_2"),
-                    ..Default::default()
-                },
+                vec![Effect::Texture(library.get_id("floor_2").unwrap())],
             ),
         ],
         1,
@@ -81,13 +75,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
                     height: 4 - 1, // 3
                 },
             )],
-            Effect {
-                texture_id: Some(library.get_id("building_1").unwrap()),
-                block: None,
-                // group: true,
-                // Removed shrink to avoid hiding tiles
-                ..Default::default()
-            },
+            vec![Effect::Texture(library.get_id("building_1").unwrap())],
         )],
         5,
     );
@@ -111,11 +99,10 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
                 },
             )
             .into_many(),
-            Effect {
-                texture_id: Some(library.get_id("portal_1").unwrap()),
-                action_id: Some(library.get_id("consolelog").unwrap()),
-                ..Default::default()
-            },
+            vec![
+                Effect::Texture(library.get_id("portal_1").unwrap()),
+                Effect::Action(library.get_id("consolelog").unwrap()),
+            ],
         )],
         6,
     );

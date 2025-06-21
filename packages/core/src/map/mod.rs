@@ -196,10 +196,7 @@ mod tests {
                 Mask::new(
                     format!("block_{}", i),
                     vec![rect],
-                    Effect {
-                        block: Some(rect),
-                        ..Default::default()
-                    },
+                    vec![Effect::Block(rect)],
                 )
             })
             .collect::<Vec<_>>();
@@ -210,7 +207,7 @@ mod tests {
             masks.push(Mask::new(
                 "non_blocking_0_0".into(),
                 vec![rect],
-                Effect::default(), // no blocking
+                vec![], // no blocking
             ));
         }
 

@@ -5,11 +5,11 @@ use crate::{
 
 impl Mask {
     /// Creates a new mask with a given name, rectangular areas, and uniform effect.
-    pub fn new(name: String, tiles: Vec<Rect>, effect: Effect) -> Self {
+    pub fn new(name: String, tiles: Vec<Rect>, effects: Vec<Effect>) -> Self {
         Self {
             name,
             tiles,
-            effect,
+            effects,
         }
     }
 }
@@ -20,7 +20,7 @@ pub struct Mask {
     pub name: String,
     /// Tiles that define the mask area and their effects.
     pub tiles: Vec<Rect>,
-    pub effect: Effect,
+    pub effects: Vec<Effect>,
 }
 
 impl Shaped for Mask {
@@ -45,7 +45,7 @@ impl Shiftable for Mask {
     fn offset(&mut self, delta: Delta) {
         for tile in &mut self.tiles {
             tile.offset(delta);
-            self.effect.offset(delta);
+            self.effects.iter_mut().for_each(|e| e.offset(delta));
         }
     }
 
@@ -59,11 +59,34 @@ impl Shiftable for Mask {
 
 impl Mask {
     pub fn is_blocking_at(&self, target: &Coordinates) -> bool {
-        if let Some(block) = self.effect.block {
-            self.contains(target) && block.contains(target)
-        } else {
-            false
-        }
+        self.effects.iter().any(|effect| match effect {
+            Effect::Block(rect) => rect.contains(target),
+            _ => false,
+        })
+    }
+
+    pub fn get_actions(&self) -> Vec<u32> {
+        self.effects
+            .iter()
+            .filter_map(|effect| match effect {
+                Effect::Action(id) => Some(*id),
+                _ => None,
+            })
+            .collect()
+    }
+
+    pub fn get_texture(&self) -> Option<u32> {
+        self.effects.iter().find_map(|effect| match effect {
+            Effect::Texture(id) => Some(*id),
+            _ => None,
+        })
+    }
+
+    pub fn get_render(&self) -> Option<u32> {
+        self.effects.iter().find_map(|effect| match effect {
+            Effect::Render(id) => Some(*id),
+            _ => None,
+        })
     }
 }
 
@@ -98,33 +121,34 @@ mod tests {
 
     #[test]
     fn mask_new_creates_tiles() {
-        let effect = Effect {
-            block: Some(Rect::new(Coordinates::new(0, 0), Shape::new(1, 1))),
-            ..Default::default()
-        };
         let areas = vec![
             Rect::new(Coordinates::new(0, 0), Shape::new(1, 1)),
             Rect::new(Coordinates::new(2, 2), Shape::new(3, 3)),
         ];
-        let mask = Mask::new("test_mask".to_string(), areas.clone(), effect);
+        let effects = vec![
+            Effect::Block(Rect::new(Coordinates::new(0, 0), Shape::new(1, 1))),
+            Effect::None,
+        ];
+
+        let mask = Mask::new("test_mask".to_string(), areas.clone(), effects.clone());
 
         assert_eq!(mask.name, "test_mask");
         assert_eq!(mask.tiles.len(), areas.len());
+        assert_eq!(mask.effects.len(), effects.len());
 
-        for (tile, area) in mask.tiles.iter().zip(areas.iter()) {
+        for ((tile, area), effect) in mask.tiles.iter().zip(areas.iter()).zip(effects.iter()) {
             assert_eq!(*tile, *area);
-            assert_eq!(mask.effect, effect);
+            // We compare the effect at the same index
+            assert_eq!(mask.effects.iter().find(|e| *e == effect), Some(effect));
         }
     }
 
     #[test]
     fn mask_offset_moves_tiles_and_effects() {
-        let effect = Effect {
-            block: Some(Rect::new(Coordinates::new(1, 1), Shape::new(2, 2))),
-            ..Default::default()
-        };
+        let block_rect = Rect::new(Coordinates::new(1, 1), Shape::new(2, 2));
+        let effect = Effect::Block(block_rect.clone());
         let area = Rect::new(Coordinates::new(0, 0), Shape::new(3, 3));
-        let mut mask = Mask::new("offset_mask".to_string(), vec![area], effect);
+        let mut mask = Mask::new("offset_mask".to_string(), vec![area.clone()], vec![effect]);
 
         let delta = Delta::new(5, 7);
         mask.offset(delta);
@@ -133,12 +157,14 @@ mod tests {
         assert_eq!(tile.origin.x, 5);
         assert_eq!(tile.origin.y, 7);
 
-        let block = mask.effect.block.expect("Effect block should be set");
-        assert_eq!(block.origin.x, 6); // 1 + 5
-        assert_eq!(block.origin.y, 8); // 1 + 7
-
-        assert_eq!(block.shape.width, 2);
-        assert_eq!(block.shape.height, 2);
+        match &mask.effects[0] {
+            Effect::Block(block) => {
+                assert_eq!(block.origin.x, block_rect.origin.x + delta.dx as u32);
+                assert_eq!(block.origin.y, block_rect.origin.y + delta.dy as u32);
+                assert_eq!(block.shape, block_rect.shape);
+            }
+            _ => panic!("Expected a Block effect"),
+        }
     }
 
     #[test]
@@ -147,7 +173,8 @@ mod tests {
             Rect::new(Coordinates::new(1, 1), Shape::new(2, 2)),
             Rect::new(Coordinates::new(4, 3), Shape::new(3, 1)),
         ];
-        let mask = Mask::new("shape_mask".to_string(), tiles.clone(), Effect::default());
+        let effects = vec![Effect::None, Effect::None];
+        let mask = Mask::new("shape_mask".to_string(), tiles.clone(), effects);
 
         let shape = mask.get_shape();
         assert_eq!(shape.width, 7); // 4 + 3

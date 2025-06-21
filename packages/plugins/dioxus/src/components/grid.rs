@@ -31,7 +31,7 @@ pub fn Grid(props: GridProps) -> Element {
                                     .iter()
                                     .enumerate()
                                     .flat_map(move |(i, tile)| {
-                                        let background = if let Some(texture_id) = mask.effect.texture_id {
+                                        let background = if let Some(texture_id) = mask.get_texture() {
                                         if let Some(asset) = props
                                             .library
                                             .read()
@@ -101,8 +101,7 @@ pub fn Grid(props: GridProps) -> Element {
                                                 onclick: onclick_tile,
                                                 {
                                                     mask
-                                                        .effect
-                                                        .render_id
+                                                        .get_render()
                                                         .and_then(|id| {
                                                             println!(
                                                                 "Rendering custom VNode from library {:?}",
