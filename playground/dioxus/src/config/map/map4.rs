@@ -7,7 +7,7 @@ pub fn use_map4(library: &Library<Box<dyn Any>>) -> Map {
         "ground".into(),
         vec![Mask::new(
             "ground".into(),
-            Rect::from_shape(Shape::from_square(15)).as_many(),
+            Rect::from_shape(Shape::from_square(15)).into_many(),
             Effect {
                 texture_id: library.get_id("floor_1"),
                 ..Default::default()
@@ -19,7 +19,7 @@ pub fn use_map4(library: &Library<Box<dyn Any>>) -> Map {
         "ground".into(),
         vec![Mask::new(
             "ground".into(),
-            Rect::from_shape(Shape::from_square(15)).as_perimeter(0, 2),
+            Rect::from_shape(Shape::from_square(15)).into_perimeter(0, 2),
             Effect {
                 texture_id: library.get_id("floor_3"),
                 ..Default::default()
@@ -31,7 +31,7 @@ pub fn use_map4(library: &Library<Box<dyn Any>>) -> Map {
         "ground".into(),
         vec![Mask::new(
             "ground".into(),
-            Rect::from_shape(Shape::from_square(15)).as_circle(),
+            Rect::from_shape(Shape::from_square(15)).into_circle(),
             Effect {
                 texture_id: library.get_id("floor_2"),
                 ..Default::default()
@@ -43,7 +43,7 @@ pub fn use_map4(library: &Library<Box<dyn Any>>) -> Map {
         "ground".into(),
         vec![Mask::new(
             "ground".into(),
-            Rect::from_shape(Shape::from_square(15)).as_rhombus(5),
+            Rect::from_shape(Shape::from_square(15)).into_rhombus(5),
             Effect {
                 texture_id: library.get_id("floor_3"),
                 ..Default::default()
@@ -78,7 +78,7 @@ pub fn use_map4(library: &Library<Box<dyn Any>>) -> Map {
         "portal".into(),
         vec![Mask::new(
             "portal".into(),
-            vec![Rect::from_many(Rect::from_shape(map.get_shape()).as_center(0, 2)).unwrap()],
+            vec![Rect::from_many(Rect::from_shape(map.get_shape()).into_center(0, 2)).unwrap()],
             Effect {
                 texture_id: library.get_id("portal_1"),
                 ..Default::default()

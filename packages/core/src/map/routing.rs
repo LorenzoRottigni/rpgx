@@ -43,7 +43,11 @@ impl Map {
     /// - `heuristic((0,0), (1,1)) == 1`
     pub fn heuristic(a: Coordinates, b: Coordinates) -> u32 {
         let distance = a.x.abs_diff(b.x) + a.y.abs_diff(b.y);
-        if distance > 0 { distance - 1 } else { 0 }
+        if distance > 0 {
+            distance - 1
+        } else {
+            0
+        }
     }
 
     /// Finds a path from `start` to `goal` coordinates using A* pathfinding.
@@ -139,7 +143,7 @@ pub mod tests {
                 "test".into(),
                 vec![Mask::new(
                     "test".into(),
-                    Rect::new(Coordinates::default(), Shape::from_square(10)).as_many(),
+                    Rect::new(Coordinates::default(), Shape::from_square(10)).into_many(),
                     Effect::default(),
                 )],
                 1,
@@ -156,12 +160,12 @@ pub mod tests {
                 vec![
                     Mask::new(
                         "test".into(),
-                        Rect::new(Coordinates::default(), Shape::from_square(10)).as_many(),
+                        Rect::new(Coordinates::default(), Shape::from_square(10)).into_many(),
                         Effect::default(),
                     ),
                     Mask::new(
                         "test".into(),
-                        Rect::new(Coordinates::new(2, 2), Shape::from_square(4)).as_block(),
+                        Rect::new(Coordinates::new(2, 2), Shape::from_square(4)).into_block(),
                         Effect {
                             block: Some(Rect::new(Coordinates::default(), Shape::from_square(4))),
                             ..Default::default()

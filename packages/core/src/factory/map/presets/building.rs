@@ -44,7 +44,7 @@ pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
         vec![Mask::new(
             "action_test".to_string(),
             // Selector::Block(action_rect),
-            action_rect.as_many(),
+            action_rect.into_many(),
             Effect {
                 action_id: Some(action_id),
                 ..Default::default()
@@ -92,7 +92,7 @@ pub fn building_1x1(shape: Shape, texture_id: u32, action_id: u32) -> Map {
         vec![Mask::new(
             "action_test".to_string(),
             // Selector::Block(action_rect),
-            action_rect.as_many(),
+            action_rect.into_many(),
             Effect {
                 action_id: Some(action_id),
                 ..Default::default()
@@ -157,7 +157,7 @@ pub fn building_3x2(shape: Shape, texture_id: u32, action_id: u32) -> Map {
         vec![Mask::new(
             "action_test".to_string(),
             // Selector::Block(action_rect),
-            action_rect.as_many(),
+            action_rect.into_many(),
             Effect {
                 action_id: Some(action_id),
                 ..Default::default()

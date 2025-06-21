@@ -42,7 +42,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
             Mask::new(
                 "default_floor".to_string(),
                 // Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
-                Rect::new(Coordinates { x: 0, y: 0 }, shape).as_many(),
+                Rect::new(Coordinates { x: 0, y: 0 }, shape).into_many(),
                 Effect {
                     texture_id: Some(library.get_id("floor_1").unwrap()),
                     ..Default::default()
@@ -110,7 +110,7 @@ pub fn use_map3(library: &Library<Box<dyn Any>>) -> Map {
                     height: 4 - 4, // 0, maybe you want height = 1? Adjust if needed.
                 },
             )
-            .as_many(),
+            .into_many(),
             Effect {
                 texture_id: Some(library.get_id("portal_1").unwrap()),
                 action_id: Some(library.get_id("consolelog").unwrap()),
