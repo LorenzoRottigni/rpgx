@@ -52,6 +52,19 @@ impl Layer {
     pub fn is_blocking_at(&self, target: &Coordinates) -> bool {
         self.masks.iter().any(|mask| mask.is_blocking_at(target))
     }
+
+    pub fn get_actions_at(&self, target: &Coordinates) -> Vec<u32> {
+        self.masks
+            .iter()
+            .filter_map(|mask| {
+                if mask.contains(target) {
+                    mask.effect.action_id
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
 }
 
 impl Grid for Layer {
@@ -109,12 +122,12 @@ impl Grid for Layer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::prelude::{Coordinates, Effect, Rect};
+    use crate::prelude::{Effect, Rect};
 
     fn simple_layer() -> Layer {
         let mask = Mask::new(
             "test".into(),
-            vec![Rect::from_shape(Shape::new(3, 3))],
+            vec![Rect::from_shape(Shape::new(2, 2))],
             Effect::default(),
         );
         Layer::new("layer".into(), vec![mask], 0)

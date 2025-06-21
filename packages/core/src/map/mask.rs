@@ -60,7 +60,7 @@ impl Shiftable for Mask {
 impl Mask {
     pub fn is_blocking_at(&self, target: &Coordinates) -> bool {
         if let Some(block) = self.effect.block {
-            block.contains(target)
+            self.contains(target) && block.contains(target)
         } else {
             false
         }

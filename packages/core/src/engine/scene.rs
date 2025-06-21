@@ -121,7 +121,7 @@ impl Scene {
     /// Returns `RPGXError` if the pawn is missing or the target is blocked.
     pub fn move_to(&mut self, target_position: Coordinates) -> Result<Coordinates, RPGXError> {
         // Check if movement to the target is allowed by the map
-        if self.map.move_allowed(target_position) {
+        if self.map.contains(&target_position) && !self.map.is_blocking_at(&target_position) {
             if let Some(pawn) = self.pawn.as_mut() {
                 pawn.pointer = target_position;
                 Ok(target_position)

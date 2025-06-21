@@ -83,8 +83,15 @@ impl Map {
         }
     }
 
-    fn is_blocking_at(&self, target: &Coordinates) -> bool {
+    pub fn is_blocking_at(&self, target: &Coordinates) -> bool {
         self.layers.iter().any(|layer| layer.is_blocking_at(target))
+    }
+
+    pub fn get_actions_at(&self, target: &Coordinates) -> Vec<u32> {
+        self.layers
+            .iter()
+            .flat_map(|layer| layer.get_actions_at(target))
+            .collect()
     }
 
     /// Composes a new map by merging multiple maps at specified top-left offsets,
