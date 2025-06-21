@@ -1,17 +1,16 @@
 use crate::{
-    prelude::{Coordinates, Delta, Effect, Rect, Shape, Tile},
+    prelude::{Coordinates, Delta, Effect, Rect, Shape},
     traits::{Grid, Shaped, Shiftable},
 };
 
 impl Mask {
     /// Creates a new mask with a given name, rectangular areas, and uniform effect.
-    pub fn new(name: String, areas: Vec<Rect>, effect: Effect) -> Self {
-        let tiles = areas
-            .into_iter()
-            .map(|area| Tile { area, effect })
-            .collect();
-
-        Self { name, tiles }
+    pub fn new(name: String, tiles: Vec<Rect>, effect: Effect) -> Self {
+        Self {
+            name,
+            tiles,
+            effect,
+        }
     }
 }
 
@@ -20,7 +19,8 @@ pub struct Mask {
     /// The name of the mask for identification or debugging.
     pub name: String,
     /// Tiles that define the mask area and their effects.
-    pub tiles: Vec<Tile>,
+    pub tiles: Vec<Rect>,
+    pub effect: Effect,
 }
 
 impl Shaped for Mask {
@@ -31,8 +31,8 @@ impl Shaped for Mask {
         }
 
         let (max_x, max_y) = self.tiles.iter().fold((0, 0), |(mx, my), tile| {
-            let x_end = tile.area.origin.x + tile.area.shape.width;
-            let y_end = tile.area.origin.y + tile.area.shape.height;
+            let x_end = tile.origin.x + tile.shape.width;
+            let y_end = tile.origin.y + tile.shape.height;
             (mx.max(x_end), my.max(y_end))
         });
 
@@ -44,8 +44,8 @@ impl Shiftable for Mask {
     /// Offsets the mask and all its tiles by the specified delta.
     fn offset(&mut self, delta: Delta) {
         for tile in &mut self.tiles {
-            tile.area.offset(delta);
-            tile.effect.offset(delta);
+            tile.offset(delta);
+            self.effect.offset(delta);
         }
     }
 
@@ -57,58 +57,38 @@ impl Shiftable for Mask {
     }
 }
 
+impl Mask {
+    pub fn is_blocking_at(&self, target: &Coordinates) -> bool {
+        if let Some(block) = self.effect.block {
+            block.contains(target)
+        } else {
+            false
+        }
+    }
+}
+
 impl Grid for Mask {
     /// Checks if the mask contains the specified coordinate.
-    fn contains(&self, coord: Coordinates) -> bool {
+    fn contains(&self, coord: &Coordinates) -> bool {
         self.tiles.iter().any(|tile| tile.contains(coord))
     }
 
-    /// Returns all tiles at the specified coordinate.
-    fn get_tiles_at(&self, pointer: Coordinates) -> Vec<Tile> {
-        self.tiles
-            .iter()
-            .filter(|tile| tile.contains(pointer))
-            .cloned()
-            .collect()
-    }
+    //  /// Returns all tiles at the specified coordinate.
+    //  fn get_tiles_at(&self, pointer: Coordinates) -> Vec<Rect> {
+    //      self.tiles
+    //          .iter()
+    //          .filter(|tile| tile.contains(pointer))
+    //          .cloned()
+    //          .collect()
+    //  }
+    //
+    //  /// Checks if any tile blocks movement at the specified coordinate.
 
-    /// Checks if any tile blocks movement at the specified coordinate.
-    fn is_blocking_at(&self, target: &Coordinates) -> bool {
-        self.tiles.iter().any(|tile| tile.is_blocking_at(*target))
-    }
-
-    /// Checks if movement is allowed at the specified coordinate.
-    fn move_allowed(&self, target: Coordinates) -> bool {
-        self.contains(target) && !self.is_blocking_at(&target)
-    }
-
-    /// Returns all effects present at the specified coordinate.
-    fn get_effects_at(&self, pointer: Coordinates) -> Vec<Effect> {
-        self.tiles
-            .iter()
-            .filter_map(|tile| {
-                if tile.contains(pointer) {
-                    Some(tile.effect.clone())
-                } else {
-                    None
-                }
-            })
-            .collect()
-    }
-
-    /// Returns all actions available at the specified coordinate.
-    fn get_actions_at(&self, pointer: Coordinates) -> Vec<u32> {
-        self.tiles
-            .iter()
-            .filter_map(|tile| {
-                if tile.contains(pointer) {
-                    tile.effect.action_id
-                } else {
-                    None
-                }
-            })
-            .collect()
-    }
+    //
+    //  /// Checks if movement is allowed at the specified coordinate.
+    //  fn move_allowed(&self, target: Coordinates) -> bool {
+    //      self.contains(target) && !self.is_blocking_at(&target)
+    //  }
 }
 
 #[cfg(test)]
@@ -132,8 +112,8 @@ mod tests {
         assert_eq!(mask.tiles.len(), areas.len());
 
         for (tile, area) in mask.tiles.iter().zip(areas.iter()) {
-            assert_eq!(tile.area, *area);
-            assert_eq!(tile.effect, effect);
+            assert_eq!(*tile, *area);
+            assert_eq!(mask.effect, effect);
         }
     }
 
@@ -150,10 +130,10 @@ mod tests {
         mask.offset(delta);
 
         let tile = &mask.tiles[0];
-        assert_eq!(tile.area.origin.x, 5);
-        assert_eq!(tile.area.origin.y, 7);
+        assert_eq!(tile.origin.x, 5);
+        assert_eq!(tile.origin.y, 7);
 
-        let block = tile.effect.block.expect("Effect block should be set");
+        let block = mask.effect.block.expect("Effect block should be set");
         assert_eq!(block.origin.x, 6); // 1 + 5
         assert_eq!(block.origin.y, 8); // 1 + 7
 

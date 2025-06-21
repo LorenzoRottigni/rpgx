@@ -107,7 +107,7 @@ impl Map {
 
             for neighbor in neighbors {
                 // Skip if blocked
-                if !self.move_allowed(neighbor) {
+                if self.contains(&neighbor) && self.is_blocking_at(&neighbor) {
                     continue;
                 }
 

@@ -1,5 +1,5 @@
 use crate::{
-    prelude::{Coordinates, Delta, Direction, Effect, Layer, Shape, Tile},
+    prelude::{Coordinates, Delta, Direction, Layer, Shape},
     traits::{Grid, Shaped, Shiftable},
 };
 use indexmap::IndexMap;
@@ -8,7 +8,7 @@ pub mod effect;
 pub mod layer;
 pub mod mask;
 pub mod routing;
-pub mod tile;
+// pub mod tile;
 
 /// Represents a game map with multiple layers, a name, and a spawn point.
 #[derive(Clone)]
@@ -31,43 +31,43 @@ impl Shaped for Map {
 
 impl Grid for Map {
     /// Checks if any layer contains a tile at the specified coordinate.
-    fn contains(&self, coord: Coordinates) -> bool {
+    fn contains(&self, coord: &Coordinates) -> bool {
         self.layers.iter().any(|layer| layer.contains(coord))
     }
 
-    /// Returns all tiles at the specified coordinate from all layers.
-    fn get_tiles_at(&self, pointer: Coordinates) -> Vec<Tile> {
-        self.layers
-            .iter()
-            .flat_map(|layer| layer.get_tiles_at(pointer))
-            .collect()
-    }
-
-    /// Checks if any layer blocks movement at the specified coordinate.
-    fn is_blocking_at(&self, target: &Coordinates) -> bool {
-        self.layers.iter().any(|layer| layer.is_blocking_at(target))
-    }
-
-    /// Checks if movement is allowed at the specified coordinate.
-    fn move_allowed(&self, target: Coordinates) -> bool {
-        self.contains(target) && !self.is_blocking_at(&target)
-    }
-
-    /// Returns all effects present at the specified coordinate from all layers.
-    fn get_effects_at(&self, pointer: Coordinates) -> Vec<Effect> {
-        self.layers
-            .iter()
-            .flat_map(|layer| layer.get_effects_at(pointer))
-            .collect()
-    }
-
-    /// Returns all action IDs present at the specified coordinate from all layers.
-    fn get_actions_at(&self, pointer: Coordinates) -> Vec<u32> {
-        self.layers
-            .iter()
-            .flat_map(|layer| layer.get_actions_at(pointer))
-            .collect()
-    }
+    // /// Returns all tiles at the specified coordinate from all layers.
+    // fn get_tiles_at(&self, pointer: Coordinates) -> Vec<Tile> {
+    //     self.layers
+    //         .iter()
+    //         .flat_map(|layer| layer.get_tiles_at(pointer))
+    //         .collect()
+    // }
+    //
+    // /// Checks if any layer blocks movement at the specified coordinate.
+    // fn is_blocking_at(&self, target: &Coordinates) -> bool {
+    //     self.layers.iter().any(|layer| layer.is_blocking_at(target))
+    // }
+    //
+    // /// Checks if movement is allowed at the specified coordinate.
+    // fn move_allowed(&self, target: Coordinates) -> bool {
+    //     self.contains(target) && !self.is_blocking_at(&target)
+    // }
+    //
+    // /// Returns all effects present at the specified coordinate from all layers.
+    // fn get_effects_at(&self, pointer: Coordinates) -> Vec<Effect> {
+    //     self.layers
+    //         .iter()
+    //         .flat_map(|layer| layer.get_effects_at(pointer))
+    //         .collect()
+    // }
+    //
+    // /// Returns all action IDs present at the specified coordinate from all layers.
+    // fn get_actions_at(&self, pointer: Coordinates) -> Vec<u32> {
+    //     self.layers
+    //         .iter()
+    //         .flat_map(|layer| layer.get_actions_at(pointer))
+    //         .collect()
+    // }
 }
 
 impl Map {
@@ -81,6 +81,10 @@ impl Map {
             layers,
             spawn,
         }
+    }
+
+    fn is_blocking_at(&self, target: &Coordinates) -> bool {
+        self.layers.iter().any(|layer| layer.is_blocking_at(target))
     }
 
     /// Composes a new map by merging multiple maps at specified top-left offsets,
@@ -213,14 +217,14 @@ mod tests {
         assert_eq!(map.name, "test_map");
     }
 
-    #[test]
-    fn test_move_allowed() {
-        let blocked = vec![Coordinates::new(1, 1)];
-        let map = build_test_map(&blocked);
-
-        assert!(map.move_allowed(Coordinates::new(0, 0))); // empty but tile missing? depends on layers
-        assert!(!map.move_allowed(Coordinates::new(1, 1))); // blocked tile
-    }
+    // #[test]
+    // fn test_move_allowed() {
+    //     let blocked = vec![Coordinates::new(1, 1)];
+    //     let map = build_test_map(&blocked);
+    //
+    //     assert!(map.move_allowed(Coordinates::new(0, 0))); // empty but tile missing? depends on layers
+    //     assert!(!map.move_allowed(Coordinates::new(1, 1))); // blocked tile
+    // }
 
     #[test]
     fn test_merge_and_layers_by_name() {
@@ -243,7 +247,7 @@ mod tests {
         assert_eq!(dup.layers.len(), map.layers.len() * 2);
     }
 
-    #[test]
+    /* #[test]
     fn test_get_tiles_effects_actions() {
         let blocked = vec![Coordinates::new(1, 1)];
         let map = build_test_map(&blocked);
@@ -257,5 +261,5 @@ mod tests {
 
         let actions = map.get_actions_at(coord);
         assert!(actions.is_empty()); // No actions set in blocking tiles
-    }
+    } */
 }
