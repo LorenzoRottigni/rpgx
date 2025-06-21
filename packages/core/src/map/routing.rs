@@ -167,8 +167,8 @@ pub mod tests {
                         "test".into(),
                         Rect::new(Coordinates::new(2, 2), Shape::from_square(4)).into_block(),
                         vec![Effect::Block(Rect::new(
-                            Coordinates::new(0, 0),
-                            Shape::from_square(4),
+                            Coordinates::new(1, 1),
+                            Shape::from_square(2),
                         ))],
                         // Effect {
                         //     block: Some(Rect::new(Coordinates::default(), Shape::from_square(4))),
