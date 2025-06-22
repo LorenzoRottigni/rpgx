@@ -1,6 +1,6 @@
 use crate::{
     prelude::{Coordinates, Delta, Effect, Rect, Shape},
-    traits::{Shaped, Shiftable},
+    traits::{Grid, Shaped, Shiftable},
 };
 
 impl Mask {
@@ -57,12 +57,14 @@ impl Shiftable for Mask {
     }
 }
 
-impl Mask {
+impl Grid for Mask {
     /// Checks if the mask contains the specified coordinate.
-    pub fn contains(&self, coord: &Coordinates) -> bool {
+    fn contains(&self, coord: &Coordinates) -> bool {
         self.tiles.iter().any(|tile| tile.contains(coord))
     }
+}
 
+impl Mask {
     pub fn is_blocking_at(&self, target: &Coordinates) -> bool {
         self.effects.iter().any(|effect| match effect {
             Effect::Block(rect) => rect.contains(target),

@@ -1,6 +1,6 @@
 use crate::{
     prelude::{Coordinates, Delta, Direction, Layer, Shape},
-    traits::{Shaped, Shiftable},
+    traits::{Grid, Shaped, Shiftable},
 };
 use indexmap::IndexMap;
 
@@ -8,7 +8,6 @@ pub mod effect;
 pub mod layer;
 pub mod mask;
 pub mod routing;
-// pub mod tile;
 
 /// Represents a game map with multiple layers, a name, and a spawn point.
 #[derive(Clone)]
@@ -29,6 +28,13 @@ impl Shaped for Map {
     }
 }
 
+impl Grid for Map {
+    /// Checks if the map contains a tile at the specified coordinate.
+    fn contains(&self, coord: &Coordinates) -> bool {
+        self.layers.iter().any(|layer| layer.contains(coord))
+    }
+}
+
 impl Map {
     /// Creates a new map with the given name, layers, and spawn location.
     ///
@@ -40,10 +46,6 @@ impl Map {
             layers,
             spawn,
         }
-    }
-
-    pub fn contains(&self, coord: &Coordinates) -> bool {
-        self.layers.iter().any(|layer| layer.contains(coord))
     }
 
     pub fn is_blocking_at(&self, target: &Coordinates) -> bool {

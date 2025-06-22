@@ -1,6 +1,9 @@
 use std::collections::{BinaryHeap, HashMap};
 
-use crate::prelude::{Coordinates, Map};
+use crate::{
+    prelude::{Coordinates, Map},
+    traits::Grid,
+};
 
 /// A node in the A* search graph.
 #[derive(Eq, PartialEq)]

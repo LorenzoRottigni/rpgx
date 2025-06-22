@@ -14,6 +14,18 @@ pub struct GridProps {
 #[allow(non_snake_case)]
 pub fn Grid(props: GridProps) -> Element {
     let engine = props.engine.read();
+    let get_background = |texture_id: u32| {
+        if let Some(asset) = props
+            .library
+            .read()
+            .get_by_id(texture_id)
+            .and_then(|boxed| boxed.downcast_ref::<String>())
+        {
+            format!("background-image: url({}); background-size: cover;", asset)
+        } else {
+            "background-size: cover;".to_string()
+        }
+    };
     if let Some(scene) = engine.get_active_scene() {
         rsx! {
             {
@@ -26,105 +38,70 @@ pub fn Grid(props: GridProps) -> Element {
                             .masks
                             .iter()
                             .flat_map(move |mask| {
+                                let mask_texture = mask.get_texture();
+                                let background = if let Some(texture_id) = mask_texture {
+                                    get_background(texture_id)
+                                } else {
+                                    "background-size: cover;".to_string()
+                                };
                                 mask.tiles
                                     .iter()
                                     .flat_map(move |tile| {
-                                        let background = if let Some(texture_id) = mask.get_texture() {
-                                        if let Some(asset) = props
-                                            .library
-                                            .read()
-                                            .get_by_id(texture_id)
-                                            .and_then(|boxed| boxed.downcast_ref::<String>())
-                                        {
-                                            format!("background-image: url({}); background-size: cover;", asset)
-                                        } else {
-                                            "background-size: cover;".to_string()
-                                        }
-                                    } else {
-                                        "background-size: cover;".to_string()
-                                    };
+                                        let x = tile.origin.x;
+                                        let y = tile.origin.y;
 
-                                    let x = tile.origin.x;
-                                    let y = tile.origin.y;
+                                        let base_style = format!(
+                                            "{background} \
+                                            position: absolute; \
+                                            left: {}px; \
+                                            top: {}px; \
+                                            width: {}px; \
+                                            height: {}px; \
+                                            border: solid 1px rgba(255,255,255,0.1); \
+                                            z-index: {}; \
+                                            pointer-events: {}; \
+                                            cursor: pointer;",
+                                            x * props.square_size,
+                                            y * props.square_size,
+                                            tile.shape.width * props.square_size,
+                                            tile.shape.height * props.square_size,
+                                            layer.z,
+                                            "auto"
+                                        );
 
-                                    let base_style = format!(
-                                        "{background} \
-                                        position: absolute; \
-                                        left: {}px; \
-                                        top: {}px; \
-                                        width: {}px; \
-                                        height: {}px; \
-                                        border: solid 1px rgba(255,255,255,0.1); \
-                                        z-index: {}; \
-                                        pointer-events: {}; \
-                                        cursor: pointer;",
-                                        x * props.square_size,
-                                        y * props.square_size,
-                                        // if props.tile.effect.group {
-                                        //     props.tile.area.shape.width
-                                        // } else {
-                                        //     1
-                                        // } * props.square_size,
-                                        tile.shape.width * props.square_size,
-                                        // if props.tile.effect.group {
-                                        //     props.tile.area.shape.height
-                                        // } else {
-                                        //     1
-                                        // } * props.square_size,
-                                        tile.shape.height * props.square_size,
-                                        layer.z,
-                                        // if props.layer_kind == LayerType::Base {
-                                        //     "auto"
-                                        // } else {
-                                        //     "none"
-                                        // }
-                                        "auto"
-                                    );
+                                        let onclick_tile = {
+                                            let tile = tile.clone();
+                                            move |_| {
+                                                println!("onclick_tile");
+                                                let _ = props.onclick.call(Ok(tile.clone()));
+                                            }
+                                        };
 
-                                    let onclick_tile = {
-                                        let tile = tile.clone();
-                                        // console::log_1(&"onclick_tile".into());
-                                        move |_| {
-                                            println!("onclick_tile");
-                                            // console::log_1(&"onclick_tile_emit_props".into());
-                                            let _ = props.onclick.call(Ok(tile.clone()));
-                                        }
-                                    };
-
-                                    let library = props.library.read();
-                                        rsx! {
-                                            div {
-                                                class: "layer-tile",
-                                                style: "{base_style}",
-                                                onclick: onclick_tile,
-                                                {
-                                                    mask
-                                                        .get_render()
-                                                        .and_then(|id| {
-                                                            println!(
-                                                                "Rendering custom VNode from library {:?}",
-                                                                library.get_by_id(id),
-                                                            );
-                                                            let f = library.get_by_id(id)?.downcast_ref::<Box<dyn Fn() -> VNode>>()?;
-                                                            Some(f())
-                                                        })
-                                                        .unwrap_or(rsx! {}.unwrap())
+                                        let library = props.library.read();
+                                            rsx! {
+                                                div {
+                                                    class: "layer-tile",
+                                                    style: "{base_style}",
+                                                    onclick: onclick_tile,
+                                                    {
+                                                        mask
+                                                            .get_render()
+                                                            .and_then(|id| {
+                                                                println!(
+                                                                    "Rendering custom VNode from library {:?}",
+                                                                    library.get_by_id(id),
+                                                                );
+                                                                let f = library.get_by_id(id)?.downcast_ref::<Box<dyn Fn() -> VNode>>()?;
+                                                                Some(f())
+                                                            })
+                                                            .unwrap_or(rsx! {}.unwrap())
+                                                    }
                                                 }
                                             }
-                                            // Tile {
-                                            //     key: "{layer_index}-{i}",
-                                            //     tile: tile.clone(),
-                                            //     layer_z: layer.z,
-                                            //     // layer_kind: layer.kind,
-                                            //     square_size: props.square_size,
-                                            //     library: props.library.clone(),
-                                            //     onclick: props.onclick.clone(),
-                                            // }
-                                        }
-                                    })
-                            })
-                            .collect::<Vec<_>>()
-                    })
+                                        })
+                                })
+                                .collect::<Vec<_>>()
+                        })
             }
         }
     } else {

@@ -1,6 +1,6 @@
 use crate::{
     prelude::{Coordinates, Delta, Mask, Shape},
-    traits::{Shaped, Shiftable},
+    traits::{Grid, Shaped, Shiftable},
 };
 
 #[doc = include_str!("../../docs/layer.md")]
@@ -48,12 +48,14 @@ impl Shiftable for Layer {
     }
 }
 
-impl Layer {
+impl Grid for Layer {
     /// Checks if the layer contains a tile at the specified coordinate.
-    pub fn contains(&self, coord: &Coordinates) -> bool {
+    fn contains(&self, coord: &Coordinates) -> bool {
         self.masks.iter().any(|mask| mask.contains(coord))
     }
+}
 
+impl Layer {
     pub fn is_blocking_at(&self, target: &Coordinates) -> bool {
         self.masks.iter().any(|mask| mask.is_blocking_at(target))
     }
