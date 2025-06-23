@@ -1,20 +1,14 @@
-use std::any::Any;
+use std::{any::Any, vec};
 
-use rpgx::{
-    library::Library,
-    prelude::{Coordinates, Effect, Layer, Map, Mask, Rect, Shape},
-};
+use rpgx::{library::Library, prelude::*};
 
 pub fn use_map4(library: &Library<Box<dyn Any>>) -> Map {
     let layer1 = Layer::new(
         "ground".into(),
         vec![Mask::new(
             "ground".into(),
-            Rect::from_shape(Shape::from_square(15)).as_many(),
-            Effect {
-                texture_id: library.get_id("floor_1"),
-                ..Default::default()
-            },
+            Rect::from_shape(Shape::from_square(15)).into_many(),
+            vec![Effect::Texture(library.get_id("floor_1").unwrap())],
         )],
         1,
     );
@@ -22,11 +16,8 @@ pub fn use_map4(library: &Library<Box<dyn Any>>) -> Map {
         "ground".into(),
         vec![Mask::new(
             "ground".into(),
-            Rect::from_shape(Shape::from_square(15)).as_perimeter(0, 2),
-            Effect {
-                texture_id: library.get_id("floor_3"),
-                ..Default::default()
-            },
+            Rect::from_shape(Shape::from_square(15)).into_perimeter(0, 2),
+            vec![Effect::Texture(library.get_id("floor_3").unwrap())],
         )],
         1,
     );
@@ -34,11 +25,8 @@ pub fn use_map4(library: &Library<Box<dyn Any>>) -> Map {
         "ground".into(),
         vec![Mask::new(
             "ground".into(),
-            Rect::from_shape(Shape::from_square(15)).as_circle(),
-            Effect {
-                texture_id: library.get_id("floor_2"),
-                ..Default::default()
-            },
+            Rect::from_shape(Shape::from_square(15)).into_circle(),
+            vec![Effect::Texture(library.get_id("floor_2").unwrap())],
         )],
         1,
     );
@@ -46,11 +34,8 @@ pub fn use_map4(library: &Library<Box<dyn Any>>) -> Map {
         "ground".into(),
         vec![Mask::new(
             "ground".into(),
-            Rect::from_shape(Shape::from_square(15)).as_rhombus(5),
-            Effect {
-                texture_id: library.get_id("floor_3"),
-                ..Default::default()
-            },
+            Rect::from_shape(Shape::from_square(15)).into_rhombus(5),
+            vec![Effect::Texture(library.get_id("floor_3").unwrap())],
         )],
         1,
     );
@@ -62,10 +47,7 @@ pub fn use_map4(library: &Library<Box<dyn Any>>) -> Map {
                 Coordinates::new(5, 3),
                 Shape::from_rectangle(5, 7),
             )],
-            Effect {
-                texture_id: library.get_id("building_1"),
-                ..Default::default()
-            },
+            vec![Effect::Texture(library.get_id("building_1").unwrap())],
         )],
         2,
     );
@@ -81,11 +63,8 @@ pub fn use_map4(library: &Library<Box<dyn Any>>) -> Map {
         "portal".into(),
         vec![Mask::new(
             "portal".into(),
-            vec![Rect::from_many(Rect::from_shape(map.get_shape()).as_center(0, 2)).unwrap()],
-            Effect {
-                texture_id: library.get_id("portal_1"),
-                ..Default::default()
-            },
+            vec![Rect::from_many(Rect::from_shape(map.get_shape()).into_center(0, 2)).unwrap()],
+            vec![Effect::Texture(library.get_id("portal_1").unwrap())],
         )],
         2,
     );

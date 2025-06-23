@@ -31,17 +31,12 @@ Constructs a new mask from a list of rectangular areas. Each rectangle gets assi
 ```rust
 use rpgx::prelude::*;
 
-let effect = Effect {
-    block: Some(Rect::new(Coordinates::new(0, 0), Shape::new(1, 1))),
-    ..Default::default()
-};
-
 let areas = vec![
     Rect::new(Coordinates::new(2, 2), Shape::new(1, 1)),
     Rect::new(Coordinates::new(4, 4), Shape::new(2, 2)),
 ];
 
-let mask = Mask::new("trap_zones".to_string(), areas, effect);
+let mask = Mask::new("trap_zones".to_string(), areas, [Rect::new(Coordinates::new(0, 0), Shape::new(1, 1))]);
 ```
 
 ---

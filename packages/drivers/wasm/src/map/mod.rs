@@ -1,20 +1,36 @@
 pub mod effect;
 pub mod layer;
 pub mod mask;
-pub mod tile;
 
-use effect::WasmEffect;
 use layer::WasmLayer;
-use tile::WasmTile;
 
-use rpgx::prelude::Map;
+use rpgx::prelude::*;
 use wasm_bindgen::prelude::*;
 
-use crate::prelude::{WasmCoordinates, WasmDirection, WasmShape};
+use crate::{
+    prelude::{WasmCoordinates, WasmDirection, WasmShape},
+    traits::WasmWrapper,
+};
 
 #[wasm_bindgen(js_name = Map)]
 pub struct WasmMap {
     inner: Map,
+}
+
+impl WasmWrapper<Map> for WasmMap {
+    /// Consume and get the inner Map
+    fn into_inner(self) -> Map {
+        self.inner
+    }
+
+    /// Create from an inner Map directly
+    fn from_inner(inner: Map) -> WasmMap {
+        WasmMap { inner }
+    }
+
+    fn inner(&self) -> &Map {
+        &self.inner
+    }
 }
 
 #[wasm_bindgen(js_class = Map)]
@@ -126,53 +142,15 @@ impl WasmMap {
             .duplicate_to_the(direction.into_inner(), spawn_opt);
     }
 
-    /// Returns true if movement is allowed at the given coordinate.
-    #[wasm_bindgen(js_name = moveAllowed)]
-    pub fn move_allowed(&self, target: &WasmCoordinates) -> bool {
-        self.inner.move_allowed(*target.inner())
-    }
-
     /// Returns the bounding shape of the map.
     #[wasm_bindgen(js_name = getShape)]
     pub fn get_shape(&self) -> WasmShape {
         WasmShape::from_inner(self.inner.get_shape())
     }
 
-    /// Returns all tiles at a coordinate from all layers.
-    #[wasm_bindgen(js_name = getTilesAt)]
-    pub fn get_tiles_at(&self, pointer: &WasmCoordinates) -> Vec<WasmTile> {
-        self.inner
-            .get_tiles_at(*pointer.inner())
-            .into_iter()
-            .map(WasmTile::from_inner)
-            .collect()
-    }
-
-    /// Returns all effects at a coordinate from all layers.
-    #[wasm_bindgen(js_name = getEffectsAt)]
-    pub fn get_effects_at(&self, pointer: &WasmCoordinates) -> Vec<WasmEffect> {
-        self.inner
-            .get_effects_at(*pointer.inner())
-            .into_iter()
-            .map(WasmEffect::from_inner)
-            .collect()
-    }
-
     /// Returns all action IDs at a coordinate from all layers.
     #[wasm_bindgen(js_name = getActionsAt)]
     pub fn get_actions_at(&self, pointer: &WasmCoordinates) -> Vec<u32> {
-        self.inner.get_actions_at(*pointer.inner())
-    }
-}
-
-impl WasmMap {
-    /// Consume and get the inner Map
-    pub fn into_inner(self) -> Map {
-        self.inner
-    }
-
-    /// Create from an inner Map directly
-    pub fn from_inner(inner: Map) -> WasmMap {
-        WasmMap { inner }
+        self.inner.get_actions_at(pointer.inner())
     }
 }

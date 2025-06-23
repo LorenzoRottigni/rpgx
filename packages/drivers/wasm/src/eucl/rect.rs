@@ -1,4 +1,7 @@
-use crate::prelude::{WasmCoordinates, WasmShape};
+use crate::{
+    prelude::{WasmCoordinates, WasmShape},
+    traits::WasmWrapper,
+};
 use rpgx::prelude::Rect;
 use wasm_bindgen::prelude::*;
 
@@ -6,6 +9,20 @@ use wasm_bindgen::prelude::*;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct WasmRect {
     inner: Rect,
+}
+
+impl WasmWrapper<Rect> for WasmRect {
+    fn from_inner(inner: Rect) -> Self {
+        WasmRect { inner }
+    }
+
+    fn inner(&self) -> &Rect {
+        &self.inner
+    }
+
+    fn into_inner(self) -> Rect {
+        self.inner
+    }
 }
 
 #[wasm_bindgen(js_class = Rect)]
@@ -58,81 +75,81 @@ impl WasmRect {
     }
 
     #[wasm_bindgen(js_name = asMany)]
-    pub fn as_many(&self) -> Vec<WasmRect> {
+    pub fn into_many(&self) -> Vec<WasmRect> {
         self.inner
-            .as_many()
+            .into_many()
             .into_iter()
             .map(|r| WasmRect { inner: r })
             .collect()
     }
 
     #[wasm_bindgen(js_name = asBlock)]
-    pub fn as_block(&self) -> Vec<WasmRect> {
+    pub fn into_block(&self) -> Vec<WasmRect> {
         self.inner
-            .as_block()
+            .into_block()
             .into_iter()
             .map(|r| WasmRect { inner: r })
             .collect()
     }
 
     #[wasm_bindgen(js_name = asPerimeter)]
-    pub fn as_perimeter(&self, offset: u32, size: u32) -> Vec<WasmRect> {
+    pub fn into_perimeter(&self, offset: u32, size: u32) -> Vec<WasmRect> {
         self.inner
-            .as_perimeter(offset, size)
+            .into_perimeter(offset, size)
             .into_iter()
             .map(|r| WasmRect { inner: r })
             .collect()
     }
 
     #[wasm_bindgen(js_name = asBisector)]
-    pub fn as_bisector(&self, offset: u32, size: u32) -> Vec<WasmRect> {
+    pub fn into_bisector(&self, offset: u32, size: u32) -> Vec<WasmRect> {
         self.inner
-            .as_bisector(offset, size)
+            .into_bisector(offset, size)
             .into_iter()
             .map(|r| WasmRect { inner: r })
             .collect()
     }
 
     #[wasm_bindgen(js_name = asCenter)]
-    pub fn as_center(&self, offset: u32, size: u32) -> Vec<WasmRect> {
+    pub fn into_center(&self, offset: u32, size: u32) -> Vec<WasmRect> {
         self.inner
-            .as_center(offset, size)
+            .into_center(offset, size)
             .into_iter()
             .map(|r| WasmRect { inner: r })
             .collect()
     }
 
     #[wasm_bindgen(js_name = asRhombus)]
-    pub fn as_rhombus(&self, dial: u32) -> Vec<WasmRect> {
+    pub fn into_rhombus(&self, dial: u32) -> Vec<WasmRect> {
         self.inner
-            .as_rhombus(dial)
+            .into_rhombus(dial)
             .into_iter()
             .map(|r| WasmRect { inner: r })
             .collect()
     }
 
     #[wasm_bindgen(js_name = asCircle)]
-    pub fn as_circle(&self) -> Vec<WasmRect> {
+    pub fn into_circle(&self) -> Vec<WasmRect> {
         self.inner
-            .as_circle()
+            .into_circle()
             .into_iter()
             .map(|r| WasmRect { inner: r })
             .collect()
     }
 
     #[wasm_bindgen(js_name = asOdds)]
-    pub fn as_odds(&self) -> Vec<WasmRect> {
+    pub fn into_odds(&self) -> Vec<WasmRect> {
         self.inner
-            .as_odds()
+            .into_odds()
             .into_iter()
             .map(|r| WasmRect { inner: r })
             .collect()
     }
 
     #[wasm_bindgen(js_name = asEvens)]
-    pub fn as_evens(&self) -> Vec<WasmRect> {
+    pub fn into_evens(&self) -> Vec<WasmRect> {
         self.inner
-            .as_evens()
+            .into_evens()
             .into_iter()
             .map(|r| WasmRect { inner: r })
             .collect()
@@ -148,20 +165,5 @@ impl WasmRect {
         self.inner
             .intersection(&other.inner)
             .map(|r| WasmRect { inner: r })
-    }
-}
-
-// Internal Rust API
-impl WasmRect {
-    pub fn from_inner(inner: Rect) -> Self {
-        WasmRect { inner }
-    }
-
-    pub fn inner(&self) -> &Rect {
-        &self.inner
-    }
-
-    pub fn into_inner(self) -> Rect {
-        self.inner
     }
 }

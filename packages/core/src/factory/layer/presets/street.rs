@@ -1,4 +1,4 @@
-use crate::prelude::{Coordinates, Effect, Layer, Map, Mask, Rect, Shape};
+use crate::prelude::*;
 
 pub fn street_around(map: &mut Map, texture_id: u32) {
     let inner_shape = map.get_shape();
@@ -31,10 +31,7 @@ pub fn street_around(map: &mut Map, texture_id: u32) {
             .into_iter()
             .map(|c| Rect::new(c, Shape::from_square(1)))
             .collect(),
-        Effect {
-            texture_id: Some(texture_id),
-            ..Default::default()
-        },
+        vec![Effect::Texture(texture_id)],
     );
 
     let street_layer = Layer::new("street".to_string(), vec![mask], 3);
@@ -77,10 +74,7 @@ pub fn street_layer_around(shape: Shape, texture_id: u32) -> Layer {
             .iter()
             .map(|c| Rect::new(*c, Shape::from_square(1)))
             .collect(),
-        Effect {
-            texture_id: Some(texture_id),
-            ..Default::default()
-        },
+        vec![Effect::Texture(texture_id)],
     );
 
     // Offset inward to wrap the original shape

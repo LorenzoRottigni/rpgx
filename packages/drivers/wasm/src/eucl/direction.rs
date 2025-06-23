@@ -1,4 +1,4 @@
-use crate::prelude::WasmDelta;
+use crate::{prelude::WasmDelta, traits::WasmWrapper};
 use rpgx::prelude::Direction;
 use wasm_bindgen::prelude::*;
 
@@ -6,6 +6,20 @@ use wasm_bindgen::prelude::*;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct WasmDirection {
     inner: Direction,
+}
+
+impl WasmWrapper<Direction> for WasmDirection {
+    fn from_inner(inner: Direction) -> Self {
+        WasmDirection { inner }
+    }
+
+    fn inner(&self) -> &Direction {
+        &self.inner
+    }
+
+    fn into_inner(self) -> Direction {
+        self.inner
+    }
 }
 
 #[wasm_bindgen(js_class = Direction)]
@@ -49,20 +63,5 @@ impl WasmDirection {
     #[wasm_bindgen(js_name = equals)]
     pub fn equals(&self, other: &WasmDirection) -> bool {
         self.inner == other.inner
-    }
-}
-
-// Internal Rust API
-impl WasmDirection {
-    pub fn from_inner(inner: Direction) -> Self {
-        WasmDirection { inner }
-    }
-
-    pub fn inner(&self) -> Direction {
-        self.inner
-    }
-
-    pub fn into_inner(self) -> Direction {
-        self.inner
     }
 }

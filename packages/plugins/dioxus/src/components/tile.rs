@@ -1,14 +1,17 @@
 use dioxus::prelude::*;
-use rpgx::{library::Library, prelude::RPGXError};
+use rpgx::{
+    library::Library,
+    prelude::{RPGXError, Rect},
+};
 use std::any::Any;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct TileProps {
-    tile: rpgx::prelude::Tile,
+    tile: Rect,
     layer_z: u32,
     square_size: u32,
     library: Signal<Library<Box<dyn Any>>>,
-    onclick: EventHandler<Result<rpgx::prelude::Tile, RPGXError>>,
+    onclick: EventHandler<Result<Rect, RPGXError>>,
 }
 
 #[allow(non_snake_case)]

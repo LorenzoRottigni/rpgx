@@ -1,4 +1,7 @@
-use crate::prelude::{WasmDelta, WasmShape};
+use crate::{
+    prelude::{WasmDelta, WasmShape},
+    traits::WasmWrapper,
+};
 use rpgx::prelude::Coordinates;
 use wasm_bindgen::prelude::*;
 
@@ -6,6 +9,20 @@ use wasm_bindgen::prelude::*;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct WasmCoordinates {
     inner: Coordinates,
+}
+
+impl WasmWrapper<Coordinates> for WasmCoordinates {
+    fn from_inner(inner: Coordinates) -> Self {
+        WasmCoordinates { inner }
+    }
+
+    fn inner(&self) -> &Coordinates {
+        &self.inner
+    }
+
+    fn into_inner(self) -> Coordinates {
+        self.inner
+    }
 }
 
 #[wasm_bindgen(js_class = Coordinates)]
@@ -108,20 +125,5 @@ impl WasmCoordinates {
             array.push(&WasmCoordinates { inner: max }.into());
             array
         })
-    }
-}
-
-// Internal Rust API
-impl WasmCoordinates {
-    pub fn from_inner(inner: Coordinates) -> Self {
-        WasmCoordinates { inner }
-    }
-
-    pub fn inner(&self) -> &Coordinates {
-        &self.inner
-    }
-
-    pub fn into_inner(self) -> Coordinates {
-        self.inner
     }
 }

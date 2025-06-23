@@ -1,6 +1,9 @@
 use std::collections::{BinaryHeap, HashMap};
 
-use crate::prelude::{Coordinates, Map};
+use crate::{
+    prelude::{Coordinates, Map},
+    traits::Grid,
+};
 
 /// A node in the A* search graph.
 #[derive(Eq, PartialEq)]
@@ -40,7 +43,11 @@ impl Map {
     /// - `heuristic((0,0), (1,1)) == 1`
     pub fn heuristic(a: Coordinates, b: Coordinates) -> u32 {
         let distance = a.x.abs_diff(b.x) + a.y.abs_diff(b.y);
-        if distance > 0 { distance - 1 } else { 0 }
+        if distance > 0 {
+            distance - 1
+        } else {
+            0
+        }
     }
 
     /// Finds a path from `start` to `goal` coordinates using A* pathfinding.
@@ -100,7 +107,7 @@ impl Map {
 
             for neighbor in neighbors {
                 // Skip if blocked
-                if !self.move_allowed(neighbor) {
+                if self.contains(&neighbor) && self.is_blocking_at(&neighbor) {
                     continue;
                 }
 
@@ -136,8 +143,8 @@ pub mod tests {
                 "test".into(),
                 vec![Mask::new(
                     "test".into(),
-                    Rect::new(Coordinates::default(), Shape::from_square(10)).as_many(),
-                    Effect::default(),
+                    Rect::new(Coordinates::default(), Shape::from_square(10)).into_many(),
+                    vec![],
                 )],
                 1,
             )],
@@ -153,16 +160,16 @@ pub mod tests {
                 vec![
                     Mask::new(
                         "test".into(),
-                        Rect::new(Coordinates::default(), Shape::from_square(10)).as_many(),
-                        Effect::default(),
+                        Rect::new(Coordinates::default(), Shape::from_square(10)).into_many(),
+                        vec![],
                     ),
                     Mask::new(
                         "test".into(),
-                        Rect::new(Coordinates::new(2, 2), Shape::from_square(4)).as_block(),
-                        Effect {
-                            block: Some(Rect::new(Coordinates::default(), Shape::from_square(4))),
-                            ..Default::default()
-                        },
+                        Rect::new(Coordinates::new(2, 2), Shape::from_square(4)).into_block(),
+                        vec![Effect::Block(Rect::new(
+                            Coordinates::new(1, 1),
+                            Shape::from_square(2),
+                        ))],
                     ),
                 ],
                 1,

@@ -80,7 +80,7 @@ pub fn use_controller(
                                     .get_active_scene()
                                     .unwrap()
                                     .map
-                                    .get_actions_at(pointer)
+                                    .get_actions_at(&pointer)
                                     .into_iter()
                                     .for_each(|action_id| {
                                         if let Some(boxed) = library.read().get_by_id(action_id) {

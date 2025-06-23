@@ -1,10 +1,29 @@
 use rpgx::prelude::{Coordinates, Shape};
 use wasm_bindgen::prelude::*;
 
+use crate::traits::WasmWrapper;
+
 #[wasm_bindgen(js_name = Shape)]
 #[derive(Clone, Debug)]
 pub struct WasmShape {
     inner: Shape,
+}
+
+impl WasmWrapper<Shape> for WasmShape {
+    /// Get a reference to the inner Shape
+    fn inner(&self) -> &Shape {
+        &self.inner
+    }
+
+    /// Consume WasmShape and return the inner Shape
+    fn into_inner(self) -> Shape {
+        self.inner
+    }
+
+    /// Create WasmShape from inner Shape directly
+    fn from_inner(inner: Shape) -> Self {
+        WasmShape { inner }
+    }
 }
 
 #[wasm_bindgen(js_class = Shape)]
@@ -45,20 +64,5 @@ impl WasmShape {
         WasmShape {
             inner: self.inner.offset_by(offset),
         }
-    }
-}
-
-impl WasmShape {
-    // Access to inner for Rust interop (not exported to JS)
-    pub fn inner(&self) -> &Shape {
-        &self.inner
-    }
-
-    pub fn into_inner(self) -> Shape {
-        self.inner
-    }
-
-    pub fn from_inner(inner: Shape) -> Self {
-        Self { inner }
     }
 }

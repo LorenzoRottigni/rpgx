@@ -94,7 +94,7 @@ impl Rect {
     ///
     /// This is useful for applying per-tile logic or reconstruction.
     ///
-    pub fn as_many(&self) -> Vec<Self> {
+    pub fn into_many(&self) -> Vec<Self> {
         self.iter()
             .map(|coord| Rect {
                 origin: coord,
@@ -103,7 +103,7 @@ impl Rect {
             .collect()
     }
 
-    pub fn as_block(&self) -> Vec<Self> {
+    pub fn into_block(&self) -> Vec<Self> {
         vec![*self]
     }
 
@@ -118,7 +118,7 @@ impl Rect {
     /// # Panics
     /// Panics if `offset + size` exceeds half the width or height.
     ///
-    pub fn as_perimeter(&self, offset: u32, size: u32) -> Vec<Self> {
+    pub fn into_perimeter(&self, offset: u32, size: u32) -> Vec<Self> {
         let mut perimeter = Vec::new();
 
         if self.shape.width <= 2 * offset || self.shape.height <= 2 * offset {
@@ -170,7 +170,7 @@ impl Rect {
     /// # Arguments
     /// * `offset` - Distance from the edge before bisecting.
     /// * `size` - Thickness of the bisector (number of rows or columns).
-    pub fn as_bisector(&self, offset: u32, size: u32) -> Vec<Self> {
+    pub fn into_bisector(&self, offset: u32, size: u32) -> Vec<Self> {
         let mut bisector = Vec::new();
 
         if self.shape.width <= 2 * offset || self.shape.height <= 2 * offset {
@@ -221,7 +221,7 @@ impl Rect {
     ///
     /// # Notes
     /// If the rect is too small to fit the center block after offset, returns empty.
-    pub fn as_center(&self, offset: u32, size: u32) -> Vec<Self> {
+    pub fn into_center(&self, offset: u32, size: u32) -> Vec<Self> {
         let mut center = Vec::new();
 
         if self.shape.width <= 2 * offset || self.shape.height <= 2 * offset {
@@ -251,7 +251,7 @@ impl Rect {
     /// including all tiles within `dial` distance (Manhattan distance) from the center tile(s).
     ///
     /// The circle is clamped to the rectangle bounds.
-    pub fn as_rhombus(&self, dial: u32) -> Vec<Self> {
+    pub fn into_rhombus(&self, dial: u32) -> Vec<Self> {
         let mut tiles = Vec::new();
 
         if self.shape.width == 0 || self.shape.height == 0 {
@@ -268,7 +268,7 @@ impl Rect {
         let center_y = top + height / 2;
 
         // For even width or height, center is between tiles, so consider all 1x1 tiles near center:
-        // We'll just consider center points as in as_center:
+        // We'll just consider center points as in into_center:
         let centers = if width % 2 == 1 && height % 2 == 1 {
             vec![(center_x, center_y)]
         } else {
@@ -306,7 +306,7 @@ impl Rect {
         tiles
     }
 
-    pub fn as_circle(&self) -> Vec<Rect> {
+    pub fn into_circle(&self) -> Vec<Rect> {
         let center = self.center();
         let radius_x = self.shape.width as f32 / 2.0;
         let radius_y = self.shape.height as f32 / 2.0;
@@ -327,7 +327,7 @@ impl Rect {
     /// Returns all 1×1 tiles within the `Rect` that are located on odd (x + y) sum positions.
     ///
     /// Useful for checkerboard or diagonal pattern logic.
-    pub fn as_odds(&self) -> Vec<Rect> {
+    pub fn into_odds(&self) -> Vec<Rect> {
         self.iter()
             .filter(|coord| coord.x % 2 == 1 && coord.y % 2 == 1)
             .map(|coord| Rect::new(coord, Shape::from_square(1)))
@@ -337,7 +337,7 @@ impl Rect {
     /// Returns all 1×1 tiles within the `Rect` that are located on even (x + y) sum positions.
     ///
     /// Useful for checkerboard or diagonal pattern logic.
-    pub fn as_evens(&self) -> Vec<Rect> {
+    pub fn into_evens(&self) -> Vec<Rect> {
         self.iter()
             .filter(|coord| coord.x % 2 == 0 && coord.y % 2 == 0)
             .map(|coord| Rect::new(coord, Shape::from_square(1)))
@@ -439,7 +439,7 @@ impl Rect {
     /// Returns `true` if the given coordinates fall within the bounds of the rectangle.
     ///
     /// Bounds are inclusive at the top-left and exclusive at the bottom-right.
-    pub fn contains(&self, pt: Coordinates) -> bool {
+    pub fn contains(&self, pt: &Coordinates) -> bool {
         let x = pt.x;
         let y = pt.y;
         let ox = self.origin.x;
@@ -540,19 +540,19 @@ mod tests {
             },
         );
 
-        assert!(rect.contains(Coordinates { x: 2, y: 3 }));
-        assert!(rect.contains(Coordinates { x: 5, y: 7 }));
-        assert!(!rect.contains(Coordinates { x: 6, y: 3 }));
-        assert!(!rect.contains(Coordinates { x: 2, y: 8 }));
-        assert!(!rect.contains(Coordinates { x: 6, y: 8 }));
-        assert!(!rect.contains(Coordinates { x: 1, y: 3 }));
-        assert!(!rect.contains(Coordinates { x: 2, y: 2 }));
+        assert!(rect.contains(&Coordinates { x: 2, y: 3 }));
+        assert!(rect.contains(&Coordinates { x: 5, y: 7 }));
+        assert!(!rect.contains(&Coordinates { x: 6, y: 3 }));
+        assert!(!rect.contains(&Coordinates { x: 2, y: 8 }));
+        assert!(!rect.contains(&Coordinates { x: 6, y: 8 }));
+        assert!(!rect.contains(&Coordinates { x: 1, y: 3 }));
+        assert!(!rect.contains(&Coordinates { x: 2, y: 2 }));
     }
 
     #[test]
     pub fn splits_into_many() {
         let rect = rect_6x6();
-        let many = rect.as_many();
+        let many = rect.into_many();
         assert_eq!(many.len(), 36);
 
         let expected_coords: Vec<_> = rect.iter().collect();
@@ -588,7 +588,7 @@ mod tests {
     #[test]
     pub fn splits_and_rejoins() {
         let rect = rect_6x6();
-        let many = rect.as_many();
+        let many = rect.into_many();
         let new_rect = Rect::from_many(many);
         assert_eq!(rect, new_rect.unwrap())
     }
@@ -760,12 +760,12 @@ mod tests {
     }
 
     #[test]
-    pub fn as_evens_returns_even_coordinates() {
+    pub fn into_evens_returns_even_coordinates() {
         let rect = Rect::from_shape(Shape {
             width: 4,
             height: 4,
         });
-        let evens = rect.as_evens();
+        let evens = rect.into_evens();
         for tile in evens {
             assert_eq!(tile.origin.x % 2, 0);
             assert_eq!(tile.origin.y % 2, 0);
@@ -773,12 +773,12 @@ mod tests {
     }
 
     #[test]
-    pub fn as_odds_returns_odd_coordinates() {
+    pub fn into_odds_returns_odd_coordinates() {
         let rect = Rect::from_shape(Shape {
             width: 5,
             height: 5,
         });
-        let odds = rect.as_odds();
+        let odds = rect.into_odds();
         for tile in odds {
             assert_eq!(tile.origin.x % 2, 1);
             assert_eq!(tile.origin.y % 2, 1);

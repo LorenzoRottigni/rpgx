@@ -104,10 +104,7 @@ pub fn use_map2(library: &Library<Box<dyn Any>>) -> Map {
                 .iter()
                 .map(|c| Rect::new(*c, Shape::from_square(1)))
                 .collect(),
-            Effect {
-                texture_id: Some(library.get_id("floor_3").unwrap()),
-                ..Default::default()
-            },
+            vec![Effect::Texture(library.get_id("floor_3").unwrap())],
         )],
         1,
     ));

@@ -33,11 +33,7 @@ pub struct Layer {
 ```rust
 use rpgx::prelude::*;
 
-let effect = Effect {
-    block: Some(Rect::from_xywh(0, 0, 1, 1)),
-    ..Default::default()
-};
-let mask = Mask::new("hazard_zone".into(), vec![Rect::from_xywh(5, 5, 2, 2)], effect);
+let mask = Mask::new("hazard_zone".into(), vec![Rect::from_xywh(5, 5, 2, 2)], vec![Effect::Block(Rect::from_xywh(0, 0, 1, 1))]);
 let layer = Layer::new("hazards".into(), vec![mask], 10);
 ```
 
