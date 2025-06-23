@@ -66,4 +66,18 @@ impl WasmMask {
     pub fn contains(&self, coord: &WasmCoordinates) -> bool {
         self.inner.contains(coord.inner())
     }
+
+    #[wasm_bindgen(js_name = getTexture)]
+    pub fn get_texture(&self) -> Option<u32> {
+        self.inner.get_texture()
+    }
+
+    #[wasm_bindgen]
+    pub fn tiles(&self) -> Vec<WasmRect> {
+        self.inner
+            .tiles
+            .iter()
+            .map(|t| WasmRect::from_inner(*t))
+            .collect()
+    }
 }

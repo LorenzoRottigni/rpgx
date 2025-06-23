@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useEngine, useLibrary } from './composables/rpgx'
-import { Layer, Tile, Direction, Coordinates } from '@rpgx/js';
+import { Layer,  Direction, Coordinates, Rect, Mask } from '@rpgx/js';
 
 const library = useLibrary()
 const engine = ref(useEngine(library))
@@ -19,14 +19,15 @@ const squareSize = 15;
 
 console.dir(layers)
 
-function getTileStyle(tile: Tile, layer: Layer) {
-  const x = tile.area.origin.x;
-  const y = tile.area.origin.y;
-  const width = tile.area.shape.width * squareSize;
-  const height = tile.area.shape.height * squareSize;
+function getTileStyle(tile: Rect, mask: Mask, layer: Layer) {
+  const x = tile.origin.x;
+  const y = tile.origin.y;
+  const width = tile.shape.width * squareSize;
+  const height = tile.shape.height * squareSize;
 
-  const backgroundImage = tile.effect.textureId
-    ? `background-image: ${getTexture(tile.effect.textureId)};`
+  const maskTexture = mask.getTexture()
+  const backgroundImage = maskTexture
+    ? `background-image: ${getTexture(maskTexture)};`
     : ''
   const zIndex = 10 + layer.z;
   const pointerEvents = 'auto';
@@ -83,9 +84,9 @@ function manageActions(target: Coordinates) {
   })
 }
 
-function onClick(tile: Tile) {
+function onClick(tile: Rect) {
   updateFlag.value++
-  const steps = activeScene.value?.stepsTo(tile.area.origin);
+  const steps = activeScene.value?.stepsTo(tile.origin);
   if (!steps?.length) return
   for (let i = 0; i < steps.length; i++) {
     const step = steps[i];
@@ -135,13 +136,17 @@ onMounted(() => {
         v-for="(layer, layerIndex) in layers"
         :key="'layer-' + layerIndex"
       >
+       <div
+        v-for="(mask, maskIndex) in layer.masks" :key="`mask-${layerIndex}-${maskIndex}`">
         <div
-          v-for="(tile, tileIndex) in layer.masks.map((m) => m.tiles).flat()"
+          v-for="(tile, tileIndex) in mask.tiles()"
           :key="`layer-${layerIndex}-${tileIndex}`"
           :class="'layer-tile'"
-          :style="getTileStyle(tile, layer)"
+          :style="getTileStyle(tile, mask, layer)"
           @click="onClick(tile)"
         ></div>
+      </div>
+        
       </div>
 
       <div
