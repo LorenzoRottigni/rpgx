@@ -2,7 +2,7 @@ use rpgx::prelude::*;
 use wasm_bindgen::prelude::*;
 
 use crate::{
-    prelude::{WasmCoordinates, WasmDelta, WasmEffect, WasmRect, WasmShape, WasmTile},
+    prelude::{WasmCoordinates, WasmDelta, WasmEffect, WasmRect, WasmShape},
     traits::WasmWrapper,
 };
 
@@ -32,10 +32,14 @@ impl WasmWrapper<Mask> for WasmMask {
 impl WasmMask {
     /// Create a new Mask from name, areas, and uniform effect
     #[wasm_bindgen(constructor)]
-    pub fn new(name: String, areas: Vec<WasmRect>, effect: &WasmEffect) -> WasmMask {
+    pub fn new(name: String, areas: Vec<WasmRect>, effects: Vec<WasmEffect>) -> WasmMask {
         let inner_areas = areas.into_iter().map(|r| r.into_inner()).collect();
         WasmMask {
-            inner: Mask::new(name, inner_areas, *effect.inner()),
+            inner: Mask::new(
+                name,
+                inner_areas,
+                effects.iter().map(|e| e.into_inner()).collect(),
+            ),
         }
     }
 
@@ -43,17 +47,6 @@ impl WasmMask {
     #[wasm_bindgen(getter)]
     pub fn name(&self) -> String {
         self.inner.name.clone()
-    }
-
-    /// Get all tiles in this mask
-    #[wasm_bindgen(getter)]
-    pub fn tiles(&self) -> Vec<WasmTile> {
-        self.inner
-            .tiles
-            .iter()
-            .cloned()
-            .map(WasmTile::from_inner)
-            .collect()
     }
 
     /// Offset all tiles and their effects by delta
@@ -71,17 +64,6 @@ impl WasmMask {
     /// Returns true if any tile contains the coordinate
     #[wasm_bindgen]
     pub fn contains(&self, coord: &WasmCoordinates) -> bool {
-        self.inner.contains(*coord.inner())
-    }
-
-    /// Get the tile at coordinate, or null if none
-    #[wasm_bindgen(js_name = tileAt)]
-    pub fn get_tiles_at(&self, coord: &WasmCoordinates) -> Vec<WasmTile> {
-        self.inner
-            .get_tiles_at(*coord.inner())
-            .iter()
-            .cloned()
-            .map(WasmTile::from_inner)
-            .collect()
+        self.inner.contains(coord.inner())
     }
 }
