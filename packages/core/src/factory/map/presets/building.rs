@@ -1,3 +1,5 @@
+use std::vec;
+
 use crate::prelude::{Coordinates, Effect, Layer, Map, Mask, Rect, Shape};
 
 pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
@@ -7,12 +9,16 @@ pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
             "logo".to_string(),
             // Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
             vec![Rect::new(Coordinates { x: 0, y: 0 }, shape)],
-            Effect {
-                texture_id: Some(texture_id),
-                block: Some(Rect::new(Coordinates { x: 1, y: 1 }, shape - 2)),
-                // group: true,
-                ..Default::default()
-            },
+            vec![
+                Effect::Texture(texture_id),
+                Effect::Block(Rect::new(
+                    Coordinates { x: 1, y: 1 },
+                    Shape {
+                        width: shape.width.saturating_sub(2),
+                        height: shape.height.saturating_sub(2),
+                    },
+                )),
+            ],
         )],
         5,
     );
@@ -45,10 +51,7 @@ pub fn building_2x3(shape: Shape, texture_id: u32, action_id: u32) -> Map {
             "action_test".to_string(),
             // Selector::Block(action_rect),
             action_rect.into_many(),
-            Effect {
-                action_id: Some(action_id),
-                ..Default::default()
-            },
+            vec![Effect::Action(action_id)],
         )],
         6,
     );
@@ -67,12 +70,16 @@ pub fn building_1x1(shape: Shape, texture_id: u32, action_id: u32) -> Map {
             "logo".to_string(),
             // Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
             vec![Rect::new(Coordinates { x: 0, y: 0 }, shape)],
-            Effect {
-                texture_id: Some(texture_id),
-                block: Some(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
-                // group: true,
-                ..Default::default()
-            },
+            vec![
+                Effect::Texture(texture_id),
+                Effect::Block(Rect::new(
+                    Coordinates { x: 0, y: 0 },
+                    Shape {
+                        width: shape.width,
+                        height: shape.height,
+                    },
+                )),
+            ],
         )],
         5,
     );
@@ -93,10 +100,7 @@ pub fn building_1x1(shape: Shape, texture_id: u32, action_id: u32) -> Map {
             "action_test".to_string(),
             // Selector::Block(action_rect),
             action_rect.into_many(),
-            Effect {
-                action_id: Some(action_id),
-                ..Default::default()
-            },
+            vec![Effect::Action(action_id)],
         )],
         6,
     );
@@ -115,18 +119,16 @@ pub fn building_3x2(shape: Shape, texture_id: u32, action_id: u32) -> Map {
             "logo".to_string(),
             // Selector::Block(Rect::new(Coordinates { x: 0, y: 0 }, shape)),
             vec![Rect::new(Coordinates { x: 0, y: 0 }, shape)],
-            Effect {
-                texture_id: Some(texture_id),
-                block: Some(Rect::new(
+            vec![
+                Effect::Texture(texture_id),
+                Effect::Block(Rect::new(
                     Coordinates { x: 1, y: 1 },
                     Shape {
-                        width: shape.width.saturating_sub(1),
-                        height: shape.height.saturating_sub(1),
+                        width: shape.width.saturating_sub(2),
+                        height: shape.height.saturating_sub(2),
                     },
                 )),
-                // group: true,
-                ..Default::default()
-            },
+            ],
         )],
         5,
     );
@@ -158,10 +160,7 @@ pub fn building_3x2(shape: Shape, texture_id: u32, action_id: u32) -> Map {
             "action_test".to_string(),
             // Selector::Block(action_rect),
             action_rect.into_many(),
-            Effect {
-                action_id: Some(action_id),
-                ..Default::default()
-            },
+            vec![Effect::Action(action_id)],
         )],
         6,
     );

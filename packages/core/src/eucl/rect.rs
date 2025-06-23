@@ -439,7 +439,7 @@ impl Rect {
     /// Returns `true` if the given coordinates fall within the bounds of the rectangle.
     ///
     /// Bounds are inclusive at the top-left and exclusive at the bottom-right.
-    pub fn contains(&self, pt: Coordinates) -> bool {
+    pub fn contains(&self, pt: &Coordinates) -> bool {
         let x = pt.x;
         let y = pt.y;
         let ox = self.origin.x;
@@ -540,13 +540,13 @@ mod tests {
             },
         );
 
-        assert!(rect.contains(Coordinates { x: 2, y: 3 }));
-        assert!(rect.contains(Coordinates { x: 5, y: 7 }));
-        assert!(!rect.contains(Coordinates { x: 6, y: 3 }));
-        assert!(!rect.contains(Coordinates { x: 2, y: 8 }));
-        assert!(!rect.contains(Coordinates { x: 6, y: 8 }));
-        assert!(!rect.contains(Coordinates { x: 1, y: 3 }));
-        assert!(!rect.contains(Coordinates { x: 2, y: 2 }));
+        assert!(rect.contains(&Coordinates { x: 2, y: 3 }));
+        assert!(rect.contains(&Coordinates { x: 5, y: 7 }));
+        assert!(!rect.contains(&Coordinates { x: 6, y: 3 }));
+        assert!(!rect.contains(&Coordinates { x: 2, y: 8 }));
+        assert!(!rect.contains(&Coordinates { x: 6, y: 8 }));
+        assert!(!rect.contains(&Coordinates { x: 1, y: 3 }));
+        assert!(!rect.contains(&Coordinates { x: 2, y: 2 }));
     }
 
     #[test]

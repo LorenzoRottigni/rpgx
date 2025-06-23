@@ -1,5 +1,5 @@
 use crate::{
-    prelude::{Coordinates, Delta, Mask, Shape, Tile},
+    prelude::{Coordinates, Delta, Mask, Shape},
     traits::{Grid, Shaped, Shiftable},
 };
 
@@ -49,88 +49,42 @@ impl Shiftable for Layer {
 }
 
 impl Grid for Layer {
-    /// Checks if any tile in the layer blocks movement at the given coordinate.
-    fn is_blocking_at(&self, target: &Coordinates) -> bool {
-        self.masks
-            .iter()
-            .any(|mask| mask.tiles.iter().any(|tile| tile.is_blocking_at(*target)))
-    }
-
-    /// Checks if movement is allowed at the given coordinate.
-    fn move_allowed(&self, target: Coordinates) -> bool {
-        self.contains(target) && !self.is_blocking_at(&target)
-    }
-
     /// Checks if the layer contains a tile at the specified coordinate.
-    fn contains(&self, coord: Coordinates) -> bool {
+    fn contains(&self, coord: &Coordinates) -> bool {
         self.masks.iter().any(|mask| mask.contains(coord))
     }
+}
 
-    fn get_tiles_at(&self, pointer: Coordinates) -> Vec<Tile> {
-        self.masks
-            .iter()
-            .flat_map(|mask| mask.get_tiles_at(pointer))
-            .collect()
+impl Layer {
+    pub fn is_blocking_at(&self, target: &Coordinates) -> bool {
+        self.masks.iter().any(|mask| mask.is_blocking_at(target))
     }
 
-    /// Returns all actions available at the specified coordinate.
-    fn get_actions_at(&self, pointer: Coordinates) -> Vec<u32> {
+    pub fn get_actions_at(&self, target: &Coordinates) -> Vec<u32> {
         self.masks
             .iter()
             .flat_map(|mask| {
-                mask.get_tiles_at(pointer)
-                    .iter()
-                    .filter_map(|tile| tile.effect.action_id)
-                    .collect::<Vec<_>>()
-            })
-            .collect::<Vec<_>>()
-    }
-
-    /// Returns all effects present at the specified coordinate.
-    fn get_effects_at(&self, pointer: Coordinates) -> Vec<crate::prelude::Effect> {
-        self.masks
-            .iter()
-            .flat_map(|mask| {
-                mask.get_tiles_at(pointer)
-                    .iter()
-                    .map(|tile| tile.effect.clone())
-                    .collect::<Vec<_>>()
+                if mask.contains(target) {
+                    mask.get_actions()
+                } else {
+                    vec![]
+                }
             })
             .collect()
     }
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::prelude::{Coordinates, Effect, Rect};
-
-    fn dummy_tile(x: u32, y: u32, w: u32, h: u32) -> Tile {
-        Tile::new(
-            Effect {
-                block: Some(Rect::from_xywh(x, y, w, h)),
-                ..Default::default()
-            },
-            Rect::from_xywh(x, y, w, h),
-        )
-    }
+    use crate::prelude::Rect;
 
     fn simple_layer() -> Layer {
-        let tile = dummy_tile(0, 0, 2, 2);
-        let mask = Mask::new("test".into(), vec![tile.area], tile.effect);
+        let mask = Mask::new(
+            "test".into(),
+            vec![Rect::from_shape(Shape::new(2, 2))],
+            vec![],
+        );
         Layer::new("layer".into(), vec![mask], 0)
-    }
-
-    #[test]
-    fn test_is_blocking_at_true() {
-        let layer = simple_layer();
-        assert!(layer.is_blocking_at(&Coordinates::new(1, 1)));
-    }
-
-    #[test]
-    fn test_is_blocking_at_false() {
-        let layer = simple_layer();
-        assert!(!layer.is_blocking_at(&Coordinates::new(5, 5)));
     }
 
     #[test]

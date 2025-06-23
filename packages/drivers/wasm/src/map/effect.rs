@@ -1,29 +1,23 @@
+use crate::prelude::{WasmDelta, WasmRect};
+use crate::traits::WasmWrapper;
 use rpgx::prelude::Effect;
 use wasm_bindgen::prelude::*;
 
-use crate::{
-    prelude::{WasmDelta, WasmRect},
-    traits::WasmWrapper,
-};
-
 #[wasm_bindgen(js_name = Effect)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct WasmEffect {
     inner: Effect,
 }
 
 impl WasmWrapper<Effect> for WasmEffect {
-    /// Get a reference to the inner Effect
     fn inner(&self) -> &Effect {
         &self.inner
     }
 
-    /// Consume WasmEffect and return the inner Effect
     fn into_inner(self) -> Effect {
         self.inner
     }
 
-    /// Create WasmEffect from inner Effect directly
     fn from_inner(inner: Effect) -> Self {
         WasmEffect { inner }
     }
@@ -31,64 +25,95 @@ impl WasmWrapper<Effect> for WasmEffect {
 
 #[wasm_bindgen(js_class = Effect)]
 impl WasmEffect {
-    #[wasm_bindgen(constructor)]
-    pub fn new(
-        action_id: Option<u32>,
-        texture_id: Option<u32>,
-        render_id: Option<u32>,
-        block: Option<WasmRect>,
-    ) -> WasmEffect {
+    // === Constructors ===
+
+    #[wasm_bindgen(js_name = none)]
+    pub fn none() -> WasmEffect {
         WasmEffect {
-            inner: Effect {
-                action_id,
-                texture_id,
-                render_id,
-                block: block.map(|r| *r.inner()),
-            },
+            inner: Effect::None,
         }
     }
 
-    /// Getters and setters for action_id
-    #[wasm_bindgen(getter, js_name = actionId)]
-    pub fn action_id(&self) -> Option<u32> {
-        self.inner.action_id
-    }
-    #[wasm_bindgen(setter, js_name = actionId)]
-    pub fn set_action_id(&mut self, id: Option<u32>) {
-        self.inner.action_id = id;
+    #[wasm_bindgen(js_name = action)]
+    pub fn action(id: u32) -> WasmEffect {
+        WasmEffect {
+            inner: Effect::Action(id),
+        }
     }
 
-    /// Getters and setters for texture_id
-    #[wasm_bindgen(getter, js_name = textureId)]
-    pub fn texture_id(&self) -> Option<u32> {
-        self.inner.texture_id
-    }
-    #[wasm_bindgen(setter, js_name = textureId)]
-    pub fn set_texture_id(&mut self, id: Option<u32>) {
-        self.inner.texture_id = id;
+    #[wasm_bindgen(js_name = texture)]
+    pub fn texture(id: u32) -> WasmEffect {
+        WasmEffect {
+            inner: Effect::Texture(id),
+        }
     }
 
-    /// Getters and setters for render_id
-    #[wasm_bindgen(getter, js_name = renderId)]
-    pub fn render_id(&self) -> Option<u32> {
-        self.inner.render_id
-    }
-    #[wasm_bindgen(setter, js_name = renderId)]
-    pub fn set_render_id(&mut self, id: Option<u32>) {
-        self.inner.render_id = id;
+    #[wasm_bindgen(js_name = render)]
+    pub fn render(id: u32) -> WasmEffect {
+        WasmEffect {
+            inner: Effect::Render(id),
+        }
     }
 
-    /// Getters and setters for block rect
-    #[wasm_bindgen(getter)]
-    pub fn block(&self) -> Option<WasmRect> {
-        self.inner.block.map(WasmRect::from_inner)
-    }
-    #[wasm_bindgen(setter)]
-    pub fn set_block(&mut self, rect: Option<WasmRect>) {
-        self.inner.block = rect.map(|r| *r.inner());
+    #[wasm_bindgen(js_name = block)]
+    pub fn block(rect: &WasmRect) -> WasmEffect {
+        WasmEffect {
+            inner: Effect::Block(*rect.inner()),
+        }
     }
 
-    /// Offsets the block rect by delta (if any)
+    // === Accessors ===
+
+    #[wasm_bindgen(js_name = kind)]
+    pub fn kind(&self) -> String {
+        match self.inner {
+            Effect::None => "None",
+            Effect::Action(_) => "Action",
+            Effect::Texture(_) => "Texture",
+            Effect::Render(_) => "Render",
+            Effect::Block(_) => "Block",
+        }
+        .to_string()
+    }
+
+    #[wasm_bindgen(js_name = asAction)]
+    pub fn as_action(&self) -> Option<u32> {
+        if let Effect::Action(id) = self.inner {
+            Some(id)
+        } else {
+            None
+        }
+    }
+
+    #[wasm_bindgen(js_name = asTexture)]
+    pub fn as_texture(&self) -> Option<u32> {
+        if let Effect::Texture(id) = self.inner {
+            Some(id)
+        } else {
+            None
+        }
+    }
+
+    #[wasm_bindgen(js_name = asRender)]
+    pub fn as_render(&self) -> Option<u32> {
+        if let Effect::Render(id) = self.inner {
+            Some(id)
+        } else {
+            None
+        }
+    }
+
+    #[wasm_bindgen(js_name = asBlock)]
+    pub fn as_block(&self) -> Option<WasmRect> {
+        if let Effect::Block(rect) = self.inner {
+            Some(WasmRect::from_inner(rect))
+        } else {
+            None
+        }
+    }
+
+    // === Methods ===
+
     #[wasm_bindgen]
     pub fn offset(&mut self, delta: &WasmDelta) {
         self.inner.offset(*delta.inner());

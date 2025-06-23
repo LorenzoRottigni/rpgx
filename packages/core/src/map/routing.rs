@@ -107,7 +107,7 @@ impl Map {
 
             for neighbor in neighbors {
                 // Skip if blocked
-                if !self.move_allowed(neighbor) {
+                if self.contains(&neighbor) && self.is_blocking_at(&neighbor) {
                     continue;
                 }
 
@@ -144,7 +144,7 @@ pub mod tests {
                 vec![Mask::new(
                     "test".into(),
                     Rect::new(Coordinates::default(), Shape::from_square(10)).into_many(),
-                    Effect::default(),
+                    vec![],
                 )],
                 1,
             )],
@@ -161,15 +161,15 @@ pub mod tests {
                     Mask::new(
                         "test".into(),
                         Rect::new(Coordinates::default(), Shape::from_square(10)).into_many(),
-                        Effect::default(),
+                        vec![],
                     ),
                     Mask::new(
                         "test".into(),
                         Rect::new(Coordinates::new(2, 2), Shape::from_square(4)).into_block(),
-                        Effect {
-                            block: Some(Rect::new(Coordinates::default(), Shape::from_square(4))),
-                            ..Default::default()
-                        },
+                        vec![Effect::Block(Rect::new(
+                            Coordinates::new(1, 1),
+                            Shape::from_square(2),
+                        ))],
                     ),
                 ],
                 1,

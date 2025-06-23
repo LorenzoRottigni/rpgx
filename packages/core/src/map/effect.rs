@@ -1,31 +1,30 @@
 use crate::prelude::{Delta, Rect};
 
-#[doc = include_str!("../../docs/effect.md")]
-/// Visual and interactive properties applied to a [`super::tile::Tile`] or UI element.
-///
-/// This struct defines optional metadata and behavior modifiers such as actions,
-/// textures, rendering callbacks, and blocking areas.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-pub struct Effect {
-    /// Optional action ID attached to the tile.
-    pub action_id: Option<u32>,
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Effect {
+    /// Represents a tile with no special effects.
+    None,
 
-    /// Optional texture ID attached to the tile.
-    pub texture_id: Option<u32>,
+    /// Represents a tile with an action effect.
+    Action(u32),
 
-    /// Optional render callback ID attached to the tile.
-    pub render_id: Option<u32>,
+    /// Represents a tile with a texture effect.
+    Texture(u32),
 
-    /// Make the tile area, or a part of it, not walkable.
-    ///
-    /// When `Some`, defines a rectangular region within the tile area that blocks movement or interaction.
-    pub block: Option<Rect>,
+    /// Represents a tile with a render callback effect.
+    Render(u32),
+
+    /// Represents a tile with a blocking area effect.
+    Block(Rect),
+    // Allows a tile to have different texture effects stacked on top of each other.
+    // By default only the texture at the top of the stack is rendered.
+    // Opaque,
 }
 
 impl Effect {
     pub fn offset(&mut self, delta: Delta) {
-        if let Some(ref mut block_rect) = self.block {
-            block_rect.offset(delta);
+        if let Effect::Block(rect) = self {
+            rect.offset(delta);
         }
     }
 }

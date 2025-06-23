@@ -41,12 +41,12 @@ export function useEngine(library: Library): Engine {
             new Mask(
                 "default_floor",
                 new Rect(new Coordinates(0,0), new Shape(grid_size - 1, grid_size - 1)).asMany(),
-                new Effect(undefined, library.getId("floor_1"), undefined, null),
+                [Effect.texture(library.getId("floor_1") as number)]
             ),
             new Mask(
                 "floor_alt",
                 new Rect(new Coordinates(0,0), new Shape(1,grid_size - 1)).asMany(),
-                new Effect(undefined, library.getId("floor_2"), undefined, null),
+                [Effect.texture(library.getId("floor_2") as number)]
             )
         ],
         1
@@ -58,7 +58,7 @@ export function useEngine(library: Library): Engine {
             new Mask(
                 "default_building",
                 new Rect(new Coordinates(1,6), new Shape(4,6)).asBlock(),
-                new Effect(undefined, library.getId("building_1"), undefined, null),
+                [Effect.texture(library.getId("building_1") as number)]
             ),
         ],
         5
@@ -70,7 +70,8 @@ export function useEngine(library: Library): Engine {
             new Mask(
                 "logit",
                 new Rect(new Coordinates(10,0), new Shape(2,1)).asMany(),
-                new Effect(library.getId("logit"), library.getId("floor_2"), undefined, null),
+                [Effect.texture(library.getId("floor_1") as number), Effect.action(library.getId("logit") as number)]
+                // new Effect(library.getId("logit"), library.getId("floor_2"), undefined, null),
             )
         ],
         6

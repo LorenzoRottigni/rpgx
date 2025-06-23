@@ -2,7 +2,7 @@ use rpgx::prelude::*;
 use wasm_bindgen::prelude::*;
 
 use crate::{
-    prelude::{WasmCoordinates, WasmDelta, WasmMask, WasmShape, WasmTile},
+    prelude::{WasmCoordinates, WasmDelta, WasmMask, WasmShape},
     traits::WasmWrapper,
 };
 
@@ -55,17 +55,6 @@ impl WasmLayer {
             .iter()
             .cloned()
             .map(WasmMask::from_inner)
-            .collect()
-    }
-
-    /// Returns the first tile at the given coordinate or null if none.
-    #[wasm_bindgen(js_name = getTileAt)]
-    pub fn get_tiles_at(&self, coord: &WasmCoordinates) -> Vec<WasmTile> {
-        self.inner
-            .get_tiles_at(*coord.inner())
-            .iter()
-            .cloned()
-            .map(WasmTile::from_inner)
             .collect()
     }
 
