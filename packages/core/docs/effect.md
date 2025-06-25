@@ -1,50 +1,80 @@
-# Effect
+# `Effect`
 
-The `Effect` struct defines the visual and interactive properties that can be applied to a [`Tile`](tile.md) or other UI/grid elements. These properties include optional identifiers for actions, textures, rendering callbacks, and movement-blocking regions.
+An `Effect` represents a behavior, visual property, or gameplay rule applied to a tile or group of tiles in the RPGX engine. `Effect`s are attached to [`Mask`](mask.md)s and combined through [`Layer`](layer.md)s to build complex interactive maps.
 
-## Purpose
+Each `Effect` variant modifies how tiles are interpreted, rendered, or interacted with.
 
-Effects are used to enrich tiles with behavior and visuals:
-- Mark tiles as blocking (e.g., walls or obstacles).
-- Associate tiles with actions or triggers (e.g., interactive elements).
-- Attach rendering or texture information for display purposes.
+---
 
-## Fields
+## Variants
 
-### `action_id: Option<u32>`
+### `Effect::None`
 
-Optional ID representing an action associated with the tile. This could correspond to interactive behaviors, scripts, or event triggers (e.g., open chest, start cutscene).
+Represents the absence of any effect. This is the default state of a tile and has no impact on logic or rendering.
 
-### `texture_id: Option<u32>`
+---
 
-Optional ID for the visual texture to render on the tile.
+### `Effect::Action(u32)`
 
-### `render_id: Option<u32>`
-
-Optional ID used to delegate rendering to a custom callback or render handler. Useful for dynamic effects like animations or conditional visuals.
-
-### `block: Option<Rect>`
-
-An optional rectangular area (in tile-local coordinates) that blocks movement or interaction. When set, only the portion of the tile within this region is considered impassable.
-
-This field enables partial blocking, such as only the left half of a tile being a wall, or the center of a large tile being impassable.
-
-## Methods
-
-### `offset(delta: Delta)`
-
-Applies a positional delta to the `block` region if it exists. This is useful when moving or translating a tile’s position on the map.
+Associates an action ID with a tile. Action effects are typically consumed by logic engines or event systems to trigger behaviors such as opening a door, playing a cutscene, or enabling interactions.
 
 ```rust
-use rpgx::prelude::*;
-
-let mut effect = Effect {
-    block: Some(Rect::new(Coordinates { x: 2, y: 3 }, Shape { width: 2, height: 2 })),
-    ..Default::default()
-};
-
-// Shift the blocking region by (1, 1)
-effect.offset(Delta { dx: 1, dy: 1 });
-
-assert_eq!(effect.block.unwrap().origin, Coordinates { x: 3, y: 4 });
+Effect::Action(42)
 ```
+
+> This assigns action `42` to the tile.
+
+---
+
+### `Effect::Texture(u32)`
+
+Associates a texture ID with a tile. This is used by the renderer to display visual elements like terrain, objects, or decorations.
+
+```rust
+Effect::Texture(3)
+```
+
+> The renderer will display texture `3` for this tile.
+
+---
+
+### `Effect::Render(u32)`
+
+Applies a render callback or shader ID to a tile. This effect allows runtime visual customization, such as animations, lighting, or shader overlays.
+
+```rust
+Effect::Render(1)
+```
+
+> This tells the rendering system to use render callback `1` on the tile.
+
+---
+
+### `Effect::Block(Rect)`
+
+Defines a blocking region that prevents movement through the specified [`Rect`](rect.md). This is commonly used to define solid obstacles, walls, or restricted areas.
+
+```rust
+Effect::Block(Rect::from_xywh(1, 1, 3, 2))
+```
+
+> This blocks the area starting at `(1,1)` with width `3` and height `2`.
+
+---
+
+## Design Notes
+
+- Effects are composable: multiple effects can be applied through a single [`Mask`](mask.md), enabling complex tile behavior.
+- Blocking areas (`Block`) are region-based, while `Action`, `Texture`, and `Render` are usually per-tile.
+- The engine typically merges multiple `Effect`s by priority or stacking logic when multiple layers overlap.
+- `Effect::None` can be used to clear or reset a region without side effects.
+
+---
+
+## See Also
+
+- [`Mask`](mask.md): Groups of `Rect`s with associated `Effect`s.
+- [`Rect`](rect.md): A rectangular tile area.
+- [`Layer`](layer.md): A logical group of masks with z-index stacking.
+- [`Map`](map.md): The structure that assembles base layers and overlays.
+- [`Coordinates`](coordinates.md): Used with `Rect` to apply effects to specific positions.

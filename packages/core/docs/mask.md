@@ -1,24 +1,26 @@
-# Mask
+# `Mask`
 
-A `Mask` defines a named collection of [`Rect`](rect.md)s with a common set of Effects applied.
+A `Mask` defines a named collection of [`Rect`](rect.md)s that share a common set of [`Effect`](effect.md)s. It is primarily used to apply reusable patterns—like textures, blocking regions, or scripted behaviors—across different map areas in the RPGX engine.
+
+---
 
 ## Fields
 
 ### `name: String`
 
-A descriptive identifier for the mask. This is primarily used for debugging, editor tooling, or logging purposes.
+A descriptive identifier for the mask. Useful for debugging, editor tooling, and logging.
 
 ### `tiles: Vec<Rect>`
 
-The set of tiles that make up the mask.
+The rectangular areas covered by the mask.
 
 ---
 
 ## Methods
 
-### `Mask::new(name: String, areas: Vec<Rect>, effect: Effect) -> Self`
+### `Mask::new(name: String, areas: Vec<Rect>, effects: Vec<Effect>) -> Self`
 
-Constructs a new `Mask` from a list of `Tile`s and `Effect`s, each `Tile` will have `Mask` `Effect`s applied.
+Creates a new `Mask` from a list of `Rect`s and associated `Effect`s. Each `Rect` will receive the specified effects.
 
 ```rust
 use rpgx::prelude::*;
@@ -28,76 +30,93 @@ let mask = Mask::new(
     vec![
         Rect::new(Coordinates::new(2, 2), Shape::new(1, 1)),
         Rect::new(Coordinates::new(4, 4), Shape::new(2, 2)),
-    ];,
-    [Effect::texture(1)]
+    ],
+    vec![Effect::Texture(1)],
 );
 ```
 
-The rect at 2;2 spanning 1x1 and the rect at 4;4 spanning 2x2 will get the texture with ID 1.
+> This mask applies texture `1` to the 1x1 area at `(2,2)` and the 2x2 block starting at `(4,4)`.
 
 ---
 
 ### `fn offset(&mut self, delta: Delta)`
 
-Applies a positional offset to every tile's area and its effect’s internal blocking region (if any).
-This is designed to manage the merge of several maps with different shapes.
+Applies an in-place positional shift to all `Rect`s in the mask and to any region described within its `Effect`s.
 
 ```rust
-use rpgx::prelude::*;
 mask.offset(Delta::new(1, 1));
 ```
 
-The previosuly defined mask rects are now shifted by 1x1.
+> Useful when relocating predefined features (e.g. buildings or zones) during map generation or merging.
+
+---
 
 ### `fn translate(&self, delta: Delta) -> Self`
 
-Computes a positional offset without changing the original mask.
+Returns a new `Mask` that is offset by the given delta, without modifying the original.
 
 ```rust
-use rpgx::prelude::*;
-let translated = mask.translate(Delta::new(1, 1));
+let shifted = mask.translate(Delta::new(3, -1));
 ```
 
 ---
 
 ### `fn get_shape(&self) -> Shape`
 
-Computes the bounding rectangle (`Shape`) that contains all tiles in the mask. The result's width and height represent the maximum extent from the top-left origin (0, 0).
+Returns the bounding `Shape` (width and height) that encloses all `Rect`s in the mask.
+
+```rust
+let bounds = mask.get_shape();
+```
+
+> This is computed from `(0, 0)` as origin and represents the extent of the mask.
 
 ---
 
 ### `fn contains(&self, coord: Coordinates) -> bool`
 
-Returns `true` if any tile in the mask contains the given coordinate.
+Returns `true` if any of the mask’s `Rect`s contains the given coordinate.
+
+```rust
+assert!(mask.contains(Coordinates::new(4, 5)));
+```
 
 ---
 
-### `is_blocking_at(&self, target: &Coordinates) -> bool`
+### `fn is_blocking_at(&self, target: &Coordinates) -> bool`
 
-Returns `true` if the mask contains the target position and it's marked as blocking.
-
----
-
-### `get_actions(&self) -> Vec<u32>`
-
-Retrieve the list of actions ids that are applied to the mask.
+Returns `true` if the mask contains the given coordinate and one of its `Effect`s marks it as blocking.
 
 ---
 
-### `get_texture(&self) -> Option<u32>`
+### `fn get_actions(&self) -> Vec<u32>`
 
-Retrieve the texture of the mask.
+Returns a list of all `Action` effect IDs applied within the mask.
+
+```rust
+let actions = mask.get_actions();
+// e.g., vec![10, 42]
+```
 
 ---
 
-### `get_render(&self) -> Option<u32>`
+### `fn get_texture(&self) -> Option<u32>`
 
-Retrieve the render function of the mask.
+Returns the texture ID applied to the mask, if any.
+
+---
+
+### `fn get_render(&self) -> Option<u32>`
+
+Returns the render callback ID associated with the mask, if any.
+
+---
 
 ## Usage Example
 
 ```rust
 use rpgx::prelude::*;
+
 let mask = Mask::new(
     "building".to_string(),
     vec![
@@ -105,30 +124,34 @@ let mask = Mask::new(
     ],
     vec![
         Effect::Block(Rect::new(Coordinates::new(1, 1), Shape::new(3, 5))),
-        Effect::Texture(2)
+        Effect::Texture(2),
     ]
 );
 
-assert!(mask.contains(&Coordinates::new(1, 1)));
-assert!(mask.is_blocking_at(&Coordinates::new(3,3)));
-assets!(!mask.is_blocking_at(&Coordinates::new(1,1)));
+// Checks
+assert!(mask.contains(Coordinates::new(1, 1)));
+assert!(mask.is_blocking_at(&Coordinates::new(3, 3)));
+assert!(!mask.is_blocking_at(&Coordinates::new(0, 0)));
 ```
 
-The building mask contains a texture 4x6 repesenting a building.
-The -1x1 (Rect::new(Coordinates::new(1, 1), Shape::new(3, 5))) shrinked block allows to make the building walkable only on its edges. (Just the inset 1;1 3x5 rect is blocking).
+> This mask defines a `4x6` building area with texture ID `2`. The central area from `(1,1)` to `(3,5)` is blocking, simulating a solid building core while leaving edges walkable.
 
 ---
 
 ## Design Notes
 
-- `Mask` enables composable and reusable logic across layers and maps.
-- Tiles in a `Mask` are not automatically aligned in a grid — they can occupy arbitrary positions and sizes.
-- Offsetting a mask can be useful when placing pre-built features (like buildings or zones) in different locations on the map.
-- This abstraction fits naturally into map editing tools, prefab systems, and procedural generation.
+- `Mask` allows defining reusable and composable building blocks for maps, layers, and logic.
+- `Rect`s inside a mask can be arbitrarily positioned; they are not constrained to a uniform grid.
+- Effects are applied uniformly to all regions in the mask unless scoped more narrowly inside each `Effect`.
+- Use `offset` and `translate` to reposition masks dynamically, especially during procedural generation.
+
+---
 
 ## See Also
 
-- [`Tile`](tile.md): Defines the basic building block of a mask.
-- [`Effect`](effect.md): Describes the behavior or appearance attached to each tile.
+- [`Rect`](rect.md): Defines a rectangular region.
+- [`Effect`](effect.md): Controls behavior, appearance, and interaction of tiles.
 - [`Layer`](layer.md): Often constructed from one or more masks.
-- [`Rect`](rect.md), [`Coordinates`](coordinates.md), [`Shape`](shape.md), [`Delta`](delta.md)
+- [`Coordinates`](coordinates.md): Represents a point in 2D space.
+- [`Shape`](shape.md): Represents width and height.
+- [`Delta`](delta.md): Represents a 2D vector offset.

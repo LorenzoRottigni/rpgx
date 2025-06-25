@@ -1,97 +1,177 @@
 # `Map`
 
-A `Map` represents a 2D game world composed of multiple stacked [`Layer`]s. Each layer contributes visual or logical elements like collision, decoration, triggers, or interactive objects. Layers are ordered and processed in stack order, with later layers drawn or evaluated after earlier ones.
+A `Map` represents a game level or region composed of multiple [`Layer`](layer.md)s. Each layer applies [`Mask`](mask.md)s that define effects like collisions, textures, or actions. A map also includes a name identifier and a default spawn location.
+
+Maps can be composed, shifted, or merged to build larger environments dynamically.
+
+---
 
 ## Fields
 
-- `name: String`:  
-  A human-readable identifier for the map.
+### `name: String`
 
-- `layers: Vec<Layer>`:  
-  A stack of layers, each providing overlays of tiles, effects, and logic.
-
-- `spawn: Coordinates`:  
-  The default coordinate where a player or pawn begins.
-
-## Key Methods
-
-### `new(name, layers, spawn) -> Self`
-
-Creates a new map with a given name, initial layers, and spawn point. Layers may be empty.
+The name or identifier of the map. Useful for logging, editor tools, or dynamic selection.
 
 ---
 
-### `compose(name, maps, layers, spawn) -> Self`
+### `layers: Vec<Layer>`
 
-Composes a new map by merging multiple other maps, each placed at a specified top-left coordinate. This is useful for building larger maps from reusable pieces.
-
-- `maps`: A list of `(Map, Coordinates)` tuples to place on the new map.
-- `layers`: Additional layers to stack on top after merging.
-- `spawn`: Spawn point for the new map.
+A list of stacked [`Layer`](layer.md)s. These define all effects applied to the map, such as collision logic, visual rendering, or event triggers.
 
 ---
 
-### `load_layer(layer: Layer)`
+### `spawn: Coordinates`
 
-Loads a new `Layer` into the map. If the new layer would exceed the bounds of the existing map, all existing layers are offset accordingly to make room.
-
----
-
-### `layers_by_name() -> IndexMap<String, Layer>`
-
-Returns a lookup map of layer names to their corresponding `Layer` objects.
+The default spawn position for players, pawns, or other entities when the map is loaded.
 
 ---
 
-### `merge_at(other: &Map, top_left: Coordinates, spawn: Option<Coordinates>)`
+## Methods
 
-Merges another map into the current one. All layers in the other map are offset by `top_left` and added to the current map. Optionally, a new spawn point can be set.
+### `Map::new(name: String, layers: Vec<Layer>, spawn: Coordinates) -> Self`
 
----
+Creates a new map with a name, a list of layers, and a spawn position.
 
-### `duplicate_to_the(direction: Direction, spawn: Option<Coordinates>)`
+```rust
+use rpgx::prelude::*;
 
-Duplicates the current map adjacent to itself in a specified `Direction`. Useful for procedurally extending the world.
-
----
-
-### `move_allowed(target: Coordinates) -> bool`
-
-Checks if movement is allowed at a given coordinate.
-
-- A coordinate is allowed if:
-  - At least one layer contains a tile at that position.
-  - No layer at that position has a tile with a blocking effect.
+let map = Map::new(
+    "dungeon".into(),
+    vec![],
+    Coordinates::new(0, 0),
+);
+```
 
 ---
 
-### `get_shape() -> Shape`
+### `fn get_shape(&self) -> Shape`
 
-Returns the overall bounding `Shape` that encloses all layers.
+Returns the bounding [`Shape`](shape.md) that encloses all layers.
 
----
-
-### `get_tiles_at(pointer: Coordinates) -> Vec<Tile>`
-
-Returns all tiles located at a specific coordinate from all layers.
+```rust
+let bounds = map.get_shape();
+```
 
 ---
 
-### `get_effects_at(pointer: Coordinates) -> Vec<Effect>`
+### `fn contains(&self, coord: &Coordinates) -> bool`
 
-Returns all tile effects applied at the given coordinate.
+Returns `true` if any layer in the map contains the specified coordinate.
+
+---
+
+### `fn is_blocking_at(&self, coord: &Coordinates) -> bool`
+
+Returns `true` if any layer contains a blocking effect at the specified position.
+
+```rust
+if map.is_blocking_at(&Coordinates::new(3, 4)) {
+    // prevent movement
+}
+```
 
 ---
 
-### `get_actions_at(pointer: Coordinates) -> Vec<u32>`
+### `fn get_actions_at(&self, coord: &Coordinates) -> Vec<u32>`
 
-Returns all action IDs defined at a given coordinate.
+Returns a list of action IDs applied at the specified tile across all layers.
 
-## Notes
-
-- The `Map` is primarily a composition container — individual layers define how tiles and effects behave.
-- All tile interactions (movement, collision, effect resolution) are driven by the layered structure.
-- The `Map` system supports rich dynamic composition through `compose`, `merge_at`, and `duplicate_to_the`, making it suitable for procedurally generated or modular tile worlds.
+```rust
+let actions = map.get_actions_at(&Coordinates::new(1, 1));
+```
 
 ---
-See also: [`Layer`](layer.md), [`Tile`](tile.md), [`Effect`](effect.md)
+
+### `Map::compose(name, maps, layers, spawn) -> Self`
+
+Builds a new `Map` by merging multiple maps (with positional offsets), adding new layers, and setting a spawn point.
+
+```rust
+let merged = Map::compose(
+    "composed_map".into(),
+    vec![(map1, Coordinates::new(0, 0)), (map2, Coordinates::new(10, 0))],
+    vec![some_extra_layer],
+    Coordinates::new(0, 0),
+);
+```
+
+---
+
+### `fn load_layer(&mut self, layer: Layer)`
+
+Adds a new layer to the map, offsetting existing layers if needed to make space.
+
+> Useful when dynamically layering content (e.g. loading a dungeon section on the fly).
+
+---
+
+### `fn layers_by_name(&self) -> IndexMap<String, Layer>`
+
+Returns a map from each layer’s name to its [`Layer`](layer.md) object. Useful for quickly accessing specific layers.
+
+```rust
+let visual_layer = map.layers_by_name().get("visuals");
+```
+
+---
+
+### `fn merge_at(&mut self, other: &Map, top_left: Coordinates, spawn: Option<Coordinates>)`
+
+Merges another `Map` into this one, offsetting its layers by `top_left`.
+
+If a `spawn` is provided, updates the current map's spawn point.
+
+---
+
+### `fn duplicate_to_the(&mut self, direction: Direction, spawn: Option<Coordinates>)`
+
+Clones and attaches this map in the specified `Direction` (e.g., `Right`, `Down`) to itself. Useful for building tile-based infinite maps or test grids.
+
+```rust
+map.duplicate_to_the(Direction::Right, None);
+```
+
+---
+
+## Usage Example
+
+```rust
+use rpgx::prelude::*;
+
+let blocked = vec![Coordinates::new(1, 1)];
+let map = Map::new(
+    "sample".into(),
+    vec![Layer::new(
+        "blocking".into(),
+        vec![
+            Mask::new(
+                "block_1".into(),
+                vec![Rect::from_xywh(1, 1, 1, 1)],
+                vec![Effect::Block(Rect::from_xywh(1, 1, 1, 1))],
+            )
+        ],
+        1,
+    )],
+    Coordinates::new(0, 0),
+);
+
+assert!(map.is_blocking_at(&Coordinates::new(1, 1)));
+```
+
+---
+
+## Design Notes
+
+- `Map` is a high-level composition of effects, built from layers and masks.
+- It supports composability via `compose`, `merge_at`, and `duplicate_to_the`, enabling procedural and modular map generation.
+- Layer order (Z-index) determines render or processing priority.
+- Spawn points allow maps to define default entry locations for game entities.
+
+---
+
+## See Also
+
+- [`Layer`](layer.md): A stackable collection of masks with z-order.
+- [`Mask`](mask.md): A group of [`Rect`](rect.md)s with attached [`Effect`](effect.md)s.
+- [`Effect`](effect.md): Modifiers like blocking, texture, and action.
+- [`Rect`](rect.md), [`Shape`](shape.md), [`Coordinates`](coordinates.md), [`Delta`](delta.md)

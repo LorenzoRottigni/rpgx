@@ -1,6 +1,6 @@
 # Engine
 
-The `Engine` struct represents the core state manager of the RPG system.  
+The `Engine` struct represents the core state manager of the RPGX system.  
 It maintains a timeline of `Scene`s (like a stack of game states or world instances), enabling dynamic transitions and rewinds across gameplay moments.
 
 ---
