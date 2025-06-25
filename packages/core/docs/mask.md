@@ -1,14 +1,6 @@
 # Mask
 
-A `Mask` defines a named collection of [`Tile`](tile.md)s, each occupying a rectangular area and carrying a common [`Effect`](effect.md). Masks are often used to apply behavior or visuals to a group of tiles at once — such as marking certain regions of a map as blocked, interactive, or textured.
-
-## Purpose
-
-The `Mask` abstraction is useful for:
-- Applying consistent `Effect`s to multiple `Tile`s.
-- Defining shape-based overlays such as danger zones, trap regions, interactive areas, or visual enhancements.
-- Applying batch offsets or transformations to rectangular tile groups.
-- Merging masks into [`Layer`](layer.md)s or [`Map`](map.md) structures.
+A `Mask` defines a named collection of [`Rect`](rect.md)s with a common set of Effects applied.
 
 ## Fields
 
@@ -16,9 +8,9 @@ The `Mask` abstraction is useful for:
 
 A descriptive identifier for the mask. This is primarily used for debugging, editor tooling, or logging purposes.
 
-### `tiles: Vec<Tile>`
+### `tiles: Vec<Rect>`
 
-The set of tiles that make up the mask. Each tile contains a rectangular `area` and an associated `Effect`.
+The set of tiles that make up the mask.
 
 ---
 
@@ -26,28 +18,44 @@ The set of tiles that make up the mask. Each tile contains a rectangular `area` 
 
 ### `Mask::new(name: String, areas: Vec<Rect>, effect: Effect) -> Self`
 
-Constructs a new mask from a list of rectangular areas. Each rectangle gets assigned the same `Effect`.
+Constructs a new `Mask` from a list of `Tile`s and `Effect`s, each `Tile` will have `Mask` `Effect`s applied.
 
 ```rust
 use rpgx::prelude::*;
 
-let areas = vec![
-    Rect::new(Coordinates::new(2, 2), Shape::new(1, 1)),
-    Rect::new(Coordinates::new(4, 4), Shape::new(2, 2)),
-];
-
-let mask = Mask::new("trap_zones".to_string(), areas, [Rect::new(Coordinates::new(0, 0), Shape::new(1, 1))]);
+let mask = Mask::new(
+    "trap_zones".to_string(),
+    vec![
+        Rect::new(Coordinates::new(2, 2), Shape::new(1, 1)),
+        Rect::new(Coordinates::new(4, 4), Shape::new(2, 2)),
+    ];,
+    [Effect::texture(1)]
+);
 ```
+
+The rect at 2;2 spanning 1x1 and the rect at 4;4 spanning 2x2 will get the texture with ID 1.
 
 ---
 
 ### `fn offset(&mut self, delta: Delta)`
 
 Applies a positional offset to every tile's area and its effect’s internal blocking region (if any).
+This is designed to manage the merge of several maps with different shapes.
 
 ```rust
 use rpgx::prelude::*;
-mask.offset(Delta::new(1, 1)); // moves everything one tile down and right
+mask.offset(Delta::new(1, 1));
+```
+
+The previosuly defined mask rects are now shifted by 1x1.
+
+### `fn translate(&self, delta: Delta) -> Self`
+
+Computes a positional offset without changing the original mask.
+
+```rust
+use rpgx::prelude::*;
+let translated = mask.translate(Delta::new(1, 1));
 ```
 
 ---
@@ -64,31 +72,50 @@ Returns `true` if any tile in the mask contains the given coordinate.
 
 ---
 
-### `fn tile_at(&self, coord: Coordinates) -> Option<&Tile>`
+### `is_blocking_at(&self, target: &Coordinates) -> bool`
 
-Finds the tile in the mask that contains the given coordinate, if any.
+Returns `true` if the mask contains the target position and it's marked as blocking.
 
 ---
+
+### `get_actions(&self) -> Vec<u32>`
+
+Retrieve the list of actions ids that are applied to the mask.
+
+---
+
+### `get_texture(&self) -> Option<u32>`
+
+Retrieve the texture of the mask.
+
+---
+
+### `get_render(&self) -> Option<u32>`
+
+Retrieve the render function of the mask.
 
 ## Usage Example
 
 ```rust
 use rpgx::prelude::*;
 let mask = Mask::new(
-    "block_zone".to_string(),
+    "building".to_string(),
     vec![
-        Rect::new(Coordinates::new(0, 0), Shape::new(2, 2)),
-        Rect::new(Coordinates::new(3, 3), Shape::new(1, 1)),
+        Rect::new(Coordinates::new(0, 0), Shape::new(4, 6)),
     ],
-    Effect {
-        block: Some(Rect::new(Coordinates::new(0, 0), Shape::new(1, 1))),
-        ..Default::default()
-    },
+    vec![
+        Effect::Block(Rect::new(Coordinates::new(1, 1), Shape::new(3, 5))),
+        Effect::Texture(2)
+    ]
 );
 
-assert!(mask.contains(Coordinates::new(1, 1)));
-assert!(mask.tile_at(Coordinates::new(3, 3)).is_some());
+assert!(mask.contains(&Coordinates::new(1, 1)));
+assert!(mask.is_blocking_at(&Coordinates::new(3,3)));
+assets!(!mask.is_blocking_at(&Coordinates::new(1,1)));
 ```
+
+The building mask contains a texture 4x6 repesenting a building.
+The -1x1 (Rect::new(Coordinates::new(1, 1), Shape::new(3, 5))) shrinked block allows to make the building walkable only on its edges. (Just the inset 1;1 3x5 rect is blocking).
 
 ---
 

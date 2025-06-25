@@ -343,57 +343,6 @@ impl Rect {
             .map(|coord| Rect::new(coord, Shape::from_square(1)))
             .collect()
     }
-
-    /// Returns true if this rectangle intersects with another.
-    pub fn intersects(&self, other: &Rect) -> bool {
-        let self_right = self.origin.x + self.shape.width;
-        let self_bottom = self.origin.y + self.shape.height;
-        let other_right = other.origin.x + other.shape.width;
-        let other_bottom = other.origin.y + other.shape.height;
-
-        !(self_right <= other.origin.x
-            || other_right <= self.origin.x
-            || self_bottom <= other.origin.y
-            || other_bottom <= self.origin.y)
-    }
-
-    /// Returns the overlapping region between two rectangles, or `None` if they don’t intersect.
-    pub fn intersection(&self, other: &Rect) -> Option<Rect> {
-        let x1 = self.origin.x.max(other.origin.x);
-        let y1 = self.origin.y.max(other.origin.y);
-        let x2 = (self.origin.x + self.shape.width).min(other.origin.x + other.shape.width);
-        let y2 = (self.origin.y + self.shape.height).min(other.origin.y + other.shape.height);
-
-        if x2 > x1 && y2 > y1 {
-            Some(Rect {
-                origin: Coordinates { x: x1, y: y1 },
-                shape: Shape {
-                    width: x2 - x1,
-                    height: y2 - y1,
-                },
-            })
-        } else {
-            None
-        }
-    }
-
-    /// Returns a new `Rect` expanded by a uniform margin in all directions.
-    ///
-    /// Expansion is clamped to origin (0, 0) to avoid underflow.
-    pub fn expand(&self, margin: u32) -> Self {
-        let ox = self.origin.x.saturating_sub(margin);
-        let oy = self.origin.y.saturating_sub(margin);
-        let w = self.shape.width + margin * 2;
-        let h = self.shape.height + margin * 2;
-
-        Rect {
-            origin: Coordinates { x: ox, y: oy },
-            shape: Shape {
-                width: w,
-                height: h,
-            },
-        }
-    }
 }
 
 impl Rect {
@@ -671,70 +620,6 @@ mod tests {
 
         let actual: Vec<_> = rect.iter().collect();
         assert_eq!(actual, expected);
-    }
-
-    #[test]
-    pub fn expands_rect() {
-        let rect = Rect::new(
-            Coordinates { x: 3, y: 3 },
-            Shape {
-                width: 2,
-                height: 2,
-            },
-        );
-
-        let expanded = rect.expand(2);
-        assert_eq!(expanded.origin, Coordinates { x: 1, y: 1 });
-        assert_eq!(
-            expanded.shape,
-            Shape {
-                width: 6,
-                height: 6
-            }
-        );
-    }
-
-    #[test]
-    pub fn rect_intersects_and_intersection() {
-        let a = Rect::new(
-            Coordinates { x: 1, y: 1 },
-            Shape {
-                width: 4,
-                height: 4,
-            },
-        );
-        let b = Rect::new(
-            Coordinates { x: 3, y: 3 },
-            Shape {
-                width: 4,
-                height: 4,
-            },
-        );
-
-        assert!(a.intersects(&b));
-
-        let intersection = a.intersection(&b).unwrap();
-        assert_eq!(
-            intersection,
-            Rect::new(
-                Coordinates { x: 3, y: 3 },
-                Shape {
-                    width: 2,
-                    height: 2
-                }
-            )
-        );
-
-        let c = Rect::new(
-            Coordinates { x: 10, y: 10 },
-            Shape {
-                width: 2,
-                height: 2,
-            },
-        );
-
-        assert!(!a.intersects(&c));
-        assert!(a.intersection(&c).is_none());
     }
 
     #[test]

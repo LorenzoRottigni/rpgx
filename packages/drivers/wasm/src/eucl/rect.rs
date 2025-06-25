@@ -154,16 +154,4 @@ impl WasmRect {
             .map(|r| WasmRect { inner: r })
             .collect()
     }
-
-    #[wasm_bindgen]
-    pub fn intersects(&self, other: &WasmRect) -> bool {
-        self.inner.intersects(&other.inner)
-    }
-
-    #[wasm_bindgen]
-    pub fn intersection(&self, other: &WasmRect) -> Option<WasmRect> {
-        self.inner
-            .intersection(&other.inner)
-            .map(|r| WasmRect { inner: r })
-    }
 }
