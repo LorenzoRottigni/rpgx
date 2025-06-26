@@ -12,8 +12,6 @@ This combination of Rust’s performance, WASM’s portability, and Dioxus’s r
 
 ## 🚀 Getting Started
 
-> ⚠️ **Note:** RPGX is still under active development and not yet published to public registries. To use it, you may need to reference the source directly from GitHub.
-
 ---
 
 ### 🦀 Rust (Native)
