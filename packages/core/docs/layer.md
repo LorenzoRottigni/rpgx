@@ -35,13 +35,22 @@ Constructs a new `Layer` with the given name, list of masks, and z-index.
 ```rust
 use rpgx::prelude::*;
 
-let mask = Mask::new(
-    "highlight".into(),
-    vec![Rect::from_xywh(0, 0, 3, 3)],
-    vec![Effect::Texture(1)],
+let layer = Layer::new(
+    "combined_grounds".into(),
+    vec![
+        Mask::new(
+            "ground".into(),
+            Rect::from_shape(Shape::from_square(10)).into_many(),
+            vec![Effect::Texture(1)]
+        ),
+        Mask::new(
+            "inner_ground".into(),
+            Rect::new(Coordinates::new(1,1), Shape::from_square(8)).into_many(),
+            vec![Effect::Texture(2)]
+        )
+    ],
+    1
 );
-
-let layer = Layer::new("visuals".into(), vec![mask], 5);
 ```
 
 ---
@@ -51,6 +60,25 @@ let layer = Layer::new("visuals".into(), vec![mask], 5);
 Returns the bounding [`Shape`](shape.md) that contains all the masks in the layer.
 
 ```rust
+use rpgx::prelude::*;
+
+let layer = Layer::new(
+    "combined_grounds".into(),
+    vec![
+        Mask::new(
+            "ground".into(),
+            Rect::from_shape(Shape::from_square(10)).into_many(),
+            vec![Effect::Texture(1)]
+        ),
+        Mask::new(
+            "inner_ground".into(),
+            Rect::new(Coordinates::new(1,1), Shape::from_square(8)).into_many(),
+            vec![Effect::Texture(2)]
+        )
+    ],
+    1
+);
+
 let bounds = layer.get_shape();
 ```
 
@@ -61,6 +89,25 @@ let bounds = layer.get_shape();
 Applies a positional shift to all the masks in the layer, updating all coordinates and effect areas.
 
 ```rust
+use rpgx::prelude::*;
+
+let mut layer = Layer::new(
+    "combined_grounds".into(),
+    vec![
+        Mask::new(
+            "ground".into(),
+            Rect::from_shape(Shape::from_square(10)).into_many(),
+            vec![Effect::Texture(1)]
+        ),
+        Mask::new(
+            "inner_ground".into(),
+            Rect::new(Coordinates::new(1,1), Shape::from_square(8)).into_many(),
+            vec![Effect::Texture(2)]
+        )
+    ],
+    1
+);
+
 layer.offset(Delta::new(2, 3));
 ```
 
@@ -73,6 +120,25 @@ layer.offset(Delta::new(2, 3));
 Returns a new `Layer` with the same masks but offset by the specified `Delta`.
 
 ```rust
+use rpgx::prelude::*;
+
+let layer = Layer::new(
+    "combined_grounds".into(),
+    vec![
+        Mask::new(
+            "ground".into(),
+            Rect::from_shape(Shape::from_square(10)).into_many(),
+            vec![Effect::Texture(1)]
+        ),
+        Mask::new(
+            "inner_ground".into(),
+            Rect::new(Coordinates::new(1,1), Shape::from_square(8)).into_many(),
+            vec![Effect::Texture(2)]
+        )
+    ],
+    1
+);
+
 let translated = layer.translate(Delta::new(1, 1));
 ```
 
@@ -85,6 +151,25 @@ let translated = layer.translate(Delta::new(1, 1));
 Returns `true` if any mask in the layer contains the given coordinate.
 
 ```rust
+use rpgx::prelude::*;
+
+let layer = Layer::new(
+    "combined_grounds".into(),
+    vec![
+        Mask::new(
+            "ground".into(),
+            Rect::from_shape(Shape::from_square(10)).into_many(),
+            vec![Effect::Texture(1)]
+        ),
+        Mask::new(
+            "inner_ground".into(),
+            Rect::new(Coordinates::new(1,1), Shape::from_square(8)).into_many(),
+            vec![Effect::Texture(2)]
+        )
+    ],
+    1
+);
+
 if layer.contains(&Coordinates::new(5, 5)) {
     // ...
 }
@@ -97,6 +182,25 @@ if layer.contains(&Coordinates::new(5, 5)) {
 Returns `true` if the specified coordinate is marked as blocking in any mask within the layer.
 
 ```rust
+use rpgx::prelude::*;
+
+let layer = Layer::new(
+    "combined_grounds".into(),
+    vec![
+        Mask::new(
+            "ground".into(),
+            Rect::from_shape(Shape::from_square(10)).into_many(),
+            vec![Effect::Texture(1)]
+        ),
+        Mask::new(
+            "inner_ground".into(),
+            Rect::new(Coordinates::new(1,1), Shape::from_square(8)).into_many(),
+            vec![Effect::Texture(2)]
+        )
+    ],
+    1
+);
+
 if layer.is_blocking_at(&Coordinates::new(2, 3)) {
     // Prevent movement
 }
@@ -109,6 +213,25 @@ if layer.is_blocking_at(&Coordinates::new(2, 3)) {
 Returns a list of action effect IDs applied at the given coordinate. If no action applies, returns an empty list.
 
 ```rust
+use rpgx::prelude::*;
+
+let layer = Layer::new(
+    "combined_grounds".into(),
+    vec![
+        Mask::new(
+            "ground".into(),
+            Rect::from_shape(Shape::from_square(10)).into_many(),
+            vec![Effect::Texture(1)]
+        ),
+        Mask::new(
+            "inner_ground".into(),
+            Rect::new(Coordinates::new(1,1), Shape::from_square(8)).into_many(),
+            vec![Effect::Texture(2)]
+        )
+    ],
+    1
+);
+
 let actions = layer.get_actions_at(&Coordinates::new(1, 2));
 ```
 

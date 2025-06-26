@@ -84,9 +84,9 @@ impl WasmRect {
     }
 
     #[wasm_bindgen(js_name = asBlock)]
-    pub fn into_block(&self) -> Vec<WasmRect> {
+    pub fn into_single(&self) -> Vec<WasmRect> {
         self.inner
-            .into_block()
+            .into_single()
             .into_iter()
             .map(|r| WasmRect { inner: r })
             .collect()

@@ -2,6 +2,7 @@ use std::ops::{Add, Div, Sub};
 
 use crate::prelude::{Coordinates, Delta};
 
+#[doc = include_str!("../../docs/shape.md")]
 /// Represents a rectangular area by its width and height.
 #[derive(Copy, Clone, PartialEq, Eq, Debug, Default)]
 pub struct Shape {

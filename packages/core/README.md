@@ -23,13 +23,22 @@ cargo add rpgx
 
 ## Glossary
 
+### RPGX
+
 - [Effect](./packages/core/docs/effect.md)
-- [Tile](./packages/core/docs/tile.md)
 - [Mask](./packages/core/docs/mask.md)
 - [Layer](./packages/core/docs/layer.md)
 - [Map](./packages/core/docs/map.md)
 - [Scene](./packages/core/docs/scene.md)
 - [Engine](./packages/core/docs/engine.md)
+
+### Euclidean
+
+- [Rect](./packages/core/docs/rect.md)
+- [Coordinates](./packages/core/docs/coordinates.md)
+- [Delta](./packages/core/docs/delta.md)
+- [Direction](./packages/core/docs/direction.md)
+- [Shape](./packages/core/docs/shape.md)
 
 ## Contributing
 

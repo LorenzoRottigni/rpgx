@@ -1,5 +1,6 @@
 use crate::prelude::Delta;
 
+#[doc = include_str!("../../docs/direction.md")]
 /// Represents a cardinal direction in a 2D grid.
 ///
 /// Directions correspond to unit moves along the X and Y axes.

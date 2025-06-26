@@ -9,6 +9,7 @@ pub mod layer;
 pub mod mask;
 pub mod routing;
 
+#[doc = include_str!("../../docs/map.md")]
 /// Represents a game map with multiple layers, a name, and a spawn point.
 #[derive(Clone)]
 pub struct Map {

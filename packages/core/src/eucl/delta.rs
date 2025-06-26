@@ -1,3 +1,4 @@
+#[doc = include_str!("../../docs/delta.md")]
 /// Represents a 2D movement or directional offset with signed deltas.
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug, Default)]
 pub struct Delta {

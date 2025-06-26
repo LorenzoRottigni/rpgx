@@ -3,6 +3,16 @@ use crate::{
     traits::{Grid, Shaped, Shiftable},
 };
 
+#[doc = include_str!("../../docs/mask.md")]
+#[derive(Clone, Debug)]
+pub struct Mask {
+    /// The name of the mask for identification or debugging.
+    pub name: String,
+    /// Tiles that define the mask area and their effects.
+    pub tiles: Vec<Rect>,
+    pub effects: Vec<Effect>,
+}
+
 impl Mask {
     /// Creates a new mask with a given name, rectangular areas, and uniform effect.
     pub fn new(name: String, tiles: Vec<Rect>, effects: Vec<Effect>) -> Self {
@@ -12,15 +22,6 @@ impl Mask {
             effects,
         }
     }
-}
-
-#[derive(Clone, Debug)]
-pub struct Mask {
-    /// The name of the mask for identification or debugging.
-    pub name: String,
-    /// Tiles that define the mask area and their effects.
-    pub tiles: Vec<Rect>,
-    pub effects: Vec<Effect>,
 }
 
 impl Shaped for Mask {

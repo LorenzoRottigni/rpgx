@@ -12,6 +12,7 @@ pub enum RectError {
     EmptyRectList,
 }
 
+#[doc = include_str!("../../docs/rect.md")]
 /// A rectangular region on a 2D grid, aligned to the grid axes.
 ///
 /// Represented by a top-left origin [`Coordinates`] and a [`Shape`] defining its width and height.
@@ -103,7 +104,7 @@ impl Rect {
             .collect()
     }
 
-    pub fn into_block(&self) -> Vec<Self> {
+    pub fn into_single(&self) -> Vec<Self> {
         vec![*self]
     }
 

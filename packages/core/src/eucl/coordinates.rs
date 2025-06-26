@@ -1,6 +1,7 @@
 use crate::prelude::{Delta, Shape};
 use std::ops::{Add, AddAssign, Sub};
 
+#[doc = include_str!("../../docs/coordinates.md")]
 /// Represents a 2D grid coordinate with `x` and `y` components.
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug, Default)]
 pub struct Coordinates {

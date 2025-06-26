@@ -25,6 +25,8 @@ The dimensions of the rectangle, representing width (`x`) and height (`y`) as an
 Constructs a new `Rect` using the provided origin and shape.
 
 ```rust
+use rpgx::prelude::*;
+
 let origin = Coordinates::new(2, 3);
 let shape = Shape::new(4, 5);
 let rect = Rect::new(origin, shape);
@@ -37,6 +39,8 @@ let rect = Rect::new(origin, shape);
 Creates a `Rect` from a shape, defaulting the origin to `(0, 0)`.
 
 ```rust
+use rpgx::prelude::*;
+
 let rect = Rect::from_shape(Shape::new(3, 3));
 // origin = (0, 0), shape = (3, 3)
 ```
@@ -48,6 +52,8 @@ let rect = Rect::from_shape(Shape::new(3, 3));
 Creates a `Rect` from an origin, defaulting the shape to `1x1`.
 
 ```rust
+use rpgx::prelude::*;
+
 let rect = Rect::from_origin(Coordinates::new(5, 5));
 // shape = (1, 1)
 ```
@@ -59,11 +65,17 @@ let rect = Rect::from_origin(Coordinates::new(5, 5));
 Merges multiple `Rect`s into the smallest `Rect` that contains them all.
 
 ```rust
-let group = vec![
-    Rect::from_xywh(1, 1, 2, 2),
-    Rect::from_xywh(4, 3, 1, 1),
-];
-let merged = Rect::from_many(group)?;
+use rpgx::prelude::*;
+
+pub fn many_into_one() -> Result<Rect, RectError> {
+    let group = vec![
+        Rect::from_xywh(1, 1, 2, 2),
+        Rect::from_xywh(4, 3, 1, 1),
+    ];
+    let merged = Rect::from_many(group);
+    merged
+}
+
 ```
 
 ---
@@ -73,6 +85,8 @@ let merged = Rect::from_many(group)?;
 Creates a `Rect` from origin `(x, y)` and dimensions `(width, height)`.
 
 ```rust
+use rpgx::prelude::*;
+
 let rect = Rect::from_xywh(2, 2, 5, 4);
 ```
 
@@ -85,6 +99,8 @@ let rect = Rect::from_xywh(2, 2, 5, 4);
 Splits the `Rect` into a vector of `1x1` rects covering the entire area.
 
 ```rust
+use rpgx::prelude::*;
+
 let rect = Rect::from_xywh(0, 0, 2, 2);
 let tiles = rect.into_many();
 // tiles: [(0,0), (1,0), (0,1), (1,1)]
@@ -97,6 +113,8 @@ let tiles = rect.into_many();
 Wraps the whole rect as a single unit in a vector.
 
 ```rust
+use rpgx::prelude::*;
+
 let rect = Rect::from_xywh(0, 0, 3, 3);
 let single = rect.into_single();
 // single.len() == 1
@@ -109,6 +127,9 @@ let single = rect.into_single();
 Returns the outer `1x1` perimeter tiles of the rect. `offset` moves the perimeter inward, `size` defines thickness.
 
 ```rust
+use rpgx::prelude::*;
+
+let rect = Rect::from_xywh(0, 0, 3, 3);
 let perimeter = rect.into_perimeter(0, 1);
 // Outer edge of the rectangle
 ```
@@ -120,6 +141,9 @@ let perimeter = rect.into_perimeter(0, 1);
 Returns tiles forming a central vertical or horizontal line across the rect.
 
 ```rust
+use rpgx::prelude::*;
+
+let rect = Rect::from_xywh(0, 0, 3, 3);
 let bisector = rect.into_bisector(0, 1);
 ```
 
@@ -130,6 +154,9 @@ let bisector = rect.into_bisector(0, 1);
 Returns the center square block of the rect. Offset and size control exact position and area.
 
 ```rust
+use rpgx::prelude::*;
+
+let rect = Rect::from_xywh(0, 0, 3, 3);
 let center = rect.into_center(0, 1);
 ```
 
@@ -140,6 +167,9 @@ let center = rect.into_center(0, 1);
 Returns a rhombus pattern inscribed within the rect. `dial` controls radius.
 
 ```rust
+use rpgx::prelude::*;
+
+let rect = Rect::from_xywh(0, 0, 3, 3);
 let rhombus = rect.into_rhombus(2);
 ```
 
@@ -150,6 +180,9 @@ let rhombus = rect.into_rhombus(2);
 Returns an approximate circle pattern inscribed within the rect.
 
 ```rust
+use rpgx::prelude::*;
+
+let rect = Rect::from_xywh(0, 0, 3, 3);
 let circle = rect.into_circle();
 ```
 
@@ -160,6 +193,9 @@ let circle = rect.into_circle();
 Returns only the 1x1 tiles with odd coordinates within the rect.
 
 ```rust
+use rpgx::prelude::*;
+
+let rect = Rect::from_xywh(0, 0, 3, 3);
 let odds = rect.into_odds();
 ```
 
@@ -170,6 +206,9 @@ let odds = rect.into_odds();
 Returns only the 1x1 tiles with even coordinates within the rect.
 
 ```rust
+use rpgx::prelude::*;
+
+let rect = Rect::from_xywh(0, 0, 3, 3);
 let evens = rect.into_evens();
 ```
 
@@ -212,6 +251,9 @@ Returns the center coordinate of the rect.
 Checks whether the given coordinate is inside the rect.
 
 ```rust
+use rpgx::prelude::*;
+
+let rect = Rect::from_xywh(0, 0, 3, 3);
 let inside = rect.contains(&Coordinates::new(1, 1));
 ```
 
@@ -224,6 +266,9 @@ let inside = rect.contains(&Coordinates::new(1, 1));
 Applies an in-place positional offset to the rect. Useful when merging maps or shifting regions.
 
 ```rust
+use rpgx::prelude::*;
+
+let mut rect = Rect::from_xywh(0, 0, 3, 3);
 rect.offset(Delta::new(2, 0));
 ```
 
@@ -234,5 +279,8 @@ rect.offset(Delta::new(2, 0));
 Returns a new `Rect` with the same shape but moved by the delta.
 
 ```rust
+use rpgx::prelude::*;
+
+let rect = Rect::from_xywh(0, 0, 3, 3);
 let moved = rect.translate(Delta::new(1, 1));
 ```

@@ -25,25 +25,27 @@ Creates a new `Mask` from a list of `Rect`s and associated `Effect`s. Each `Rect
 ```rust
 use rpgx::prelude::*;
 
+// Mask with ground textured 10x10 grid
 let mask = Mask::new(
-    "trap_zones".to_string(),
-    vec![
-        Rect::new(Coordinates::new(2, 2), Shape::new(1, 1)),
-        Rect::new(Coordinates::new(4, 4), Shape::new(2, 2)),
-    ],
-    vec![Effect::Texture(1)],
+    "ground".into(),
+    Rect::from_shape(Shape::from_square(10)).into_many(),
+    vec![Effect::Texture(1)]
 );
 ```
-
-> This mask applies texture `1` to the 1x1 area at `(2,2)` and the 2x2 block starting at `(4,4)`.
-
----
 
 ### `fn offset(&mut self, delta: Delta)`
 
 Applies an in-place positional shift to all `Rect`s in the mask and to any region described within its `Effect`s.
 
 ```rust
+use rpgx::prelude::*;
+
+let mut mask = Mask::new(
+    "ground".into(),
+    Rect::from_shape(Shape::from_square(10)).into_many(),
+    vec![Effect::Texture(1)]
+);
+
 mask.offset(Delta::new(1, 1));
 ```
 
@@ -56,6 +58,14 @@ mask.offset(Delta::new(1, 1));
 Returns a new `Mask` that is offset by the given delta, without modifying the original.
 
 ```rust
+use rpgx::prelude::*;
+
+let mask = Mask::new(
+    "ground".into(),
+    Rect::from_shape(Shape::from_square(10)).into_many(),
+    vec![Effect::Texture(1)]
+);
+
 let shifted = mask.translate(Delta::new(3, -1));
 ```
 
@@ -66,6 +76,14 @@ let shifted = mask.translate(Delta::new(3, -1));
 Returns the bounding `Shape` (width and height) that encloses all `Rect`s in the mask.
 
 ```rust
+use rpgx::prelude::*;
+
+let mask = Mask::new(
+    "ground".into(),
+    Rect::from_shape(Shape::from_square(10)).into_many(),
+    vec![Effect::Texture(1)]
+);
+
 let bounds = mask.get_shape();
 ```
 
@@ -78,7 +96,15 @@ let bounds = mask.get_shape();
 Returns `true` if any of the mask’s `Rect`s contains the given coordinate.
 
 ```rust
-assert!(mask.contains(Coordinates::new(4, 5)));
+use rpgx::prelude::*;
+
+let mask = Mask::new(
+    "ground".into(),
+    Rect::from_shape(Shape::from_square(10)).into_many(),
+    vec![Effect::Texture(1)]
+);
+
+assert!(mask.contains(&Coordinates::new(4, 5)));
 ```
 
 ---
@@ -94,8 +120,15 @@ Returns `true` if the mask contains the given coordinate and one of its `Effect`
 Returns a list of all `Action` effect IDs applied within the mask.
 
 ```rust
+use rpgx::prelude::*;
+
+let mask = Mask::new(
+    "ground".into(),
+    Rect::from_shape(Shape::from_square(10)).into_many(),
+    vec![Effect::Texture(1)]
+);
+
 let actions = mask.get_actions();
-// e.g., vec![10, 42]
 ```
 
 ---
@@ -104,11 +137,35 @@ let actions = mask.get_actions();
 
 Returns the texture ID applied to the mask, if any.
 
+```rust
+use rpgx::prelude::*;
+
+let mask = Mask::new(
+    "ground".into(),
+    Rect::from_shape(Shape::from_square(10)).into_many(),
+    vec![Effect::Texture(1)]
+);
+
+let texture = mask.get_texture();
+```
+
 ---
 
 ### `fn get_render(&self) -> Option<u32>`
 
 Returns the render callback ID associated with the mask, if any.
+
+```rust
+use rpgx::prelude::*;
+
+let mask = Mask::new(
+    "ground".into(),
+    Rect::from_shape(Shape::from_square(10)).into_many(),
+    vec![Effect::Texture(1)]
+);
+
+let texture = mask.get_render();
+```
 
 ---
 
@@ -128,8 +185,7 @@ let mask = Mask::new(
     ]
 );
 
-// Checks
-assert!(mask.contains(Coordinates::new(1, 1)));
+assert!(mask.contains(&Coordinates::new(1, 1)));
 assert!(mask.is_blocking_at(&Coordinates::new(3, 3)));
 assert!(!mask.is_blocking_at(&Coordinates::new(0, 0)));
 ```

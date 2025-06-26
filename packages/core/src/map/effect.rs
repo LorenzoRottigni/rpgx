@@ -1,5 +1,6 @@
 use crate::prelude::{Delta, Rect};
 
+#[doc = include_str!("../../docs/effect.md")]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Effect {
     /// Represents a tile with no special effects.

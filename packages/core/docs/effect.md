@@ -19,7 +19,9 @@ Represents the absence of any effect. This is the default state of a tile and ha
 Associates an action ID with a tile. Action effects are typically consumed by logic engines or event systems to trigger behaviors such as opening a door, playing a cutscene, or enabling interactions.
 
 ```rust
-Effect::Action(42)
+use rpgx::prelude::*;
+
+let action_effect = Effect::Action(42);
 ```
 
 > This assigns action `42` to the tile.
@@ -31,7 +33,9 @@ Effect::Action(42)
 Associates a texture ID with a tile. This is used by the renderer to display visual elements like terrain, objects, or decorations.
 
 ```rust
-Effect::Texture(3)
+use rpgx::prelude::*;
+
+let texture_effect = Effect::Texture(3);
 ```
 
 > The renderer will display texture `3` for this tile.
@@ -43,7 +47,9 @@ Effect::Texture(3)
 Applies a render callback or shader ID to a tile. This effect allows runtime visual customization, such as animations, lighting, or shader overlays.
 
 ```rust
-Effect::Render(1)
+use rpgx::prelude::*;
+
+let render_effect = Effect::Render(1);
 ```
 
 > This tells the rendering system to use render callback `1` on the tile.
@@ -55,7 +61,9 @@ Effect::Render(1)
 Defines a blocking region that prevents movement through the specified [`Rect`](rect.md). This is commonly used to define solid obstacles, walls, or restricted areas.
 
 ```rust
-Effect::Block(Rect::from_xywh(1, 1, 3, 2))
+use rpgx::prelude::*;
+
+let block_effect = Effect::Block(Rect::from_xywh(1, 1, 3, 2));
 ```
 
 > This blocks the area starting at `(1,1)` with width `3` and height `2`.

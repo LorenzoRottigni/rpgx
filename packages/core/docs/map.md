@@ -36,8 +36,41 @@ Creates a new map with a name, a list of layers, and a spawn position.
 use rpgx::prelude::*;
 
 let map = Map::new(
-    "dungeon".into(),
-    vec![],
+    "example_map".into(),
+    vec![
+        Layer::new(
+            "combined_grounds".into(),
+            vec![
+                Mask::new(
+                    "ground".into(),
+                    Rect::from_shape(Shape::from_square(10)).into_many(),
+                    vec![Effect::Texture(1)]
+                ),
+                Mask::new(
+                    "inner_ground".into(),
+                    Rect::new(Coordinates::new(1,1), Shape::from_square(8)).into_many(),
+                    vec![Effect::Texture(2)]
+                )
+            ],
+            1
+        ),
+        Layer::new(
+            "buildings".into(),
+            vec![
+                Mask::new(
+                    "building".into(),
+                    vec![
+                        Rect::new(Coordinates::new(3, 3), Shape::new(4, 6)),
+                    ],
+                    vec![
+                        Effect::Block(Rect::new(Coordinates::new(1, 1), Shape::new(3, 5))),
+                        Effect::Texture(2),
+                    ]
+                )
+            ],
+            2
+        )
+    ],
     Coordinates::new(0, 0),
 );
 ```
@@ -49,6 +82,47 @@ let map = Map::new(
 Returns the bounding [`Shape`](shape.md) that encloses all layers.
 
 ```rust
+use rpgx::prelude::*;
+
+let map = Map::new(
+    "example_map".into(),
+    vec![
+        Layer::new(
+            "combined_grounds".into(),
+            vec![
+                Mask::new(
+                    "ground".into(),
+                    Rect::from_shape(Shape::from_square(10)).into_many(),
+                    vec![Effect::Texture(1)]
+                ),
+                Mask::new(
+                    "inner_ground".into(),
+                    Rect::new(Coordinates::new(1,1), Shape::from_square(8)).into_many(),
+                    vec![Effect::Texture(2)]
+                )
+            ],
+            1
+        ),
+        Layer::new(
+            "buildings".into(),
+            vec![
+                Mask::new(
+                    "building".into(),
+                    vec![
+                        Rect::new(Coordinates::new(3, 3), Shape::new(4, 6)),
+                    ],
+                    vec![
+                        Effect::Block(Rect::new(Coordinates::new(1, 1), Shape::new(3, 5))),
+                        Effect::Texture(2),
+                    ]
+                )
+            ],
+            2
+        )
+    ],
+    Coordinates::new(0, 0),
+);
+
 let bounds = map.get_shape();
 ```
 
@@ -65,6 +139,47 @@ Returns `true` if any layer in the map contains the specified coordinate.
 Returns `true` if any layer contains a blocking effect at the specified position.
 
 ```rust
+use rpgx::prelude::*;
+
+let map = Map::new(
+    "example_map".into(),
+    vec![
+        Layer::new(
+            "combined_grounds".into(),
+            vec![
+                Mask::new(
+                    "ground".into(),
+                    Rect::from_shape(Shape::from_square(10)).into_many(),
+                    vec![Effect::Texture(1)]
+                ),
+                Mask::new(
+                    "inner_ground".into(),
+                    Rect::new(Coordinates::new(1,1), Shape::from_square(8)).into_many(),
+                    vec![Effect::Texture(2)]
+                )
+            ],
+            1
+        ),
+        Layer::new(
+            "buildings".into(),
+            vec![
+                Mask::new(
+                    "building".into(),
+                    vec![
+                        Rect::new(Coordinates::new(3, 3), Shape::new(4, 6)),
+                    ],
+                    vec![
+                        Effect::Block(Rect::new(Coordinates::new(1, 1), Shape::new(3, 5))),
+                        Effect::Texture(2),
+                    ]
+                )
+            ],
+            2
+        )
+    ],
+    Coordinates::new(0, 0),
+);
+
 if map.is_blocking_at(&Coordinates::new(3, 4)) {
     // prevent movement
 }
@@ -77,6 +192,47 @@ if map.is_blocking_at(&Coordinates::new(3, 4)) {
 Returns a list of action IDs applied at the specified tile across all layers.
 
 ```rust
+use rpgx::prelude::*;
+
+let map = Map::new(
+    "example_map".into(),
+    vec![
+        Layer::new(
+            "combined_grounds".into(),
+            vec![
+                Mask::new(
+                    "ground".into(),
+                    Rect::from_shape(Shape::from_square(10)).into_many(),
+                    vec![Effect::Texture(1)]
+                ),
+                Mask::new(
+                    "inner_ground".into(),
+                    Rect::new(Coordinates::new(1,1), Shape::from_square(8)).into_many(),
+                    vec![Effect::Texture(2)]
+                )
+            ],
+            1
+        ),
+        Layer::new(
+            "buildings".into(),
+            vec![
+                Mask::new(
+                    "building".into(),
+                    vec![
+                        Rect::new(Coordinates::new(3, 3), Shape::new(4, 6)),
+                    ],
+                    vec![
+                        Effect::Block(Rect::new(Coordinates::new(1, 1), Shape::new(3, 5))),
+                        Effect::Texture(2),
+                    ]
+                )
+            ],
+            2
+        )
+    ],
+    Coordinates::new(0, 0),
+);
+
 let actions = map.get_actions_at(&Coordinates::new(1, 1));
 ```
 
@@ -87,10 +243,90 @@ let actions = map.get_actions_at(&Coordinates::new(1, 1));
 Builds a new `Map` by merging multiple maps (with positional offsets), adding new layers, and setting a spawn point.
 
 ```rust
+use rpgx::prelude::*;
+
+let map1 = Map::new(
+    "example_map_1".into(),
+    vec![
+        Layer::new(
+            "combined_grounds".into(),
+            vec![
+                Mask::new(
+                    "ground".into(),
+                    Rect::from_shape(Shape::from_square(10)).into_many(),
+                    vec![Effect::Texture(1)]
+                ),
+                Mask::new(
+                    "inner_ground".into(),
+                    Rect::new(Coordinates::new(1,1), Shape::from_square(8)).into_many(),
+                    vec![Effect::Texture(2)]
+                )
+            ],
+            1
+        ),
+        Layer::new(
+            "buildings".into(),
+            vec![
+                Mask::new(
+                    "building".into(),
+                    vec![
+                        Rect::new(Coordinates::new(3, 3), Shape::new(4, 6)),
+                    ],
+                    vec![
+                        Effect::Block(Rect::new(Coordinates::new(1, 1), Shape::new(3, 5))),
+                        Effect::Texture(2),
+                    ]
+                )
+            ],
+            2
+        )
+    ],
+    Coordinates::new(0, 0),
+);
+
+let map2 = Map::new(
+    "example_map_2".into(),
+    vec![
+        Layer::new(
+            "combined_grounds".into(),
+            vec![
+                Mask::new(
+                    "ground".into(),
+                    Rect::from_shape(Shape::from_square(10)).into_many(),
+                    vec![Effect::Texture(1)]
+                ),
+                Mask::new(
+                    "inner_ground".into(),
+                    Rect::new(Coordinates::new(1,1), Shape::from_square(8)).into_many(),
+                    vec![Effect::Texture(2)]
+                )
+            ],
+            1
+        ),
+        Layer::new(
+            "buildings".into(),
+            vec![
+                Mask::new(
+                    "building".into(),
+                    vec![
+                        Rect::new(Coordinates::new(3, 3), Shape::new(4, 6)),
+                    ],
+                    vec![
+                        Effect::Block(Rect::new(Coordinates::new(1, 1), Shape::new(3, 5))),
+                        Effect::Texture(2),
+                    ]
+                )
+            ],
+            2
+        )
+    ],
+    Coordinates::new(0, 0),
+);
+
 let merged = Map::compose(
     "composed_map".into(),
     vec![(map1, Coordinates::new(0, 0)), (map2, Coordinates::new(10, 0))],
-    vec![some_extra_layer],
+    vec![],
     Coordinates::new(0, 0),
 );
 ```
@@ -110,6 +346,47 @@ Adds a new layer to the map, offsetting existing layers if needed to make space.
 Returns a map from each layer’s name to its [`Layer`](layer.md) object. Useful for quickly accessing specific layers.
 
 ```rust
+use rpgx::prelude::*;
+
+let map = Map::new(
+    "example_map".into(),
+    vec![
+        Layer::new(
+            "combined_grounds".into(),
+            vec![
+                Mask::new(
+                    "ground".into(),
+                    Rect::from_shape(Shape::from_square(10)).into_many(),
+                    vec![Effect::Texture(1)]
+                ),
+                Mask::new(
+                    "inner_ground".into(),
+                    Rect::new(Coordinates::new(1,1), Shape::from_square(8)).into_many(),
+                    vec![Effect::Texture(2)]
+                )
+            ],
+            1
+        ),
+        Layer::new(
+            "buildings".into(),
+            vec![
+                Mask::new(
+                    "building".into(),
+                    vec![
+                        Rect::new(Coordinates::new(3, 3), Shape::new(4, 6)),
+                    ],
+                    vec![
+                        Effect::Block(Rect::new(Coordinates::new(1, 1), Shape::new(3, 5))),
+                        Effect::Texture(2),
+                    ]
+                )
+            ],
+            2
+        )
+    ],
+    Coordinates::new(0, 0),
+);
+
 let visual_layer = map.layers_by_name().get("visuals");
 ```
 
@@ -128,6 +405,47 @@ If a `spawn` is provided, updates the current map's spawn point.
 Clones and attaches this map in the specified `Direction` (e.g., `Right`, `Down`) to itself. Useful for building tile-based infinite maps or test grids.
 
 ```rust
+use rpgx::prelude::*;
+
+let mut map = Map::new(
+    "example_map".into(),
+    vec![
+        Layer::new(
+            "combined_grounds".into(),
+            vec![
+                Mask::new(
+                    "ground".into(),
+                    Rect::from_shape(Shape::from_square(10)).into_many(),
+                    vec![Effect::Texture(1)]
+                ),
+                Mask::new(
+                    "inner_ground".into(),
+                    Rect::new(Coordinates::new(1,1), Shape::from_square(8)).into_many(),
+                    vec![Effect::Texture(2)]
+                )
+            ],
+            1
+        ),
+        Layer::new(
+            "buildings".into(),
+            vec![
+                Mask::new(
+                    "building".into(),
+                    vec![
+                        Rect::new(Coordinates::new(3, 3), Shape::new(4, 6)),
+                    ],
+                    vec![
+                        Effect::Block(Rect::new(Coordinates::new(1, 1), Shape::new(3, 5))),
+                        Effect::Texture(2),
+                    ]
+                )
+            ],
+            2
+        )
+    ],
+    Coordinates::new(0, 0),
+);
+
 map.duplicate_to_the(Direction::Right, None);
 ```
 
