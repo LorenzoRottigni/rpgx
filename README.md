@@ -29,21 +29,21 @@ Or add it manually in your Cargo.toml:
 rpgx = { git = "https://github.com/LorenzoRottigni/rpgx", package = "rpgx" }
 ```
 
-Docs: https://github.com/LorenzoRottigni/rpgx/tree/master/packages/core
+Docs: https://crates.io/crates/rpgx
 
 ### 🌐 Node.js / WebAssembly
 
 Install the WebAssembly driver for use in JS/TS:
 
 ```sh
-npm install rpgx-wasm
+npm install @rpgx/js
 # or
-yarn add rpgx-wasm
+yarn add @rpgx/js
 # or
-pnpm install rpgx-wasm
+pnpm install @rpgx/js
 ```
 
-Docs: https://github.com/LorenzoRottigni/rpgx/tree/master/packages/drivers/wasm
+Docs: https://www.npmjs.com/package/@rpgx/js
 
 ### 🧱 C++ (WASM interop)
 
