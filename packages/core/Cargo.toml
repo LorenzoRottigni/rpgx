@@ -1,6 +1,6 @@
 [package]
 name = "rpgx"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 authors = ["Lorenzo Rottigni <lorenzo@rottigni.tech>"]
 description = "Lightweight, modular, and extensible RPG game engine 2D, designed for flexibility, portability, and ease of use."

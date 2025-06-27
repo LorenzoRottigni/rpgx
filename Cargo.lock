@@ -3528,7 +3528,7 @@ dependencies = [
 
 [[package]]
 name = "rpgx"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "futures",
  "indexmap 2.9.0",
@@ -3536,7 +3536,7 @@ dependencies = [
 
 [[package]]
 name = "rpgx-dioxus"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "dioxus",
  "dioxus-desktop",
@@ -3567,7 +3567,7 @@ dependencies = [
 
 [[package]]
 name = "rpgx-wasm"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "js-sys",
  "rpgx",

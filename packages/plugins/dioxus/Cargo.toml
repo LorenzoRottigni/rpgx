@@ -1,6 +1,6 @@
 [package]
 name = "rpgx-dioxus"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 authors = ["Lorenzo Rottigni <lorenzo@rottigni.tech>"]
 description = "Dioxus plugin for the RPGX engine"
@@ -20,7 +20,7 @@ crate-type = ["rlib"]
 dioxus = { version = "0.6.3", features = ["router", "fullstack"] }
 dioxus-logger = "0.6.2"
 futures-util = "0.3.31"
-rpgx = { version = "0.1.4", path = "../../core" }
+rpgx = { version = "0.1.5", path = "../../core" }
 log = "0.4.27"
 
 # --- Web-only dependencies ---
