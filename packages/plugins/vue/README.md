@@ -30,7 +30,7 @@ Import and register the RPGX Vue plugin in your Vue application:
 ```js
 import { createApp } from 'vue';
 import App from './App.vue';
-import RPGXPlugin from 'path-to-rpgx-vue-plugin';
+import RPGXPlugin from '@rpgx/vue';
 
 const app = createApp(App);
 app.use(RPGXPlugin);
