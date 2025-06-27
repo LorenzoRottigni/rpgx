@@ -22,3 +22,6 @@ pub use map3::Map3;
 
 mod map4;
 pub use map4::Map4;
+
+mod map5;
+pub use map5::Map5;

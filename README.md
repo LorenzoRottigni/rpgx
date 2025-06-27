@@ -29,7 +29,7 @@ Or add it manually in your Cargo.toml:
 rpgx = { git = "https://github.com/LorenzoRottigni/rpgx", package = "rpgx" }
 ```
 
-Docs: https://github.com/LorenzoRottigni/rpgx/tree/master/packages/rpgx
+Docs: https://github.com/LorenzoRottigni/rpgx/tree/master/packages/core
 
 ### 🌐 Node.js / WebAssembly
 
@@ -51,13 +51,22 @@ Docs: https://github.com/LorenzoRottigni/rpgx/tree/master/packages/drivers/wasm
 
 ## Glossary
 
-- [Effect](./packages/core/docs/effect.md)
-- [Tile](./packages/core/docs/tile.md)
-- [Mask](./packages/core/docs/mask.md)
-- [Layer](./packages/core/docs/layer.md)
-- [Map](./packages/core/docs/map.md)
-- [Scene](./packages/core/docs/scene.md)
-- [Engine](./packages/core/docs/engine.md)
+### RPGX
+
+- [Effect](https://docs.rs/rpgx/0.1.3/rpgx/map/effect/enum.Effect.html)
+- [Mask](https://docs.rs/rpgx/0.1.3/rpgx/map/mask/struct.Mask.html)
+- [Layer](https://docs.rs/rpgx/0.1.3/rpgx/map/layer/struct.Layer.html)
+- [Map](https://docs.rs/rpgx/0.1.3/rpgx/map/struct.Map.html)
+- [Scene](https://docs.rs/rpgx/0.1.3/rpgx/engine/scene/struct.Scene.html)
+- [Engine](https://docs.rs/rpgx/0.1.3/rpgx/engine/struct.Engine.html)
+
+### Euclidean
+
+- [Rect](https://docs.rs/rpgx/0.1.3/rpgx/eucl/rect/struct.Rect.html)
+- [Coordinates](https://docs.rs/rpgx/0.1.3/rpgx/eucl/coordinates/struct.Coordinates.html)
+- [Delta](https://docs.rs/rpgx/0.1.3/rpgx/eucl/delta/struct.Delta.html)
+- [Direction](https://docs.rs/rpgx/0.1.3/rpgx/eucl/direction/enum.Direction.html)
+- [Shape](https://docs.rs/rpgx/0.1.3/rpgx/eucl/shape/struct.Shape.html)
 
 
 ## Contributing

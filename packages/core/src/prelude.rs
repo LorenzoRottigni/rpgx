@@ -7,6 +7,7 @@ pub use crate::eucl::delta::Delta;
 pub use crate::eucl::direction::Direction;
 pub use crate::eucl::rect::{Rect, RectError};
 pub use crate::eucl::shape::Shape;
+pub use crate::library::Library;
 pub use crate::map::Map;
 pub use crate::map::effect::Effect;
 pub use crate::map::layer::Layer;

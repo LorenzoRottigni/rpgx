@@ -31,7 +31,9 @@ enum Route {
     #[route("/map3")]
     Map3 {},
     #[route("/map4")]
-    Map4 {}
+    Map4 {},
+    #[route("/map5")]
+    Map5 {}
 }
 
 // We can import assets in dioxus with the `asset!` macro. This macro takes a path to an asset relative to the crate root.
