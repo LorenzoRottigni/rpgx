@@ -1,4 +1,4 @@
-# RPGX Dioxus Driver
+# RPGX Dioxus Plugin
 
 This package provides the Dioxus integration for the RPGX game engine, enabling reactive user interfaces for grid-based RPGs using the [Dioxus](https://dioxuslabs.com/) Rust framework.
 
@@ -7,6 +7,24 @@ This package provides the Dioxus integration for the RPGX game engine, enabling 
 - Seamless integration with RPGX core engine
 - Reactive UI components for RPGs
 - Support for both desktop and web platforms via Dioxus
+
+## Example
+
+```rust
+use rpgx::prelude::*;
+use rpgx_dioxus::components::engine::Engine as EngineComponent;
+let library = Library::new(/* Configure library */)
+let engine = Engine::new(/* Configure engine */)
+rsx! {
+    div { class: "rpgx",
+        EngineComponent {
+            engine: engine.clone(),
+            library: library.clone(),
+            square_size: 30,
+        }
+    }
+}
+```
 
 ## Prerequisites
 
